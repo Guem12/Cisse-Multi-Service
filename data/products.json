@@ -1,0 +1,173 @@
+[
+  {
+    "_id": "prod-1",
+    "name": "Sac à dos urbain antivol",
+    "slug": "sac-a-dos-urbain-antivol",
+    "description": "Sac à dos moderne et résistant à l'eau, compartiment PC renforcé, port USB externe et fermetures discrètes antivol.",
+    "price": 15000,
+    "stock": 12,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&auto=format&fit=crop&q=80"
+      }
+    ],
+    "category": {
+      "_id": "cat-1",
+      "name": "Sacs à dos",
+      "slug": "sacs-a-dos"
+    },
+    "active": true
+  },
+  {
+    "_id": "prod-2",
+    "name": "Écouteurs sans fil Pro TWS",
+    "slug": "ecouteurs-sans-fil-pro-tws",
+    "description": "Son stéréo haute définition, réduction active du bruit, autonomie de 24h avec boîtier de charge rapide.",
+    "price": 10000,
+    "stock": 25,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800&auto=format&fit=crop&q=80"
+      }
+    ],
+    "category": {
+      "_id": "cat-2",
+      "name": "Écouteurs sans fil",
+      "slug": "ecouteurs-sans-fil"
+    },
+    "active": true
+  },
+  {
+    "_id": "prod-3",
+    "name": "Sacoche bandoulière cuir PU",
+    "slug": "sacoche-bandouliere-cuir-pu",
+    "description": "Sacoche élégante et compacte pour transporter portefeuille, clés, téléphone et documents en toute sérénité.",
+    "price": 8500,
+    "stock": 15,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80"
+      }
+    ],
+    "category": {
+      "_id": "cat-3",
+      "name": "Bandoulières",
+      "slug": "bandoulieres"
+    },
+    "active": true
+  },
+  {
+    "_id": "prod-4",
+    "name": "Montre chronographe élégance",
+    "slug": "montre-chronographe-elegance",
+    "description": "Cadran noir et boîtier métallique soigné avec bracelet cuir marron, étanche 3ATM.",
+    "price": 18000,
+    "stock": 7,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=800&auto=format&fit=crop&q=80"
+      }
+    ],
+    "category": {
+      "_id": "cat-4",
+      "name": "Montres",
+      "slug": "montres"
+    },
+    "active": true
+  },
+  {
+    "_id": "prod-5",
+    "name": "Cagoule respirante multi-usages",
+    "slug": "cagoule-respirante-multi-usages",
+    "description": "Tissu respirant et extensible, idéale pour protection poussière, moto ou style streetwear.",
+    "price": 3000,
+    "stock": 30,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&auto=format&fit=crop&q=80"
+      }
+    ],
+    "category": {
+      "_id": "cat-5",
+      "name": "Cagoules",
+      "slug": "cagoules"
+    },
+    "active": true
+  },
+  {
+    "_id": "prod-6",
+    "name": "Bracelet chaîne gourmette dorée",
+    "slug": "bracelet-chaine-gourmette-doree",
+    "description": "Finitions soignées en acier inoxydable plaqué or, éclat durable résistant à l'eau.",
+    "price": 4500,
+    "stock": 20,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&auto=format&fit=crop&q=80"
+      }
+    ],
+    "category": {
+      "_id": {
+        "_id": {
+          "_id": {
+            "_id": {
+              "_id": {
+                "name": "Bracelets & bijouterie",
+                "slug": "bracelets-bijouterie"
+              },
+              "name": "Article",
+              "slug": "article"
+            },
+            "name": "Article",
+            "slug": "article"
+          },
+          "name": "Article",
+          "slug": "article"
+        },
+        "name": "Article",
+        "slug": "article"
+      },
+      "name": "Article",
+      "slug": "article"
+    },
+    "active": true
+  },
+  {
+    "_id": "prod-7",
+    "name": "Sac à main tendance femme",
+    "slug": "sac-a-main-tendance-femme",
+    "description": "Sac élégant en simili-cuir avec fermeture dorée, parfait pour les sorties du quotidien.",
+    "price": 12000,
+    "stock": 10,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&auto=format&fit=crop&q=80"
+      }
+    ],
+    "category": {
+      "_id": "cat-1",
+      "name": "Sacs à dos",
+      "slug": "sacs-a-dos"
+    },
+    "active": true
+  },
+  {
+    "_id": "prod-8",
+    "name": "Montre connectée sport",
+    "slug": "montre-connectee-sport",
+    "description": "Suivi activité, fréquence cardiaque, notifications smartphone. Bracelet silicone respirant.",
+    "price": 22000,
+    "stock": 5,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=800&auto=format&fit=crop&q=80"
+      }
+    ],
+    "category": {
+      "_id": "cat-4",
+      "name": "Montres",
+      "slug": "montres"
+    },
+    "active": true
+  }
+]
