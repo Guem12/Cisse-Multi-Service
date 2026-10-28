@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design tokens : variables CSS ── */
+:root {
+  --bg-page:       #F5F6FA;   /* fond clair principal */
+  --bg-surface:    #FFFFFF;   /* cartes, panels */
+  --bg-subtle:     #ECEEF5;   /* zones légèrement colorées */
+  --border:        #D9DCE8;   /* bordures */
+  --text-main:     #0E1530;   /* texte principal */
+  --text-muted:    #5A6384;   /* texte secondaire */
+  --text-faint:    #9AA0B8;   /* placeholder, hints */
+}
+
+html.dark {
+  --bg-page:       #060C1E;   /* noir nuit très profond */
+  --bg-surface:    #0D1428;   /* cartes sombres */
+  --bg-subtle:     #111827;   /* sections grises sombres */
+  --border:        rgba(255,255,255,0.08);
+  --text-main:     #F0F2FA;   /* blanc doux */
+  --text-muted:    #8B96BC;   /* texte secondaire nuit */
+  --text-faint:    #4A526E;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-main);
+    @apply font-sans antialiased transition-colors duration-300;
+  }
+
+  /* Tous les éléments de fond héritent automatiquement */
+  main   { background-color: var(--bg-page); }
+
+  :focus-visible { @apply outline-2 outline-offset-2 outline-ocre; }
+
+  /* Scrollbar discrète en mode sombre */
+  html.dark ::-webkit-scrollbar        { width: 6px; height: 6px; }
+  html.dark ::-webkit-scrollbar-track  { background: #060C1E; }
+  html.dark ::-webkit-scrollbar-thumb  { background: #1B2A5C; border-radius: 4px; }
+}
+
+@layer components {
+  .wrap { @apply mx-auto w-full max-w-5xl px-4; }
+
+  /* Champ de formulaire */
+  .field {
+    @apply w-full rounded-lg border px-3 py-2;
+    background-color: var(--bg-surface);
+    border-color: var(--border);
+    color: var(--text-main);
+  }
+
+  /* Boutons */
+  .btn-primary {
+    @apply rounded-lg bg-indigo px-4 py-2 text-sm font-medium text-white disabled:opacity-50;
+    @apply dark:bg-ocre dark:text-indigo-deep dark:font-bold;
+  }
+  .btn-danger {
+    @apply rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-700 disabled:opacity-50;
+    @apply dark:border-red-500/40 dark:text-red-400;
+  }
+
+  /* Surface générique : cartes, panneaux */
+  .surface {
+    background-color: var(--bg-surface);
+    border-color: var(--border);
+    color: var(--text-main);
+  }
+
+  /* Motif de tissu teint : losanges CSS, aucune image */
+  .motif-tissu {
+    --c: rgba(245, 246, 250, 0.08);
+    background-color: #1B2A5C;
+    background-image:
+      repeating-linear-gradient(45deg, transparent 0 28px, var(--c) 28px 30px),
+      repeating-linear-gradient(-45deg, transparent 0 28px, var(--c) 28px 30px);
+  }
+
+  html.dark .motif-tissu {
+    --c: rgba(255, 255, 255, 0.045);
+    background-color: #060C1E;
+  }
+
+  html.dark .overlay-dark {
+    background-color: #060C1E;
+    transition: background-color 300ms;
+  }
+
+  /* Textes sémantiques réutilisables */
+  .text-page-main  { color: var(--text-main); }
+  .text-page-muted { color: var(--text-muted); }
+  .text-page-faint { color: var(--text-faint); }
+
+  /* Section : bg page classique */
+  .bg-page    { background-color: var(--bg-page); }
+  .bg-surface { background-color: var(--bg-surface); }
+  .bg-subtle  { background-color: var(--bg-subtle); }
+
+  /* Séparateurs */
+  .divider { border-color: var(--border); }
+}
+

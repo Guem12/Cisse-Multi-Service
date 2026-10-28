@@ -1,0 +1,67 @@
+[
+  {
+    "_id": "cli-1793149082288",
+    "name": "Ace boy",
+    "phone": "67871663",
+    "email": "",
+    "city": "Bamako",
+    "address": "ACI 2000",
+    "ordersCount": 1,
+    "totalSpent": 2000,
+    "status": "Actif",
+    "notes": "Montre connecté",
+    "createdAt": "2026-10-28T00:58:02.289Z"
+  },
+  {
+    "_id": "cli-1",
+    "name": "Abdoulaye Traoré",
+    "phone": "22376123456",
+    "email": "abdoulaye.traore@gmail.com",
+    "city": "Bamako",
+    "address": "Hamdallaye ACI 2000",
+    "ordersCount": 4,
+    "totalSpent": 62000,
+    "status": "VIP",
+    "notes": "Client régulier pour les sacs à dos antivol et montres.",
+    "createdAt": "2026-09-12T10:00:00.000Z"
+  },
+  {
+    "_id": "cli-2",
+    "name": "Fatoumata Coulibaly",
+    "phone": "22365987412",
+    "email": "fatou.coul@yahoo.fr",
+    "city": "Bamako",
+    "address": "Badalabougou SEMA",
+    "ordersCount": 3,
+    "totalSpent": 38500,
+    "status": "Régulier",
+    "notes": "Préfère la livraison en après-midi. Commande par WhatsApp.",
+    "createdAt": "2026-09-20T14:30:00.000Z"
+  },
+  {
+    "_id": "cli-3",
+    "name": "Ibrahim Cissé",
+    "phone": "22379554433",
+    "email": "ibrahim.cisse@outlook.com",
+    "city": "Bamako",
+    "address": "Yirimadio 585 Logements",
+    "ordersCount": 2,
+    "totalSpent": 28000,
+    "status": "Actif",
+    "notes": "Acheté écouteurs Pro TWS et bracelet gourmette.",
+    "createdAt": "2026-10-02T11:15:00.000Z"
+  },
+  {
+    "_id": "cli-4",
+    "name": "Oumou Diarra",
+    "phone": "22366882211",
+    "email": "oumou.diarra@gmail.com",
+    "city": "Bamako",
+    "address": "Kalaban Coura ACI",
+    "ordersCount": 5,
+    "totalSpent": 75000,
+    "status": "VIP",
+    "notes": "Excellente cliente, commande souvent pour des cadeaux.",
+    "createdAt": "2026-08-15T09:40:00.000Z"
+  }
+]

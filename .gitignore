@@ -1,0 +1,21 @@
+node_modules
+.next
+.env*.local
+.env
+.freebuff
+
+# cookies de test / sessions administrateur (créés par les tests de connexion)
+.login-cookies.txt
+.admin-cookies-final.txt
+.admin-cookies-v2.txt
+.cookie-testA.txt
+.cookie-testB.txt
+.test-cookies.txt
+.tmp-cookies.txt
+.tmp-login-cookies.txt
+.tmp-session-cookies.txt
+.tmp-session-body.txt
+
+# logs de dev Next.js
+.next-dev.log
+.env.example

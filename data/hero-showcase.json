@@ -1,0 +1,26 @@
+[
+  {
+    "slot": 0,
+    "productId": "prod-6",
+    "label": "Tendance",
+    "labelColor": "bg-indigo-500 text-white"
+  },
+  {
+    "slot": 1,
+    "productId": "prod-2",
+    "label": "Populaire",
+    "labelColor": "bg-emerald-400 text-white"
+  },
+  {
+    "slot": 2,
+    "productId": "prod-3",
+    "label": "En stock",
+    "labelColor": "bg-sky-400 text-white"
+  },
+  {
+    "slot": 3,
+    "productId": "prod-4",
+    "label": "Promo",
+    "labelColor": "bg-rose-400 text-white"
+  }
+]
