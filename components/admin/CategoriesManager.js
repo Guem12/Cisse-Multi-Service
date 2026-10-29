@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -34,11 +35,22 @@ function CategoryRow({ category, onDone, onError }) {
   }
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white rounded-xl border border-brume gap-3 hover:border-indigo/30 transition-all">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition-all hover:border-indigo/40 dark:border-white/10" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)" }}>
       {dialog}
       <div className="flex items-center gap-3 min-w-0">
-        <div className="w-10 h-10 rounded-xl bg-indigo/5 text-indigo flex items-center justify-center font-bold text-base flex-shrink-0">
-          📁
+        <div className="w-12 h-12 rounded-xl flex-shrink-0 overflow-hidden border"
+          style={{ borderColor: "var(--border)", backgroundColor: "var(--bg-subtle)" }}>
+          {category.images?.[0]?.url ? (
+            <img
+              src={category.images[0].url}
+              alt={category.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center font-bold text-base" style={{ color: "var(--text-faint)" }}>
+              📁
+            </div>
+          )}
         </div>
         {editing ? (
           <input
@@ -50,8 +62,8 @@ function CategoryRow({ category, onDone, onError }) {
           />
         ) : (
           <div className="min-w-0">
-            <h3 className="font-bold text-indigo-deep truncate">{category.name}</h3>
-            <p className="text-xs text-indigo/50">slug: {category.slug}</p>
+            <h3 className="font-bold text-indigo-deep truncate" style={{ color: "var(--text-main)" }}>{category.name}</h3>
+            <p className="text-xs" style={{ color: "var(--text-muted)" }}>slug: {category.slug}</p>
           </div>
         )}
       </div>
@@ -62,7 +74,8 @@ function CategoryRow({ category, onDone, onError }) {
             <button
               onClick={() => call("PUT", { name })}
               disabled={loading || !name.trim()}
-              className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+              className="px-3 py-1.5 rounded-lg font-bold text-xs transition-all hover:scale-[1.02]"
+              style={{ backgroundColor: "#10B981", color: "white", boxShadow: "0 2px 8px rgba(16,185,129,0.3)", disabled: loading }}
             >
               Enregistrer
             </button>
@@ -72,7 +85,8 @@ function CategoryRow({ category, onDone, onError }) {
                 setName(category.name);
               }}
               disabled={loading}
-              className="px-3 py-1.5 rounded-lg bg-paper text-indigo font-medium text-xs hover:bg-brume transition-colors"
+              className="px-3 py-1.5 rounded-lg font-medium text-xs transition-all hover:scale-[1.02]"
+              style={{ backgroundColor: "var(--bg-subtle)", color: "var(--text-muted)" }}
             >
               Annuler
             </button>
@@ -82,7 +96,8 @@ function CategoryRow({ category, onDone, onError }) {
             <Link
               href={`/catalogue?categorie=${category.slug}`}
               target="_blank"
-              className="p-2 rounded-lg text-indigo/60 hover:text-indigo hover:bg-paper transition-colors"
+              className="p-2 rounded-lg transition-all hover:scale-105"
+              style={{ backgroundColor: "var(--bg-subtle)", color: "var(--text-muted)" }}
               title="Voir sur le site public"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,7 +106,8 @@ function CategoryRow({ category, onDone, onError }) {
             </Link>
             <button
               onClick={() => setEditing(true)}
-              className="px-3 py-1.5 rounded-lg bg-indigo/5 hover:bg-indigo text-indigo hover:text-white font-medium text-xs transition-all"
+              className="px-3 py-1.5 rounded-lg font-medium text-xs transition-all hover:scale-[1.02]"
+              style={{ backgroundColor: "var(--bg-subtle)", color: "var(--text-muted)" }}
             >
               Renommer
             </button>
@@ -106,7 +122,8 @@ function CategoryRow({ category, onDone, onError }) {
                 if (ok) call("DELETE");
               }}
               disabled={loading}
-              className="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 font-medium text-xs transition-all"
+              className="px-3 py-1.5 rounded-lg font-medium text-xs transition-all hover:scale-[1.02]"
+              style={{ backgroundColor: "var(--bg-subtle)", color: "var(--text-faint)" }}
             >
               Supprimer
             </button>
@@ -151,20 +168,23 @@ export default function CategoriesManager({ categories }) {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-4xl" style={{ backgroundColor: "var(--bg-page)", color: "var(--text-main)" }}>
       {/* Header card */}
-      <div className="bg-white p-6 rounded-2xl border border-brume shadow-sm">
-        <h1 className="font-titre text-2xl sm:text-3xl font-extrabold text-indigo-deep">
+      <div className="bg-white p-6 rounded-2xl border shadow-sm"
+        style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-main)" }}>
+        <h1 className="font-titre text-2xl sm:text-3xl font-extrabold text-indigo-deep"
+          style={{ color: "var(--text-main)" }}>
           Catégories ({categories.length})
         </h1>
-        <p className="text-sm text-indigo/70 mt-1">
+        <p className="text-sm mt-1" style={{ color: "var(--text-muted)" }}>
           Organisez les rayons pour faciliter les achats des clients.
         </p>
 
         {/* Add Form */}
         <form onSubmit={add} className="mt-6 flex flex-col sm:flex-row gap-3">
           <input
-            className="flex-1 rounded-xl border border-brume bg-paper/50 focus:bg-white px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ocre"
+            className="flex-1 rounded-xl border px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ocre transition-all"
+            style={{ backgroundColor: "var(--bg-subtle)", borderColor: "var(--border)", color: "var(--text-main)" }}
             required
             placeholder="Nom de la nouvelle catégorie (ex: Ceintures cuir)..."
             value={name}
@@ -173,7 +193,8 @@ export default function CategoriesManager({ categories }) {
           />
           <button
             disabled={loading || !name.trim()}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-ocre px-6 py-2.5 font-bold text-sm text-indigo-deep shadow-md shadow-ocre/20 hover:bg-ocre/90 disabled:opacity-50 transition-all"
+            className="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-2.5 font-bold text-sm transition-all hover:scale-[1.02]"
+            style={{ backgroundColor: "#E0A030", color: "white", boxShadow: "0 4px 16px rgba(224,160,48,0.3)", disabled: loading }}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
@@ -183,7 +204,8 @@ export default function CategoriesManager({ categories }) {
         </form>
 
         {error && (
-          <div className="mt-4 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-center gap-2">
+          <div className="mt-4 p-3 rounded-xl border text-sm flex items-center gap-2"
+            style={{ backgroundColor: "#FEE2E2", borderColor: "#FCA5A5", color: "#B91C1C" }}>
             <span>⚠️</span>
             <span>{error}</span>
           </div>
@@ -193,8 +215,9 @@ export default function CategoriesManager({ categories }) {
       {/* Categories List */}
       <div className="space-y-3">
         {categories.length === 0 ? (
-          <div className="bg-white p-12 rounded-2xl border border-brume text-center">
-            <p className="text-indigo/60">Aucune catégorie pour le moment.</p>
+          <div className="p-12 text-center rounded-2xl border"
+            style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)", color: "var(--text-muted)" }}>
+            <p style={{ color: "var(--text-muted)" }}>Aucune catégorie pour le moment.</p>
           </div>
         ) : (
           categories.map((c) => (

@@ -41,6 +41,57 @@ html.dark {
   html.dark ::-webkit-scrollbar        { width: 6px; height: 6px; }
   html.dark ::-webkit-scrollbar-track  { background: #060C1E; }
   html.dark ::-webkit-scrollbar-thumb  { background: #1B2A5C; border-radius: 4px; }
+
+  /* ── Variables pour les catégories et admin ── */
+  .category-thumb {
+    background: var(--bg-subtle);
+    border-color: var(--border);
+  }
+
+  .category-empty {
+    background: var(--bg-subtle);
+    border-color: var(--border);
+  }
+
+  .admin-card {
+    background-color: var(--bg-surface);
+    border-color: var(--border);
+    color: var(--text-main);
+  }
+
+  .admin-input {
+    background-color: var(--bg-subtle);
+    border-color: var(--border);
+    color: var(--text-main);
+  }
+
+  .admin-select {
+    background-color: var(--bg-subtle);
+    border-color: var(--border);
+    color: var(--text-main);
+  }
+
+  .admin-text-muted {
+    color: var(--text-muted);
+  }
+
+  .admin-text-faint {
+    color: var(--text-faint);
+  }
+
+  .admin-prompt {
+    background-color: #FEE2E2;
+    border-color: #FCA5A5;
+    color: #B91C1C;
+  }
+
+  .admin-prompt-icon {
+    color: #B91C1C;
+  }
+
+  .bg-page    { background-color: var(--bg-page); }
+  .bg-surface { background-color: var(--bg-surface); }
+  .bg-subtle  { background-color: var(--bg-subtle); }
 }
 
 @layer components {
