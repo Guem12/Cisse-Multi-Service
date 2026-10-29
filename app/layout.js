@@ -15,8 +15,9 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-  const envNumbers = [process.env.NEXT_PUBLIC_WHATSAPP_1, process.env.NEXT_PUBLIC_WHATSAPP_2].filter(Boolean);
-  const numbers = envNumbers.length > 0 ? envNumbers : ["22362823995", "22373082453"];
+  const numbers = [process.env.NEXT_PUBLIC_WHATSAPP_1, process.env.NEXT_PUBLIC_WHATSAPP_2].filter(Boolean).map((n) => n.replace(/\+/g, ''));
+  const defaultNumbers = ["22362823995", "22373082453"];
+  const whatsappNumbers = numbers.length > 0 ? numbers : defaultNumbers;
 
   return (
     <html lang="fr" suppressHydrationWarning className={`${titre.variable} ${main.variable}`}>
@@ -36,7 +37,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="flex min-h-screen flex-col transition-colors duration-300" style={{backgroundColor: 'var(--bg-page)', color: 'var(--text-main)'}}>
-        <LayoutShell numbers={numbers}>
+        <LayoutShell numbers={whatsappNumbers}>
           {children}
         </LayoutShell>
       </body>
