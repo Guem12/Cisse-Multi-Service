@@ -64,15 +64,6 @@ export default function AdminSidebar({
         </svg>
       ),
     },
-    {
-      label: "Nouveau produit",
-      href: "/admin/produits/nouveau",
-      icon: (
-        <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-        </svg>
-      ),
-    },
   ];
 
   const isActive = (item) => (item.exact ? pathname === item.href : pathname.startsWith(item.href));
