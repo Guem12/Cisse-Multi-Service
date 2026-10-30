@@ -19,3 +19,4 @@ node_modules
 # logs de dev Next.js
 .next-dev.log
 .env.example
+.neon
