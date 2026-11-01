@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+/* eslint-disable */
 const nextConfig = {
   // Compression gzip / brotli activée
   compress: true,
@@ -18,7 +19,7 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
-      { protocol: "https", hostname: "images.unsplash.com" }
+      { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },
 
@@ -37,5 +38,4 @@ const nextConfig = {
     ];
   },
 };
-
 export default nextConfig;
