@@ -1,5 +1,9 @@
 node_modules
 .next
+.astro
+dist
+.vercel
+.netlify
 .env*.local
 .env
 .freebuff
@@ -15,8 +19,8 @@ node_modules
 .tmp-login-cookies.txt
 .tmp-session-cookies.txt
 .tmp-session-body.txt
-
 # logs de dev Next.js
 .next-dev.log
 .env.example
 .neon
+/lib/generated/prisma

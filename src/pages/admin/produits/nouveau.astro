@@ -1,0 +1,17 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import ProductForm from "../../../../components/admin/ProductForm.jsx";
+import { getCategories } from "../../../../lib/data.js";
+
+export const prerender = false;
+const categories = await getCategories();
+---
+
+<AdminLayout title="Nouveau produit · Cissé Multi-Service">
+  <div class="mx-auto max-w-3xl space-y-6 py-4 sm:py-8">
+    <h1 class="text-center font-titre text-2xl font-extrabold sm:text-3xl">Ajouter un produit</h1>
+    <div class="rounded-2xl border p-6 shadow-sm sm:p-8" style="background: var(--bg-surface); border-color: var(--border);">
+      <ProductForm client:load categories={categories} />
+    </div>
+  </div>
+</AdminLayout>

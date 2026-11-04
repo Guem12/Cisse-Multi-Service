@@ -1,0 +1,70 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import ProductCard from "../../components/ProductCard.astro";
+import { getCategories, getProductPage } from "../../lib/data.js";
+
+export const prerender = false;
+export const metadata = { title: "Catalogue · Cissé-multi-service" };
+
+const active = Astro.url.searchParams.get("categorie");
+const parsedPage = Number.parseInt(Astro.url.searchParams.get("page") || "1", 10);
+const page = Number.isSafeInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+const pageSize = 24;
+const pageHref = (nextPage) => {
+  const params = new URLSearchParams();
+  if (active) params.set("categorie", active);
+  if (nextPage > 1) params.set("page", String(nextPage));
+  const query = params.toString();
+  return query ? `/catalogue?${query}` : "/catalogue";
+};
+const [categories, products] = await Promise.all([
+  getCategories(),
+  getProductPage({ categorySlug: active || undefined, page, pageSize }),
+]);
+if (products.pageCount > 0 && page > products.pageCount) {
+  return Astro.redirect(pageHref(products.pageCount), 302);
+}
+const pill = (on) =>
+  `whitespace-nowrap rounded-full border-2 px-5 py-2.5 text-sm font-bold transition-all ${
+    on
+      ? "border-indigo bg-indigo text-white dark:border-ocre dark:bg-ocre dark:text-indigo-deep"
+      : "border-indigo/30 text-indigo hover:bg-white/10 dark:border-white/20 dark:text-white/80"
+  }`;
+---
+
+<SiteLayout title="Catalogue · Cissé-multi-service">
+  <div class="wrap pb-16">
+    <h1 class="mt-8 font-titre text-4xl font-extrabold sm:text-5xl dark:text-white">Catalogue</h1>
+    <nav aria-label="Catégories" class="-mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+      <a href="/catalogue" class={pill(!active)}>Tout</a>
+      {categories.map((category) => (
+        <a href={`/catalogue?categorie=${encodeURIComponent(category.slug)}`} class={pill(active === category.slug)}>{category.name}</a>
+      ))}
+    </nav>
+    {products.items.length === 0 ? (
+      <p class="mt-8 text-indigo/70 dark:text-white/60">Aucun produit dans cette catégorie pour le moment.</p>
+    ) : (
+      <>
+        <p class="mt-4 text-sm text-indigo/70 dark:text-white/60">{products.total} article{products.total > 1 ? "s" : ""}</p>
+        <div class="mt-4 grid grid-cols-2 gap-x-3 gap-y-7 lg:grid-cols-4">
+          {products.items.map((product) => <ProductCard product={product} />)}
+        </div>
+        {products.pageCount > 1 && (
+          <nav class="mt-10 flex items-center justify-center gap-4" aria-label="Pagination du catalogue">
+            {page > 1 ? (
+              <a href={pageHref(page - 1)} rel="prev" class="rounded-full border border-indigo/20 px-4 py-2 text-sm font-semibold text-indigo hover:bg-indigo/5 dark:border-white/20 dark:text-white dark:hover:bg-white/10">Précédent</a>
+            ) : (
+              <span class="rounded-full border border-indigo/10 px-4 py-2 text-sm text-indigo/40 dark:border-white/10 dark:text-white/40">Précédent</span>
+            )}
+            <span class="text-sm font-semibold text-indigo/70 dark:text-white/70">Page {page} sur {products.pageCount}</span>
+            {page < products.pageCount ? (
+              <a href={pageHref(page + 1)} rel="next" class="rounded-full border border-indigo/20 px-4 py-2 text-sm font-semibold text-indigo hover:bg-indigo/5 dark:border-white/20 dark:text-white dark:hover:bg-white/10">Suivant</a>
+            ) : (
+              <span class="rounded-full border border-indigo/10 px-4 py-2 text-sm text-indigo/40 dark:border-white/10 dark:text-white/40">Suivant</span>
+            )}
+          </nav>
+        )}
+      </>
+    )}
+  </div>
+</SiteLayout>

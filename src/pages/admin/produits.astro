@@ -1,0 +1,15 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import ProductList from "../../../components/admin/ProductList.jsx";
+import { getCategories, getProducts } from "../../../lib/data.js";
+
+export const prerender = false;
+const [products, categories] = await Promise.all([
+  getProducts({ includeInactive: true }),
+  getCategories(),
+]);
+---
+
+<AdminLayout title="Catalogue Produits · Cissé Multi-Service">
+  <ProductList client:load initialProducts={products} categories={categories} />
+</AdminLayout>

@@ -1,0 +1,12 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import ClientList from "../../../components/admin/ClientList.jsx";
+import { getClients } from "../../../lib/clients.js";
+
+export const prerender = false;
+const clients = await getClients();
+---
+
+<AdminLayout title="Clients · Cissé Multi-Service">
+  <ClientList client:load initialClients={clients} />
+</AdminLayout>

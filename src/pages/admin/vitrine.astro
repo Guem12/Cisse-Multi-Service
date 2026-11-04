@@ -1,0 +1,16 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import HeroShowcaseManager from "../../../components/admin/HeroShowcaseManager.jsx";
+import { getProducts } from "../../../lib/data.js";
+import { getHeroShowcase } from "../../../lib/hero.js";
+
+export const prerender = false;
+const [products, initialSlots] = await Promise.all([
+  getProducts({ includeInactive: true }),
+  getHeroShowcase(),
+]);
+---
+
+<AdminLayout title="Vitrine Accueil · Cissé Multi-Service">
+  <HeroShowcaseManager client:load initialSlots={initialSlots} products={products} />
+</AdminLayout>

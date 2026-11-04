@@ -1,0 +1,82 @@
+---
+import "../styles/global.css";
+import Navbar from "../../components/Navbar.jsx";
+import { formatPhone } from "../../lib/format.js";
+
+const {
+  title = "Cissé-multi-service",
+  description = "Sacs à dos, écouteurs sans fil, montres, bandoulières, cagoules et bijoux. Commande par WhatsApp.",
+  chrome = true,
+  noindex = false,
+} = Astro.props;
+Astro.response.headers.set("Cache-Control", "public, max-age=0, s-maxage=30, stale-while-revalidate=120");
+
+const numbers = [
+  import.meta.env.PUBLIC_WHATSAPP_1,
+  import.meta.env.PUBLIC_WHATSAPP_2,
+].filter(Boolean);
+const whatsappNumbers = numbers.length ? numbers : ["22362823995", "22373082453"];
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    <link rel="icon" href="/logo-icon.svg" />
+    <link rel="apple-touch-icon" href="/apple-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400..800&family=Figtree:wght@400..800&display=swap"
+      rel="stylesheet"
+    />
+    <title>{title}</title>
+    <script is:inline>
+      try {
+        const theme = localStorage.getItem("cisse_theme");
+        const dark = theme === "dark" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", dark);
+      } catch {}
+    </script>
+  </head>
+  <body
+    class="flex min-h-screen flex-col transition-colors duration-300"
+    style="background-color: var(--bg-page); color: var(--text-main); --font-titre: 'Bricolage Grotesque'; --font-main: 'Figtree';"
+  >
+    {chrome && <Navbar client:load />}
+    <main class="flex-1"><slot /></main>
+    {
+      chrome && (
+        <footer class="border-t border-white/10 bg-[#0A1230] text-white dark:bg-[#020710]">
+          <div class="wrap py-6 sm:py-8">
+            <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <img src="/logo-fond-sombre.svg" alt="Cissé-multi-service" width="110" height="40" class="h-8 w-auto sm:h-9" />
+                <p class="mt-2 max-w-sm text-xs leading-relaxed text-white/75 sm:text-sm">
+                  Sacs, montres, écouteurs et accessoires de qualité. Commandez directement sur WhatsApp en toute simplicité.
+                </p>
+              </div>
+              <div class="flex flex-col gap-2">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-ocre">Contact WhatsApp</span>
+                <div class="flex flex-wrap gap-2">
+                  {whatsappNumbers.map((number) => (
+                    <a href={`https://wa.me/${number}`} target="_blank" rel="noopener noreferrer" class="rounded-full border border-white/30 px-3.5 py-1.5 text-xs font-medium transition-colors hover:border-white/50 hover:bg-white/10 sm:text-sm">
+                      WhatsApp {formatPhone(number)}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div class="mt-5 flex flex-col gap-1 border-t border-white/10 pt-3.5 text-xs text-white/50 sm:flex-row sm:items-center sm:justify-between">
+              <p>© {new Date().getFullYear()} Cissé-multi-service · Bamako, Mali</p>
+              <p class="text-[11px] text-white/40">Tous droits réservés</p>
+            </div>
+          </div>
+        </footer>
+      )
+    }
+  </body>
+</html>

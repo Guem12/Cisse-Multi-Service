@@ -1,0 +1,36 @@
+---
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import ProductForm from "../../../../components/admin/ProductForm.jsx";
+import { getCategories, getProductById } from "../../../../lib/data.js";
+
+export const prerender = false;
+
+const [product, categories] = await Promise.all([
+  getProductById(Astro.params.id),
+  getCategories(),
+]);
+if (!product) Astro.response.status = 404;
+---
+
+<AdminLayout title="Modifier le produit · Cissé Multi-Service">
+  {product ? (
+    <div class="mx-auto max-w-3xl space-y-6 py-4 sm:py-8">
+      <div class="flex items-center justify-between">
+        <a href="/admin/produits" class="text-sm font-semibold transition-colors hover:text-ocre" style="color: var(--text-muted);">← Retour aux produits</a>
+        <span class="rounded-full border px-2.5 py-1 text-xs font-semibold" style="border-color: var(--border); color: var(--text-muted); background: var(--bg-surface);">Édition produit</span>
+      </div>
+      <div class="space-y-2 text-center">
+        <h1 class="font-titre text-2xl font-extrabold tracking-tight sm:text-3xl">Modifier le produit</h1>
+        <p class="mx-auto max-w-lg text-sm" style="color: var(--text-muted);">Mettez à jour les informations, prix, photos ou état du stock de cet article.</p>
+      </div>
+      <div class="rounded-2xl border p-6 shadow-sm sm:p-8" style="background: var(--bg-surface); border-color: var(--border);">
+        <ProductForm client:load categories={categories} product={product} />
+      </div>
+    </div>
+  ) : (
+    <div class="py-20 text-center">
+      <h1 class="text-2xl font-bold">Produit introuvable</h1>
+      <a href="/admin/produits" class="mt-4 inline-block text-ocre underline">Retour aux produits</a>
+    </div>
+  )}
+</AdminLayout>
