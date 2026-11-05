@@ -27,3 +27,9 @@ dist
 .vercel
 .env*
 !.env.example
+
+# IDE et outils
+.agents/
+.cloud-attachments/
+.prisma/
+skills-lock.json
