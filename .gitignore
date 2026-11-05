@@ -21,6 +21,9 @@ dist
 .tmp-session-body.txt
 # logs de dev Next.js
 .next-dev.log
-.env.example
 .neon
 /lib/generated/prisma
+
+.vercel
+.env*
+!.env.example
