@@ -28,6 +28,7 @@ dist
 .env*
 !.env.example
 !.env.production.example
+!.env.production.local
 
 # IDE et outils
 .agents/
