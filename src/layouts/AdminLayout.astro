@@ -114,10 +114,13 @@ const icons = {
       </div>
     </div>
     <script is:inline>
+      console.log('[AdminLayout] Initializing admin layout');
+      
       document.getElementById("admin-theme-toggle")?.addEventListener("click", () => {
         const dark = !document.documentElement.classList.contains("dark");
         document.documentElement.classList.toggle("dark", dark);
         localStorage.setItem("cisse_theme", dark ? "dark" : "light");
+        console.log('[AdminLayout] Theme toggled:', dark ? 'dark' : 'light');
       });
 
       // Sidebar toggle functionality
@@ -128,6 +131,9 @@ const icons = {
       const mobileToggle = document.getElementById('sidebar-toggle');
       const sidebarTexts = document.querySelectorAll('.sidebar-text');
       let isCollapsed = localStorage.getItem('cisse_sidebar_collapsed') === 'true';
+
+      console.log('[AdminLayout] Sidebar elements:', { sidebar, content, collapseBtn, expandBtn, mobileToggle, sidebarTextsCount: sidebarTexts.length });
+      console.log('[AdminLayout] Initial collapsed state:', isCollapsed);
 
       function updateSidebar() {
         if (window.innerWidth >= 1024) {
@@ -140,6 +146,7 @@ const icons = {
             collapseBtn.querySelector('span')?.classList.add('hidden');
             expandBtn.classList.remove('hidden');
             expandBtn.classList.add('lg:flex');
+            console.log('[AdminLayout] Sidebar collapsed');
           } else {
             sidebar.classList.remove('lg:w-20');
             sidebar.classList.add('lg:w-64');
@@ -149,6 +156,7 @@ const icons = {
             collapseBtn.querySelector('span')?.classList.remove('hidden');
             expandBtn.classList.add('hidden');
             expandBtn.classList.remove('lg:flex');
+            console.log('[AdminLayout] Sidebar expanded');
           }
         }
       }
@@ -156,17 +164,20 @@ const icons = {
       collapseBtn?.addEventListener('click', () => {
         isCollapsed = true;
         localStorage.setItem('cisse_sidebar_collapsed', 'true');
+        console.log('[AdminLayout] Collapse button clicked');
         updateSidebar();
       });
 
       expandBtn?.addEventListener('click', () => {
         isCollapsed = false;
         localStorage.setItem('cisse_sidebar_collapsed', 'false');
+        console.log('[AdminLayout] Expand button clicked');
         updateSidebar();
       });
 
       mobileToggle?.addEventListener('click', () => {
         sidebar.classList.toggle('hidden');
+        console.log('[AdminLayout] Mobile toggle clicked');
       });
 
       window.addEventListener('resize', updateSidebar);
