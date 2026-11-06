@@ -7,12 +7,25 @@ import SignOutButton from "../../components/admin/SignOutButton.jsx";
 const { title = "Administration · Cissé Multi-Service" } = Astro.props;
 const path = Astro.url.pathname;
 const links = [
-  { href: "/admin", label: "Tableau de bord" },
-  { href: "/admin/produits", label: "Produits" },
-  { href: "/admin/categories", label: "Catégories" },
-  { href: "/admin/clients", label: "Clients" },
-  { href: "/admin/vitrine", label: "Vitrine d’accueil" },
+  { href: "/admin", label: "Tableau de bord", icon: "layout-dashboard" },
+  { href: "/admin/produits", label: "Produits", icon: "package" },
+  { href: "/admin/categories", label: "Catégories", icon: "folder" },
+  { href: "/admin/clients", label: "Clients", icon: "users" },
+  { href: "/admin/vitrine", label: "Vitrine d'accueil", icon: "store" },
 ];
+
+const icons = {
+  "layout-dashboard": `<svg class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg>`,
+  "package": `<svg class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`,
+  "folder": `<svg class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>`,
+  "users": `<svg class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>`,
+  "store": `<svg class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>`,
+  "plus": `<svg class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>`,
+  "chevron-left": `<svg class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>`,
+  "chevron-right": `<svg class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>`,
+  "menu": `<svg class="h-6 w-6 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>`,
+  "log-out": `<svg class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>`,
+};
 ---
 
 <!doctype html>
@@ -39,50 +52,55 @@ const links = [
   </head>
   <body class="min-h-screen font-sans" style="--font-titre: 'Bricolage Grotesque'; --font-main: 'Figtree'; background: var(--bg-subtle); color: var(--text-main);">
     <div class="min-h-screen lg:flex">
-      <aside id="admin-sidebar" class="bg-indigo-deep text-white lg:fixed lg:inset-y-0 lg:w-64 lg:transition-all lg:duration-300">
+      <aside id="admin-sidebar" class="bg-indigo-deep text-white lg:fixed lg:inset-y-0 lg:w-64 lg:transition-all lg:duration-300 flex flex-col">
         <div class="flex items-center justify-between border-b border-white/10 p-4">
-          <a href="/admin" class="font-titre text-lg font-extrabold text-white">Cissé · Admin</a>
+          <a href="/admin" class="flex items-center gap-3 font-titre text-lg font-extrabold text-white">
+            <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-ocre to-indigo flex items-center justify-center">
+              <span class="text-indigo-deep font-bold">C</span>
+            </div>
+            <span class="sidebar-text">Cissé · Admin</span>
+          </a>
           <div class="flex items-center gap-2">
             <button type="button" id="sidebar-toggle" class="lg:hidden rounded-lg p-2 hover:bg-white/10">
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              {icons.menu}
             </button>
-            <a href="/" class="text-xs text-white/70 hover:text-white">Boutique</a>
+            <a href="/" class="text-xs text-white/70 hover:text-white sidebar-text">Boutique</a>
           </div>
         </div>
-        <nav aria-label="Administration" class="flex gap-1 overflow-x-auto p-3 lg:flex-col">
-          {links.map(({ href, label }) => (
+        <nav aria-label="Administration" class="flex gap-1 overflow-x-auto p-3 lg:flex-col lg:flex-1">
+          {links.map(({ href, label, icon }) => (
             <a
               href={href}
               aria-current={path === href ? "page" : undefined}
               class:list={[
-                "shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors hover:bg-white/10",
-                path === href ? "bg-white/15 text-ocre" : "text-white/90 hover:text-white",
+                "flex items-center gap-3 shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all hover:bg-white/10",
+                path === href ? "bg-gradient-to-r from-white/15 to-transparent text-ocre" : "text-white/90 hover:text-white",
               ]}
             >
-              {label}
+              {icons[icon]}
+              <span class="sidebar-text">{label}</span>
             </a>
           ))}
-          <a href="/admin/produits/nouveau" class="shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold text-white/90 hover:text-white transition-colors hover:bg-white/10">Ajouter un produit</a>
+          <a href="/admin/produits/nouveau" class="flex items-center gap-3 shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold text-white/90 hover:text-white transition-all hover:bg-white/10">
+            {icons.plus}
+            <span class="sidebar-text">Ajouter un produit</span>
+          </a>
         </nav>
         <div class="hidden border-t border-white/10 p-4 lg:flex lg:flex-col lg:gap-2">
           <button type="button" id="sidebar-collapse" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-white/90 hover:bg-white/10 transition-colors">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-            </svg>
-            <span>Réduire</span>
+            {icons.chevron-left}
+            <span class="sidebar-text">Réduire</span>
           </button>
-          <SignOutButton client:load />
+          <div class="sidebar-text">
+            <SignOutButton client:load />
+          </div>
         </div>
       </aside>
       <div id="admin-content" class="min-w-0 flex-1 lg:transition-all lg:duration-300">
         <header class="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b px-4 backdrop-blur-md sm:px-8" style="background: var(--bg-surface); border-color: var(--border);">
           <div class="flex items-center gap-3">
             <button type="button" id="sidebar-expand" class="hidden lg:flex rounded-lg p-2 hover:bg-white/10" style="color: var(--text-main);">
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-              </svg>
+              {icons.chevron_right}
             </button>
             <div class="text-sm font-semibold" style="color: var(--text-main);">{title.replace(" · Cissé Multi-Service", "")}</div>
           </div>
@@ -108,6 +126,7 @@ const links = [
       const collapseBtn = document.getElementById('sidebar-collapse');
       const expandBtn = document.getElementById('sidebar-expand');
       const mobileToggle = document.getElementById('sidebar-toggle');
+      const sidebarTexts = document.querySelectorAll('.sidebar-text');
       let isCollapsed = localStorage.getItem('cisse_sidebar_collapsed') === 'true';
 
       function updateSidebar() {
@@ -117,6 +136,7 @@ const links = [
             sidebar.classList.add('lg:w-20');
             content.classList.remove('lg:ml-64');
             content.classList.add('lg:ml-20');
+            sidebarTexts.forEach(el => el.classList.add('hidden'));
             collapseBtn.querySelector('span')?.classList.add('hidden');
             expandBtn.classList.remove('hidden');
             expandBtn.classList.add('lg:flex');
@@ -125,6 +145,7 @@ const links = [
             sidebar.classList.add('lg:w-64');
             content.classList.remove('lg:ml-20');
             content.classList.add('lg:ml-64');
+            sidebarTexts.forEach(el => el.classList.remove('hidden'));
             collapseBtn.querySelector('span')?.classList.remove('hidden');
             expandBtn.classList.add('hidden');
             expandBtn.classList.remove('lg:flex');
@@ -153,4 +174,3 @@ const links = [
     </script>
   </body>
 </html>
-
