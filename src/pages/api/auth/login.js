@@ -40,11 +40,13 @@ export async function POST({ request }) {
   }
 
   try {
-    const headers = new Headers({ "Set-Cookie": createAdminSessionCookie(admin) });
+    const cookie = createAdminSessionCookie(admin);
     if (isJson) {
-      return Response.json({ success: true }, { headers });
+      return Response.json({ success: true }, { headers: { "Set-Cookie": cookie } });
     }
-    return Response.redirect(new URL(safeCallback, request.url), { status: 303, headers });
+    const response = Response.redirect(new URL(safeCallback, request.url), 303);
+    response.headers.set("Set-Cookie", cookie);
+    return response;
   } catch (error) {
     console.error("Unable to create administrator session:", error);
     if (isJson) {
