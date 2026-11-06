@@ -44,9 +44,14 @@ export async function POST({ request }) {
     if (isJson) {
       return Response.json({ success: true }, { headers: { "Set-Cookie": cookie } });
     }
-    const response = Response.redirect(new URL(safeCallback, request.url), 303);
-    response.headers.set("Set-Cookie", cookie);
-    return response;
+    const redirectUrl = new URL(safeCallback, request.url);
+    return new Response(null, {
+      status: 303,
+      headers: {
+        "Location": redirectUrl.toString(),
+        "Set-Cookie": cookie
+      }
+    });
   } catch (error) {
     console.error("Unable to create administrator session:", error);
     if (isJson) {
