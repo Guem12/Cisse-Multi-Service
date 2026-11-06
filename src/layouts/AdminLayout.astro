@@ -74,14 +74,14 @@ const icons = {
               aria-current={path === href ? "page" : undefined}
               class:list={[
                 "flex items-center gap-3 shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold transition-all hover:bg-white/10",
-                path === href ? "bg-gradient-to-r from-white/15 to-transparent text-ocre border-l-2 border-ocre" : "text-white/90 hover:text-white border-l-2 border-transparent",
+                path === href ? "bg-gradient-to-r from-white/15 to-transparent text-ocre border-l-[2px] border-ocre" : "text-white/90 hover:text-white border-l-[2px] border-transparent",
               ]}
             >
               {icons[icon]}
               <span class="sidebar-text">{label}</span>
             </a>
           ))}
-          <a href="/admin/produits/nouveau" class="flex items-center gap-3 shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold text-white/90 hover:text-white transition-all hover:bg-white/10 border-l-2 border-transparent">
+          <a href="/admin/produits/nouveau" class="flex items-center gap-3 shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold text-white/90 hover:text-white transition-all hover:bg-white/10 border-l-[2px] border-transparent">
             {icons.plus}
             <span class="sidebar-text">Ajouter un produit</span>
           </a>
