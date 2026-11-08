@@ -1,356 +1,496 @@
-import { Link } from "@/lib/astro-compat";
+import { useMemo, useState } from "react";
 import { formatPrice } from "@/lib/format";
 
-export default function DashboardStats({ products = [], categories = [], heroSlots = [] }) {
-  // Calculs statistiques
-  const totalProducts = products.length;
-  const activeProducts = products.filter((p) => p.active).length;
-  const outOfStock = products.filter((p) => p.stock <= 0);
-  const lowStock = products.filter((p) => p.stock > 0 && p.stock <= 5);
-  const totalStockUnits = products.reduce((acc, p) => acc + (p.stock || 0), 0);
-  const totalStockValue = products.reduce((acc, p) => acc + (p.price || 0) * (p.stock || 0), 0);
-  const avgPrice = totalProducts > 0 ? Math.round(products.reduce((acc, p) => acc + p.price, 0) / totalProducts) : 0;
+function Sparkline({ values, positive = true }) {
+  if (values.length < 2) {
+    return <span className="text-[11px] admin-text-muted">Historique en cours</span>;
+  }
 
-  // Répartition par catégorie
-  const categoryStats = categories.map((cat) => {
-    const catProducts = products.filter(
-      (p) => p.category?.slug === cat.slug || p.category?._id === cat._id || p.category === cat._id
-    );
-    const count = catProducts.length;
-    const stock = catProducts.reduce((acc, p) => acc + (p.stock || 0), 0);
-    const value = catProducts.reduce((acc, p) => acc + (p.price || 0) * (p.stock || 0), 0);
-    const pct = totalProducts > 0 ? Math.round((count / totalProducts) * 100) : 0;
-    return { ...cat, count, stock, value, pct };
-  }).sort((a, b) => b.count - a.count);
-
-  // Les 4 produits de la vitrine
-  const heroItems = heroSlots.map((slot, i) => {
-    const product = products.find((p) => String(p._id) === String(slot.productId)) || products[i];
-    return { ...slot, product };
-  });
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  const points = values
+    .map((value, index) => {
+      const x = (index / (values.length - 1)) * 100;
+      const y = 27 - ((value - min) / range) * 24;
+      return `${x},${y}`;
+    })
+    .join(" ");
 
   return (
-    <div className="space-y-8">
-      {/* En-tête de bienvenue & Actions rapides */}
-      <div
-        className="rounded-2xl p-6 sm:p-8 border flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6"
+    <svg className="h-8 w-24" viewBox="0 0 100 30" role="img" aria-label="Tendance sur les derniers relevés">
+      <polyline
+        fill="none"
+        stroke={positive ? "#15803d" : "#b91c1c"}
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        points={points}
+      />
+    </svg>
+  );
+}
+
+function Trend({ metric, current, history, inverse = false }) {
+  const today = history.at(-1)?.date;
+  if (!today) return <span className="text-[11px] admin-text-muted">Tendance indisponible</span>;
+  const valueFor = (snapshot) =>
+    metric === "stockAlerts"
+      ? Number(snapshot.lowStock || 0) + Number(snapshot.outOfStock || 0)
+      : Number(snapshot[metric]);
+
+  const boundary = new Date(`${today}T00:00:00Z`);
+  boundary.setUTCDate(boundary.getUTCDate() - 7);
+  const earliest = new Date(`${today}T00:00:00Z`);
+  earliest.setUTCDate(earliest.getUTCDate() - 14);
+  const previous = [...history]
+    .reverse()
+    .find((snapshot) => {
+      const date = new Date(`${snapshot.date}T00:00:00Z`);
+      return date <= boundary && date >= earliest && Number.isFinite(valueFor(snapshot));
+    });
+  const values = history.slice(-7).map(valueFor);
+
+  if (!previous) {
+    return (
+      <div className="flex items-center gap-2">
+        <Sparkline values={values} />
+        <span className="text-[11px] admin-text-muted">Comparaison après 7 jours</span>
+      </div>
+    );
+  }
+
+  const previousValue = valueFor(previous);
+  const change = current - previousValue;
+  const percent = previousValue === 0
+    ? null
+    : Math.round((change / Math.abs(previousValue) * 100) * 10) / 10;
+  const favorable = inverse ? change <= 0 : change >= 0;
+  const text = percent === null
+    ? (change === 0 ? "Stable" : change > 0 ? "Nouveau" : "−")
+    : `${change > 0 ? "+" : ""}${percent}%`;
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className={`text-xs font-bold ${favorable ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
+        {text}
+      </span>
+      <Sparkline values={values} positive={favorable} />
+      <span className="text-[11px] admin-text-muted">sur 7 jours</span>
+    </div>
+  );
+}
+
+function downloadCsv(products) {
+  const quote = (value) => {
+    let text = String(value ?? "");
+    if (/^\s*[=+\-@]/.test(text)) text = `'${text}`;
+    return `"${text.replaceAll('"', '""')}"`;
+  };
+  const rows = [
+    ["Produit", "Catégorie", "Prix (FCFA)", "Stock", "Statut"],
+    ...products.map((product) => [
+      product.name,
+      product.category?.name || "Non catégorisé",
+      product.price,
+      product.stock,
+      product.active ? "En ligne" : "Masqué",
+    ]),
+  ];
+  const csv = `\uFEFF${rows.map((row) => row.map(quote).join(";")).join("\r\n")}`;
+  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "cisse-multi-service-catalogue.csv";
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+export default function DashboardStats({
+  products = [],
+  categories = [],
+  heroSlots = [],
+  history = [],
+}) {
+  const [currentProducts, setCurrentProducts] = useState(products);
+  const [updating, setUpdating] = useState({});
+  const [stockError, setStockError] = useState("");
+
+  const activeProducts = currentProducts.filter((product) => product.active);
+  const outOfStock = currentProducts.filter((product) => product.stock <= 0);
+  const lowStock = currentProducts.filter((product) => product.stock > 0 && product.stock <= 5);
+  const stockAlerts = [...outOfStock, ...lowStock];
+  const totalStockUnits = currentProducts.reduce((sum, product) => sum + Number(product.stock || 0), 0);
+  const totalStockValue = currentProducts.reduce(
+    (sum, product) => sum + Number(product.price || 0) * Number(product.stock || 0),
+    0,
+  );
+  const averagePrice = currentProducts.length
+    ? currentProducts.reduce((sum, product) => sum + Number(product.price || 0), 0) / currentProducts.length
+    : 0;
+  const categoryStats = categories
+    .map((category) => {
+      const categoryProducts = currentProducts.filter(
+        (product) =>
+          product.category?.slug === category.slug ||
+          product.category?._id === category._id ||
+          product.categoryId === category._id ||
+          product.category === category._id,
+      );
+      return {
+        ...category,
+        count: categoryProducts.length,
+        stock: categoryProducts.reduce((sum, product) => sum + Number(product.stock || 0), 0),
+        value: categoryProducts.reduce(
+          (sum, product) => sum + Number(product.price || 0) * Number(product.stock || 0),
+          0,
+        ),
+      };
+    })
+    .sort((left, right) => right.count - left.count || String(left.name).localeCompare(String(right.name), "fr"));
+
+  const showcaseItems = useMemo(() => {
+    const activeById = new Map(activeProducts.map((product) => [String(product._id), product]));
+    const usedIds = new Set();
+    return heroSlots.flatMap((slot) => {
+      const id = String(slot.productId || "");
+      const product = activeById.get(id);
+      if (!product || usedIds.has(id)) return [];
+      usedIds.add(id);
+      return [{ ...slot, product }];
+    });
+  }, [activeProducts, heroSlots]);
+
+  const recentChanges = [...currentProducts]
+    .filter((product) => product.updatedAt || product.createdAt)
+    .sort(
+      (left, right) =>
+        new Date(right.updatedAt || right.createdAt) - new Date(left.updatedAt || left.createdAt),
+    )
+    .slice(0, 5);
+
+  async function adjustStock(product, amount) {
+    const nextStock = Math.max(0, Number(product.stock || 0) + amount);
+    if (nextStock === Number(product.stock || 0)) return;
+
+    setStockError("");
+    setUpdating((state) => ({ ...state, [product._id]: true }));
+    try {
+      const response = await fetch(`/api/admin/products/${encodeURIComponent(product._id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stock: nextStock }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "La mise à jour du stock a échoué.");
+      setCurrentProducts((items) =>
+        items.map((item) =>
+          item._id === product._id
+            ? { ...item, stock: result.product.stock, updatedAt: result.product.updatedAt }
+            : item,
+        ),
+      );
+    } catch (error) {
+      setStockError(error.message);
+    } finally {
+      setUpdating((state) => ({ ...state, [product._id]: false }));
+    }
+  }
+
+  const stockCards = [
+    {
+      label: "Valeur du stock",
+      value: formatPrice(totalStockValue),
+      detail: `${totalStockUnits.toLocaleString("fr-FR")} unités en inventaire`,
+      metric: "stockValue",
+      trendValue: totalStockValue,
+      href: "/admin/produits",
+      color: "text-emerald-700 dark:text-emerald-400",
+    },
+    {
+      label: "Catalogue",
+      value: `${currentProducts.length} produits`,
+      detail: `${activeProducts.length} en vente sur la boutique`,
+      metric: "products",
+      trendValue: activeProducts.length,
+      href: "/admin/produits",
+      color: "text-page-main",
+    },
+    {
+      label: "Prix moyen",
+      value: formatPrice(averagePrice),
+      detail: `${categories.length} catégories`,
+      metric: "averagePrice",
+      trendValue: averagePrice,
+      href: "/admin/produits",
+      color: "text-ocre",
+    },
+    {
+      label: "Alertes stock",
+      value: `${stockAlerts.length} alertes`,
+      detail: `${outOfStock.length} rupture(s) · ${lowStock.length} stock(s) faible(s)`,
+      metric: "stockAlerts",
+      trendValue: stockAlerts.length,
+      href: "#stock-alerts",
+      color: outOfStock.length
+        ? "text-red-700 dark:text-red-400"
+        : lowStock.length
+          ? "text-[color:var(--alert-low-text)]"
+          : "text-emerald-700 dark:text-emerald-400",
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <section
+        className="rounded-2xl border p-5 sm:p-7"
         style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)" }}
       >
-        <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-3 bg-emerald-500/10 text-emerald-500">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Tableau de bord en direct
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+          <div className="min-w-0">
+            <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              Boutique en ligne · Espace de gestion
+            </p>
+            <h1 className="font-titre text-2xl font-extrabold leading-tight text-page-main sm:text-3xl">
+              Vue d’ensemble
+            </h1>
+            <p className="mt-1 max-w-2xl text-sm text-page-muted">
+              Gérez votre catalogue, vos stocks et les produits mis en avant sur la page d’accueil de votre boutique.
+            </p>
           </div>
-          <h1 className="font-titre text-2xl sm:text-3xl font-extrabold" style={{ color: "var(--text-main)" }}>
-            Statistiques & Pilotage · Cissé Multi-Service
-          </h1>
-          <p className="text-sm mt-1 max-w-xl" style={{ color: "var(--text-muted)" }}>
-            Visualisez les performances de votre catalogue, la valeur marchande de votre stock et personnalisez la vitrine de votre boutique.
-          </p>
+          <div className="flex flex-wrap gap-2 no-print">
+            <a href="/admin/vitrine" className="admin-action-primary">Page d’accueil</a>
+            <a href="/admin/produits/nouveau" className="admin-action-secondary">+ Ajouter un produit</a>
+            <button type="button" onClick={() => downloadCsv(currentProducts)} className="admin-action-secondary">
+              Export Excel (.csv)
+            </button>
+            <button type="button" onClick={() => window.print()} className="admin-action-secondary">
+              Exporter en PDF
+            </button>
+          </div>
         </div>
+      </section>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <Link
-            href="/admin/vitrine"
-            className="inline-flex items-center gap-2 rounded-xl px-5 py-3 font-bold text-sm text-indigo-deep shadow transition-all hover:scale-105 active:scale-95"
-            style={{ backgroundColor: "#E0A030" }}
+      <section aria-label="Statistiques du catalogue" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {stockCards.map((card) => (
+          <a
+            key={card.label}
+            href={card.href}
+            className="group rounded-2xl border p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-ocre"
+            style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)" }}
           >
-            <span>★</span> Gérer la Vitrine (Hero)
-          </Link>
-
-          <Link
-            href="/admin/produits/nouveau"
-            className="inline-flex items-center gap-2 rounded-xl px-5 py-3 font-semibold text-sm border transition-colors hover:bg-black/5 dark:hover:bg-white/5"
-            style={{ borderColor: "var(--border)", color: "var(--text-main)" }}
-          >
-            <span>+</span> Nouveau produit
-          </Link>
-        </div>
-      </div>
-
-      {/* Cartes KPI clés */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* KPI 1 : Valeur totale du stock */}
-        <div
-          className="rounded-2xl p-5 border flex flex-col justify-between transition-transform hover:-translate-y-1 shadow-sm"
-          style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)" }}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
-              Valeur du stock
-            </span>
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-emerald-500/10 text-emerald-500">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-page-muted">{card.label}</span>
+              <span className="text-ocre transition-transform group-hover:translate-x-0.5" aria-hidden="true">↗</span>
             </div>
-          </div>
-          <div className="mt-4">
-            <span className="font-titre text-2xl font-black text-emerald-500">
-              {formatPrice(totalStockValue)}
-            </span>
-            <p className="text-xs mt-1" style={{ color: "var(--text-faint)" }}>
-              {totalStockUnits} unités en inventaire
+            <p className={`mt-4 truncate font-titre text-2xl font-black ${card.color}`} title={card.value}>
+              {card.value}
             </p>
-          </div>
-        </div>
+            <p className="mt-1 text-xs text-page-muted">{card.detail}</p>
+            {card.metric && (
+              <div className="mt-4 border-t pt-3" style={{ borderColor: "var(--border)" }}>
+                <Trend
+                  metric={card.metric}
+                  current={card.trendValue}
+                  history={history}
+                  inverse={card.metric === "lowStock" || card.metric === "outOfStock" || card.metric === "stockAlerts"}
+                />
+              </div>
+            )}
+          </a>
+        ))}
+      </section>
 
-        {/* KPI 2 : Total Références */}
-        <div
-          className="rounded-2xl p-5 border flex flex-col justify-between transition-transform hover:-translate-y-1 shadow-sm"
-          style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)" }}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
-              Catalogue Produits
-            </span>
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-indigo-500/10 text-indigo-500">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className="font-titre text-2xl font-black" style={{ color: "var(--text-main)" }}>
-              {totalProducts} articles
-            </span>
-            <p className="text-xs mt-1 text-emerald-500 font-semibold">
-              {activeProducts} en ligne sur le site ({totalProducts > 0 ? Math.round((activeProducts / totalProducts) * 100) : 0}%)
-            </p>
-          </div>
-        </div>
-
-        {/* KPI 3 : Prix moyen */}
-        <div
-          className="rounded-2xl p-5 border flex flex-col justify-between transition-transform hover:-translate-y-1 shadow-sm"
-          style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)" }}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
-              Prix moyen article
-            </span>
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-amber-500/10 text-amber-500">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className="font-titre text-2xl font-black text-ocre">
-              {formatPrice(avgPrice)}
-            </span>
-            <p className="text-xs mt-1" style={{ color: "var(--text-faint)" }}>
-              Sur {categories.length} catégories
-            </p>
-          </div>
-        </div>
-
-        {/* KPI 4 : Alertes stock */}
-        <div
-          className="rounded-2xl p-5 border flex flex-col justify-between transition-transform hover:-translate-y-1 shadow-sm"
-          style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)" }}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
-              Alertes stock
-            </span>
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-rose-500/10 text-rose-500">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-          </div>
-          <div className="mt-4">
-            <span className={`font-titre text-2xl font-black ${outOfStock.length > 0 ? "text-rose-500" : "text-amber-500"}`}>
-              {outOfStock.length + lowStock.length} alertes
-            </span>
-            <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
-              {outOfStock.length} rupture(s) · {lowStock.length} stock(s) faible(s)
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* SECTION VITRINE D'ACCUEIL (LA PHOTO DU CLIENT !) */}
-      <div
-        className="rounded-2xl p-6 sm:p-8 border space-y-6"
+      <section
+        className="rounded-2xl border p-5 sm:p-6"
         style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)" }}
       >
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-ocre text-lg">★</span>
-              <h2 className="font-titre text-xl font-extrabold" style={{ color: "var(--text-main)" }}>
-                Vitrine d'accueil en direct (Hero Collage)
-              </h2>
-            </div>
-            <p className="text-xs sm:text-sm mt-1" style={{ color: "var(--text-muted)" }}>
-              Ces 4 produits s'affichent directement sur les cartes flottantes de votre page d'accueil avec leurs badges personnalisés.
+            <h2 className="font-titre text-lg font-bold text-page-main">Produits mis en avant</h2>
+            <p className="mt-1 text-sm text-page-muted">
+              {showcaseItems.length} produit{showcaseItems.length !== 1 ? "s" : ""} actif{showcaseItems.length !== 1 ? "s" : ""} mis en avant sur {activeProducts.length} produit{activeProducts.length !== 1 ? "s" : ""} en ligne.
             </p>
-          </div>
-
-          <Link
-            href="/admin/vitrine"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-indigo-deep bg-ocre shadow hover:scale-105 transition-all self-start sm:self-auto"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            Modifier les 4 cartes vitrine
-          </Link>
-        </div>
-
-        {/* Les 4 cartes affichées en miniature */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {heroItems.map((item, idx) => {
-            const product = item.product;
-            const imgUrl = product?.images?.[0]?.url;
-
-            return (
-              <div
-                key={idx}
-                className="relative rounded-2xl overflow-hidden border shadow-sm flex flex-col group transition-all hover:scale-[1.02]"
-                style={{ backgroundColor: "var(--bg-subtle)", borderColor: "var(--border)" }}
-              >
-                <div className="relative aspect-square w-full bg-slate-900/10 overflow-hidden">
-                  {imgUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={imgUrl} alt={product?.name || ""} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-xs font-bold text-white/40">
-                      Pas de photo
-                    </div>
-                  )}
-
-                  <span className={`absolute top-2 left-2 text-[10px] font-black tracking-wide px-2 py-0.5 rounded-full shadow ${item.labelColor}`}>
-                    {item.label}
-                  </span>
-
-                  <span className="absolute top-2 right-2 text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/60 text-white">
-                    Carte #{idx + 1}
-                  </span>
-                </div>
-
-                <div className="p-3">
-                  <p className="text-xs font-bold truncate" style={{ color: "var(--text-main)" }}>
-                    {product?.name || "Article"}
-                  </p>
-                  <p className="text-ocre font-black text-xs mt-1">
-                    {product?.price ? formatPrice(product.price) : "-"}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Grid deux colonnes : Répartition par Catégorie & Alertes Stock */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Colonne 1 : Répartition par catégorie */}
-        <div
-          className="rounded-2xl p-6 border space-y-5"
-          style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)" }}
-        >
-          <div className="flex items-center justify-between">
-            <h2 className="font-titre text-lg font-bold" style={{ color: "var(--text-main)" }}>
-              Répartition par Catégorie
-            </h2>
-            <Link href="/admin/categories" className="text-xs font-bold text-ocre hover:underline">
-              Gérer ({categories.length})
-            </Link>
-          </div>
-
-          <div className="space-y-4">
-            {categoryStats.map((c) => (
-              <div key={c._id || c.slug} className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs font-semibold">
-                  <span style={{ color: "var(--text-main)" }}>{c.name}</span>
-                  <div className="flex items-center gap-3">
-                    <span style={{ color: "var(--text-muted)" }}>{c.count} produit(s) ({c.stock} pcs)</span>
-                    <span className="font-bold text-ocre">{formatPrice(c.value)}</span>
-                  </div>
-                </div>
-
-                <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: "var(--bg-subtle)" }}>
-                  <div
-                    className="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-[#6366f1] via-[#E0A030] to-[#10b981]"
-                    style={{ width: `${Math.max(c.pct, 4)}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Colonne 2 : Surveillance & Alertes de Stock */}
-        <div
-          className="rounded-2xl p-6 border space-y-5"
-          style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)" }}
-        >
-          <div className="flex items-center justify-between">
-            <h2 className="font-titre text-lg font-bold" style={{ color: "var(--text-main)" }}>
-              Surveillance des Stocks
-            </h2>
-            <Link href="/admin/produits" className="text-xs font-bold text-ocre hover:underline">
-              Voir tout le catalogue →
-            </Link>
-          </div>
-
-          {outOfStock.length === 0 && lowStock.length === 0 ? (
-            <div className="text-center py-8 space-y-2">
-              <span className="text-3xl">🎉</span>
-              <p className="text-sm font-bold text-emerald-500">Tous les stocks sont au vert !</p>
-              <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                Aucune rupture ni stock faible détecté pour le moment.
+            {showcaseItems.length !== heroSlots.length && (
+              <p className="mt-2 text-xs font-semibold text-amber-800 dark:text-amber-300" role="status">
+                Certains emplacements ne correspondent plus à un produit actif du catalogue.
               </p>
-            </div>
-          ) : (
-            <div className="space-y-2.5 max-h-[320px] overflow-y-auto pr-1">
-              {[...outOfStock, ...lowStock].map((p) => (
-                <div
-                  key={p._id}
-                  className="flex items-center justify-between p-3 rounded-xl border text-xs"
-                  style={{ backgroundColor: "var(--bg-subtle)", borderColor: "var(--border)" }}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span
-                      className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                        p.stock <= 0 ? "bg-red-500 animate-ping" : "bg-amber-500"
-                      }`}
-                    />
-                    <div className="truncate">
-                      <p className="font-bold truncate" style={{ color: "var(--text-main)" }}>
-                        {p.name}
-                      </p>
-                      <p className="text-[11px]" style={{ color: "var(--text-muted)" }}>
-                        {p.category?.name || "Catégorie"} · {formatPrice(p.price)}
-                      </p>
-                    </div>
-                  </div>
+            )}
+          </div>
+          <a href="/admin/vitrine" className="admin-action-primary no-print">Gérer la page d’accueil</a>
+        </div>
 
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span
-                      className={`px-2.5 py-1 rounded-full font-bold ${
-                        p.stock <= 0 ? "bg-red-500/10 text-red-500" : "bg-amber-500/10 text-amber-500"
-                      }`}
-                    >
-                      {p.stock <= 0 ? "Rupture (0)" : `${p.stock} restant(s)`}
+        {showcaseItems.length === 0 ? (
+          <div className="mt-5 rounded-xl border border-dashed p-6 text-center text-sm text-page-muted" style={{ borderColor: "var(--border)" }}>
+            Aucun produit actif n’est actuellement mis en avant.
+          </div>
+        ) : (
+          <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {showcaseItems.map((item) => {
+              const imageUrl = item.product.images?.[item.imageIndex || 0]?.url;
+              return (
+                <article key={`${item.slot}-${item.product._id}`} className="overflow-hidden rounded-xl border" style={{ borderColor: "var(--border)" }}>
+                  <div className="relative aspect-square bg-subtle">
+                    {imageUrl ? (
+                      <img src={imageUrl} alt={item.product.name} loading="lazy" className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="grid h-full place-items-center text-xs font-semibold text-page-muted">Pas de photo</div>
+                    )}
+                    <span className="absolute left-2 top-2 rounded-full bg-indigo-deep/90 px-2 py-1 text-[10px] font-bold text-white">
+                      {item.label || `Emplacement ${Number(item.slot) + 1}`}
                     </span>
-
-                    <Link
-                      href={`/admin/produits/${p._id}`}
-                      className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-ocre text-indigo-deep hover:opacity-90"
-                    >
-                      Réapprovisionner
-                    </Link>
                   </div>
-                </div>
-              ))}
+                  <div className="p-3">
+                    <p className="truncate text-sm font-bold text-page-main">{item.product.name}</p>
+                    <p className="mt-1 text-xs font-bold text-ocre">{formatPrice(item.product.price)}</p>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      <section className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+        <div
+          className="rounded-2xl border p-5 sm:p-6"
+          style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)" }}
+        >
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h2 className="font-titre text-lg font-bold text-page-main">Répartition par catégorie</h2>
+              <p className="mt-1 text-xs text-page-muted">{categories.length} catégorie{categories.length !== 1 ? "s" : ""}</p>
             </div>
+            <a href="/admin/categories" className="text-sm font-bold text-ocre hover:underline">Gérer</a>
+          </div>
+          {categoryStats.length === 0 ? (
+            <p className="rounded-xl bg-subtle p-5 text-center text-sm text-page-muted">Aucune catégorie n’a encore été créée.</p>
+          ) : (
+            <ul className="space-y-4">
+              {categoryStats.map((category) => {
+                const percent = currentProducts.length ? Math.round(category.count / currentProducts.length * 100) : 0;
+                return (
+                  <li key={category._id || category.slug}>
+                    <div className="flex items-start justify-between gap-3 text-sm">
+                      <span className="font-semibold text-page-main">{category.name}</span>
+                      <span className="text-right text-xs text-page-muted">
+                        {category.count
+                          ? `${category.count} produit${category.count !== 1 ? "s" : ""} · ${category.stock} unité${category.stock !== 1 ? "s" : ""}`
+                          : "Aucun produit"}
+                      </span>
+                    </div>
+                    {category.count > 0 && (
+                      <div className="mt-2 h-2 overflow-hidden rounded-full bg-subtle">
+                        <div className="h-full rounded-full bg-ocre" style={{ width: `${Math.max(percent, 3)}%` }} />
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
           )}
         </div>
-      </div>
+
+        <div
+          id="stock-alerts"
+          className="scroll-mt-24 rounded-2xl border p-5 sm:p-6"
+          style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)" }}
+        >
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h2 className="font-titre text-lg font-bold text-page-main">À réapprovisionner</h2>
+              <p className="mt-1 text-xs text-page-muted">{stockAlerts.length} produit{stockAlerts.length !== 1 ? "s" : ""} à surveiller</p>
+            </div>
+            <a href="/admin/produits?stock=alertes" className="text-sm font-bold text-ocre hover:underline">Catalogue</a>
+          </div>
+          {stockError && <p role="alert" className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-300">{stockError}</p>}
+          {stockAlerts.length === 0 ? (
+            <p className="rounded-xl bg-subtle p-6 text-center text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+              Aucun stock faible ou en rupture.
+            </p>
+          ) : (
+            <ul className="max-h-[380px] space-y-3 overflow-y-auto">
+              {stockAlerts.map((product) => (
+                <li
+                  key={product._id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3"
+                  style={{ backgroundColor: "var(--bg-subtle)", borderColor: "var(--border)" }}
+                >
+                  <div className="min-w-0">
+                    <a href={`/admin/produits/${encodeURIComponent(product._id)}`} className="block truncate text-sm font-bold text-page-main hover:text-ocre">
+                      {product.name}
+                    </a>
+                    <p className="mt-1 text-xs text-page-muted">{product.category?.name || "Sans catégorie"} · {formatPrice(product.price)}</p>
+                    <span className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${product.stock <= 0 ? "admin-alert-out" : "admin-alert-low"}`}>
+                      {product.stock <= 0 ? "Rupture de stock" : `Stock faible · ${product.stock} restant${product.stock !== 1 ? "s" : ""}`}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2" aria-label={`Modifier le stock de ${product.name}`}>
+                    <button
+                      type="button"
+                      onClick={() => adjustStock(product, -1)}
+                      disabled={Boolean(updating[product._id]) || product.stock <= 0}
+                      className="admin-stock-button"
+                      aria-label={`Retirer une unité de ${product.name}`}
+                    >−</button>
+                    <span className="min-w-8 text-center text-sm font-bold text-page-main" aria-live="polite">{product.stock}</span>
+                    <button
+                      type="button"
+                      onClick={() => adjustStock(product, 1)}
+                      disabled={Boolean(updating[product._id])}
+                      className="admin-stock-button"
+                      aria-label={`Ajouter une unité à ${product.name}`}
+                    >+</button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
+
+      <section
+        className="rounded-2xl border p-5 sm:p-6"
+        style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)" }}
+      >
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="font-titre text-lg font-bold text-page-main">Dernières modifications</h2>
+            <p className="mt-1 text-xs text-page-muted">Produits créés ou modifiés récemment</p>
+          </div>
+          <a href="/admin/produits" className="text-sm font-bold text-ocre hover:underline">Voir le catalogue</a>
+        </div>
+        {recentChanges.length === 0 ? (
+          <p className="rounded-xl bg-subtle p-5 text-center text-sm text-page-muted">Aucune modification récente à afficher.</p>
+        ) : (
+          <ul className="divide-y" style={{ borderColor: "var(--border)" }}>
+            {recentChanges.map((product) => {
+              const changedAt = product.updatedAt || product.createdAt;
+              const date = new Date(changedAt);
+              if (!Number.isFinite(date.getTime())) return null;
+              return (
+                <li key={product._id} className="flex flex-wrap items-center justify-between gap-2 py-3">
+                  <a href={`/admin/produits/${encodeURIComponent(product._id)}`} className="font-semibold text-page-main hover:text-ocre">
+                    {product.name}
+                  </a>
+                  <time className="text-xs text-page-muted" dateTime={date.toISOString()}>
+                    {date.toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })}
+                  </time>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+
+      <section className="flex flex-wrap gap-3 no-print" aria-label="Actions rapides">
+        <a href="/admin/produits/nouveau" className="admin-action-primary">+ Nouveau produit</a>
+        <a href="/admin/categories" className="admin-action-secondary">Gérer les catégories</a>
+        <a href="/admin/clients" className="admin-action-secondary">Consulter les clients</a>
+        <a href="/admin/vitrine" className="admin-action-secondary">Produits mis en avant</a>
+        <button type="button" onClick={() => downloadCsv(currentProducts)} className="admin-action-secondary">Exporter le catalogue</button>
+      </section>
     </div>
   );
 }

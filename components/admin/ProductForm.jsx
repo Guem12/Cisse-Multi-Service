@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useRouter } from "@/lib/astro-compat";
 import { useConfirm } from "./ConfirmDialog";
+import { parseVariantOptions } from "@/lib/product-variants";
 
 export default function ProductForm({ categories = [], product }) {
   const router = useRouter();
@@ -14,6 +15,12 @@ export default function ProductForm({ categories = [], product }) {
     active: product?.active ?? true,
   });
   const [images, setImages] = useState(product?.images || []);
+  const [colors, setColors] = useState(
+    product?.variants?.find((variant) => variant.name === "Couleur")?.options?.join(", ") || "",
+  );
+  const [sizes, setSizes] = useState(
+    product?.variants?.find((variant) => variant.name === "Taille")?.options?.join(", ") || "",
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -58,7 +65,14 @@ export default function ProductForm({ categories = [], product }) {
         {
           method: product ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...f, images }),
+          body: JSON.stringify({
+            ...f,
+            images,
+            variants: [
+              { name: "Couleur", options: parseVariantOptions(colors) },
+              { name: "Taille", options: parseVariantOptions(sizes) },
+            ],
+          }),
         }
       );
       const json = await res.json().catch(() => ({}));
@@ -220,6 +234,37 @@ export default function ProductForm({ categories = [], product }) {
               </span>
             </div>
           </label>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="product-colors" className="mb-2 block text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+            Couleurs disponibles
+          </label>
+          <input
+            id="product-colors"
+            value={colors}
+            onChange={(event) => setColors(event.target.value)}
+            placeholder="Noir, Marron, Bleu"
+            className="w-full rounded-xl border px-4 py-3 text-sm font-medium outline-none focus:border-ocre focus:ring-2 focus:ring-ocre/40"
+            style={{ backgroundColor: "var(--bg-subtle)", borderColor: "var(--border)", color: "var(--text-main)" }}
+          />
+          <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>Séparez les choix par des virgules.</p>
+        </div>
+        <div>
+          <label htmlFor="product-sizes" className="mb-2 block text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+            Tailles disponibles
+          </label>
+          <input
+            id="product-sizes"
+            value={sizes}
+            onChange={(event) => setSizes(event.target.value)}
+            placeholder="S, M, L"
+            className="w-full rounded-xl border px-4 py-3 text-sm font-medium outline-none focus:border-ocre focus:ring-2 focus:ring-ocre/40"
+            style={{ backgroundColor: "var(--bg-subtle)", borderColor: "var(--border)", color: "var(--text-main)" }}
+          />
+          <p className="mt-1 text-xs" style={{ color: "var(--text-muted)" }}>Séparez les choix par des virgules.</p>
         </div>
       </div>
 

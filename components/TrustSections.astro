@@ -1,0 +1,64 @@
+---
+import { formatPhone } from "../lib/format.js";
+import { waLink } from "../lib/store.js";
+
+const { phone = "22362823995" } = Astro.props;
+const reviewLink = waLink(phone, "Bonjour Cissé Multi-Service, je souhaite laisser un avis sur ma commande.");
+const cards = [
+  ["Livraison", "Bamako. Les quartiers desservis, le tarif et le délai sont confirmés sur WhatsApp selon le trajet."],
+  ["Paiement", "Orange Money, Moov Money ou espèces : indiquez votre préférence, les modalités sont confirmées sur WhatsApp."],
+  ["Adresse et horaires", "Boutique à Bamako, Mali. L'adresse exacte du retrait et le créneau du jour sont confirmés sur WhatsApp, pour éviter un déplacement inutile."],
+  ["Retours", "Contactez-nous avec les détails de votre commande. Les demandes sont étudiées avec la boutique."],
+];
+const faqs = [
+  ["Comment passer commande ?", "Ajoutez les articles à « Ma commande », indiquez votre quartier et le paiement souhaité, puis envoyez le message WhatsApp récapitulatif."],
+  ["Le prix affiché comprend-il la livraison ?", "Non. Le prix du produit est indiqué en FCFA. La livraison est chiffrée selon le trajet, avant la confirmation."],
+  ["Que veut dire « Dernières pièces » ?", "Il reste peu d'exemplaires en stock. Le nombre exact est visible sur la fiche produit."],
+  ["Puis-je regrouper plusieurs articles ?", "Oui. Le bouton « Ajouter à ma commande » prépare une liste, puis un seul message WhatsApp reprend chaque article et le total."],
+];
+---
+
+<section id="confiance" class="mt-16 border-t divider pt-10" aria-labelledby="confiance-titre">
+  <h2 id="confiance-titre" class="text-center font-titre text-2xl font-bold text-page-main">Avant de commander</h2>
+  <ul class="mt-6 grid gap-4 sm:grid-cols-2">
+    {cards.map(([title, text]) => (
+      <li class="rounded-2xl border p-5" style="background: var(--bg-surface); border-color: var(--border);">
+        <h3 class="text-center font-titre text-lg font-bold text-page-main">{title}</h3>
+        <p class="mt-2 text-center text-sm leading-relaxed text-page-muted">{text}</p>
+        {title === "Livraison" && <a href="/livraison-paiement" class="mx-auto mt-3 block w-fit text-sm font-semibold text-indigo underline hover:text-ocre dark:text-ocre">Détails livraison et paiement</a>}
+        {title === "Retours" && <a href="/retours-echanges" class="mx-auto mt-3 block w-fit text-sm font-semibold text-indigo underline hover:text-ocre dark:text-ocre">Voir les modalités de contact</a>}
+      </li>
+    ))}
+  </ul>
+</section>
+
+<section id="faq" class="mt-12" aria-labelledby="faq-titre">
+  <h2 id="faq-titre" class="text-center font-titre text-2xl font-bold text-page-main">Questions fréquentes</h2>
+  <div class="mt-4 divide-y" style="border-color: var(--border);">
+    {faqs.map(([question, answer]) => (
+      <details class="group border-t py-3 first:border-t-0" style="border-color: var(--border);">
+        <summary class="cursor-pointer list-none text-center font-semibold text-page-main marker:content-none [&::-webkit-details-marker]:hidden">
+          <span class="flex items-center justify-center gap-4">
+            {question}
+            <span aria-hidden="true" class="text-ocre">+</span>
+          </span>
+        </summary>
+        <p class="mx-auto mt-2 max-w-3xl text-center text-sm leading-relaxed text-page-muted">{answer}</p>
+      </details>
+    ))}
+  </div>
+</section>
+
+<section id="avis" class="mt-12 rounded-2xl border p-5" style="background: var(--bg-surface); border-color: var(--border);" aria-labelledby="avis-titre">
+  <h2 id="avis-titre" class="text-center font-titre text-2xl font-bold text-page-main">Avis clients</h2>
+  <p class="mx-auto mt-2 max-w-2xl text-center text-sm leading-relaxed text-page-muted">Exemple de présentation à remplacer par un avis client réel avant publication. Cet exemple n'est pas un témoignage vérifié.</p>
+  <blockquote class="mx-auto mt-4 max-w-xl rounded-xl border border-dashed p-4 text-center text-sm text-page-muted" style="border-color: var(--border);">
+    « Exemple d'avis à remplacer : décrivez ici l'expérience réelle d'un client avec son accord. »
+    <footer class="mt-2 text-xs font-semibold">Exemple à remplacer — aucun client réel cité</footer>
+  </blockquote>
+  <div class="mt-4 text-center">
+  <a href={reviewLink} target="_blank" rel="noopener noreferrer" class="inline-flex rounded-full bg-ocre px-5 py-2.5 text-sm font-bold text-indigo-deep">
+    Laisser un avis sur WhatsApp {formatPhone(phone)}
+  </a>
+  </div>
+</section>

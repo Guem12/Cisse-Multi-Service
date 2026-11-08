@@ -5,12 +5,10 @@ import { getProducts } from "../../../lib/data.js";
 import { getHeroShowcase } from "../../../lib/hero.js";
 
 export const prerender = false;
-const [products, initialSlots] = await Promise.all([
-  getProducts({ includeInactive: true }),
-  getHeroShowcase(),
-]);
+const products = await getProducts({ includeInactive: true });
+const initialSlots = await getHeroShowcase(products);
 ---
 
-<AdminLayout title="Vitrine Accueil · Cissé Multi-Service">
+<AdminLayout title="Photos flottantes · Cissé Multi-Service">
   <HeroShowcaseManager client:load initialSlots={initialSlots} products={products} />
 </AdminLayout>

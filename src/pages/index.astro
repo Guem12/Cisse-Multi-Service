@@ -2,103 +2,111 @@
 import SiteLayout from "../layouts/SiteLayout.astro";
 import HeroCollage from "../../components/HeroCollage.jsx";
 import ProductCard from "../../components/ProductCard.astro";
-import { getCategories, getProducts } from "../../lib/data.js";
+import TrustSections from "../../components/TrustSections.astro";
+import { getProducts, getStorefrontFacts } from "../../lib/data.js";
 import { getHeroShowcase } from "../../lib/hero.js";
-import { optimizeCloudinaryImage } from "../../lib/image-url.mjs";
+import { optimizeCloudinaryImage, responsiveImageSrcSet } from "../../lib/image-url.mjs";
+import { DEFAULT_TITLE, assortmentPhrase, metaDescription, waLink } from "../../lib/store.js";
 
 export const prerender = false;
 
-const [categories, products, slots] = await Promise.all([
-  getCategories(),
+const [facts, products, allProducts] = await Promise.all([
+  getStorefrontFacts(),
   getProducts({ limit: 24 }),
-  getHeroShowcase(),
+  getProducts(),
 ]);
-const heroItems = slots
-  .map((slot) => {
-    const product = products.find((item) => item.id === slot.productId || item._id === slot.productId);
-    return product ? { product, label: slot.label, labelColor: slot.labelColor } : null;
-  })
-  .filter(Boolean);
-const cover = Object.fromEntries(
-  products
-    .filter((product) => product.category?.slug && product.images?.[0]?.url)
-    .map((product) => [product.category.slug, product.images[0].url]),
-);
+const soldCategories = facts.categories;
+const description = metaDescription(soldCategories, facts.productCount);
+const phone = import.meta.env.PUBLIC_WHATSAPP_1 || "22362823995";
+const heroSlots = await getHeroShowcase(allProducts);
+const heroItems = heroSlots.flatMap((slot) => {
+  const product = allProducts.find((item) => String(item._id || item.id) === String(slot.productId));
+  const image = product?.images?.[slot.imageIndex || 0];
+  return product && image ? [{ product, imageUrl: image.url }] : [];
+});
 const steps = [
   ["Choisissez", "Parcourez le catalogue et ouvrez la fiche du produit qui vous plaît."],
   ["Envoyez sur WhatsApp", "Le bouton prépare le message avec le produit, la quantité et le total."],
   ["Recevez", "Nous vous répondons pour confirmer la commande et organiser la remise."],
 ];
+const productLabel = facts.productCount > 1 ? "Produits" : "Produit";
 ---
 
-<SiteLayout>
+<SiteLayout title={DEFAULT_TITLE} description={description}>
   <section class="motif-tissu overlay-dark overflow-hidden text-white">
     <div class="wrap grid grid-cols-1 items-center gap-10 py-14 sm:py-20 lg:grid-cols-2">
       <div class="flex flex-col items-start text-left">
-        <div class="mb-6 inline-flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 px-4 py-2.5 shadow-sm backdrop-blur sm:rounded-full">
-          <img src="/icon-blanc.svg" alt="Cissé Multi-Service" width="28" height="28" class="h-7 w-7 shrink-0 rounded-md shadow" />
-          <div class="leading-tight">
-            <span class="block text-xs font-extrabold uppercase tracking-wider text-ocre sm:text-sm">Cissé Multi-Service</span>
-            <span class="block text-[11px] font-medium tracking-wide text-white/90 sm:text-xs">Boutique en ligne</span>
-          </div>
-        </div>
-        <h1 class="font-titre text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-          Sacs, montres, <span class="text-ocre">écouteurs</span> et accessoires.
+        <h1 class="max-w-2xl font-titre text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+          Affirmez <span class="text-ocre">votre style.</span>
         </h1>
         <p class="mt-5 max-w-md text-base text-white/85 sm:text-lg">
-          Choisissez vos articles, puis commandez directement sur WhatsApp — livraison selon votre trajet.
+          {soldCategories.length
+            ? `Découvrez ${assortmentPhrase(soldCategories)} en boutique à Bamako. Commandez sur WhatsApp ; la livraison est confirmée selon votre trajet.`
+            : "Découvrez nos accessoires en boutique à Bamako. Commandez sur WhatsApp ; la livraison est confirmée selon votre trajet."}
         </p>
         <div class="mt-8 flex flex-wrap items-center gap-4">
           <a href="/catalogue" class="rounded-full bg-ocre px-7 py-3.5 font-bold text-indigo-deep shadow-lg transition-transform hover:scale-105 active:scale-95">Voir le catalogue</a>
-          <a href="https://wa.me/22362823995" target="_blank" rel="noopener noreferrer" class="rounded-full border-2 border-white/40 px-6 py-3 font-semibold text-white transition-colors hover:bg-white/10 active:scale-95">Commander par WhatsApp</a>
+          <a href={waLink(phone)} target="_blank" rel="noopener noreferrer" class="rounded-full border-2 border-white/40 px-6 py-3 font-semibold text-white transition-colors hover:bg-white/10 active:scale-95">Commander par WhatsApp</a>
         </div>
         <div class="mt-10 flex gap-8">
-          <div><span class="block text-2xl font-extrabold text-ocre">100+</span><span class="text-xs uppercase tracking-wider text-white/70">Produits</span></div>
+          <div>
+            <span class="block font-titre text-2xl font-extrabold tabular-nums text-ocre">{facts.productCount}</span>
+            <span class="text-xs uppercase tracking-wider text-white/70">{productLabel}</span>
+          </div>
           <div class="w-px bg-white/20"></div>
           <div><span class="block text-2xl font-extrabold text-ocre">WhatsApp</span><span class="text-xs uppercase tracking-wider text-white/70">Commande rapide</span></div>
           <div class="w-px bg-white/20"></div>
-          <div><span class="block text-2xl font-extrabold text-ocre">24h</span><span class="text-xs uppercase tracking-wider text-white/70">Réponse</span></div>
+          <div><span class="block text-2xl font-extrabold text-ocre">Bamako</span><span class="text-xs uppercase tracking-wider text-white/70">Retrait et livraison</span></div>
         </div>
       </div>
-      <HeroCollage items={heroItems} />
+      <HeroCollage items={heroItems} phone={phone} />
     </div>
   </section>
 
   <div class="wrap pb-16">
-    <section class="mt-10">
-      <h2 class="font-titre text-2xl font-bold text-page-main">Catégories</h2>
-      <ul class="-mx-4 mt-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
-        {categories.map((category) => (
-          <li class="shrink-0">
-            <a href={`/catalogue?categorie=${encodeURIComponent(category.slug)}`} class="motif-tissu relative block h-48 w-40 overflow-hidden rounded-lg">
-              {cover[category.slug] && <img src={optimizeCloudinaryImage(cover[category.slug], 320)} alt="" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover" />}
-              <span class="absolute inset-0 bg-gradient-to-t from-indigo-deep/85 via-transparent to-transparent"></span>
-              <span class="absolute bottom-3 left-3 right-3 font-titre text-lg font-bold leading-tight text-white">{category.name}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
+    <section class="mt-10" aria-labelledby="categories-titre">
+      <h2 id="categories-titre" class="text-center font-titre text-2xl font-bold text-page-main">Catégories en vente</h2>
+      {soldCategories.length === 0 ? (
+        <p class="mt-4 text-page-muted">Aucune catégorie avec un produit en ligne pour le moment.</p>
+      ) : (
+        <ul class="-mx-4 mt-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+          {soldCategories.map((category) => (
+            <li class="shrink-0">
+              <a href={`/catalogue?categorie=${encodeURIComponent(category.slug)}`} class="relative block h-48 w-40 overflow-hidden rounded-lg bg-indigo-deep">
+                {category.image && <img src={optimizeCloudinaryImage(category.image, 320)} alt="" width="320" height="384" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover" />}
+                <span class="absolute inset-0 bg-gradient-to-t from-indigo-deep/85 via-transparent to-transparent"></span>
+                <span class="absolute bottom-3 left-3 right-3 font-titre text-lg font-bold leading-tight text-white">{category.name}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
 
-    <section class="mt-12">
-      <div class="flex items-baseline justify-between">
-        <h2 class="font-titre text-2xl font-bold text-page-main">Nouveautés</h2>
-        <a href="/catalogue" class="font-medium text-indigo underline hover:text-ocre dark:text-ocre">Tout le catalogue</a>
+    <section class="mt-12" aria-labelledby="nouveautes-titre">
+      <div class="relative flex flex-col items-center gap-3 text-center sm:min-h-11 sm:flex-row sm:justify-center">
+        <h2 id="nouveautes-titre" class="font-titre text-2xl font-bold text-page-main">À découvrir en boutique</h2>
+        <a href="/catalogue" class="inline-flex items-center gap-2 self-end rounded-full border border-ocre bg-ocre px-4 py-2 text-sm font-bold text-indigo-deep shadow-sm transition hover:-translate-y-0.5 hover:bg-yellow-500 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocre sm:absolute sm:right-0 sm:top-1/2 sm:-translate-y-1/2">
+          Voir tout le catalogue
+          <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" class="h-4 w-4">
+            <path d="M4.167 10h11.666m0 0-5-5m5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </a>
       </div>
       {products.length === 0 ? (
         <p class="mt-4 text-page-muted">Aucun produit pour le moment.</p>
       ) : (
         <div class="mt-4 grid grid-cols-2 gap-x-3 gap-y-7 lg:grid-cols-4">
-          {products.slice(0, 8).map((product) => <ProductCard product={product} />)}
+          {products.slice(0, 12).map((product) => <ProductCard product={product} centered />)}
         </div>
       )}
     </section>
 
     <section class="mt-16 border-t divider pt-10">
-      <h2 class="font-titre text-2xl font-bold text-page-main">Comment commander</h2>
+      <h2 class="text-center font-titre text-2xl font-bold text-page-main">Comment commander</h2>
       <ol class="mt-6 grid gap-8 md:grid-cols-3">
         {steps.map(([title, text], index) => (
-          <li>
+          <li class="flex flex-col items-center text-center">
             <span class="font-titre text-5xl font-extrabold text-brule dark:text-ocre">{index + 1}</span>
             <h3 class="mt-1 text-lg font-bold text-page-main">{title}</h3>
             <p class="mt-1 max-w-xs text-page-muted">{text}</p>
@@ -106,5 +114,7 @@ const steps = [
         ))}
       </ol>
     </section>
+
+    <TrustSections phone={phone} />
   </div>
 </SiteLayout>

@@ -6,21 +6,28 @@ import {
   updateOrderQty,
   clearOrder,
   getOrderWhatsAppUrl,
+  getOrderLineId,
 } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
 
-export default function OrderDrawer({ isOpen, onClose }) {
+export default function OrderDrawer({ isOpen, onClose, phone = "22362823995" }) {
   const [items, setItems] = useState([]);
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     setItems(getOrderItems());
 
     const handleUpdate = () => setItems(getOrderItems());
+    const handleError = (event) => setMessage(event.detail);
     window.addEventListener("cisse_order_updated", handleUpdate);
     window.addEventListener("storage", handleUpdate);
+    window.addEventListener("cisse_order_error", handleError);
     return () => {
       window.removeEventListener("cisse_order_updated", handleUpdate);
       window.removeEventListener("storage", handleUpdate);
+      window.removeEventListener("cisse_order_error", handleError);
     };
   }, []);
 
@@ -28,6 +35,17 @@ export default function OrderDrawer({ isOpen, onClose }) {
 
   const total = items.reduce((acc, it) => acc + (it.price || 0) * (it.quantity || 1), 0);
   const totalCount = items.reduce((acc, it) => acc + (it.quantity || 1), 0);
+  const details = { deliveryAddress, paymentMethod };
+
+  function submitOrder(event) {
+    event.preventDefault();
+    if (!deliveryAddress.trim() || !paymentMethod) {
+      setMessage("Indiquez le quartier et le mode de paiement souhaité.");
+      return;
+    }
+    window.dispatchEvent(new CustomEvent("cisse_whatsapp_order", { detail: { count: totalCount, value: total } }));
+    window.open(getOrderWhatsAppUrl(items, phone, details), "_blank", "noopener,noreferrer");
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -85,7 +103,7 @@ export default function OrderDrawer({ isOpen, onClose }) {
           ) : (
             <ul className="divide-y divide-indigo/10 dark:divide-white/10">
               {items.map((it) => (
-                <li key={it.slug} className="py-4 flex gap-3 items-center">
+                <li key={getOrderLineId(it)} className="py-4 flex gap-3 items-center">
                   {it.image ? (
                     <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-brume dark:bg-indigo-deep">
                       <Image src={it.image} alt={it.name} fill loading="lazy" transformWidth={128} className="object-cover" />
@@ -107,13 +125,16 @@ export default function OrderDrawer({ isOpen, onClose }) {
                     <p className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">
                       {formatPrice(it.price)}
                     </p>
+                    {Object.entries(it.variant || {}).map(([name, value]) => (
+                      <p key={name} className="mt-1 text-xs text-indigo/80 dark:text-white/80">{name} : {value}</p>
+                    ))}
 
                     {/* Quantité boutons */}
                     <div className="mt-2 flex items-center gap-2">
                       <div className="flex items-center rounded-lg border border-indigo/20 dark:border-white/20 bg-gray-50 dark:bg-white/10">
                         <button
                           type="button"
-                          onClick={() => updateOrderQty(it.slug, it.quantity - 1)}
+                          onClick={() => updateOrderQty(getOrderLineId(it), it.quantity - 1)}
                           className="h-6 w-6 flex items-center justify-center text-sm font-bold text-indigo-deep dark:text-white hover:bg-indigo/10 dark:hover:bg-white/10 rounded-l"
                         >
                           −
@@ -123,7 +144,11 @@ export default function OrderDrawer({ isOpen, onClose }) {
                         </span>
                         <button
                           type="button"
-                          onClick={() => updateOrderQty(it.slug, it.quantity + 1)}
+                          onClick={() => updateOrderQty(getOrderLineId(it), it.quantity + 1)}
+                          disabled={Number.isFinite(it.stock) && items
+                            .filter((entry) => entry.slug === it.slug)
+                            .reduce((sum, entry) => sum + (Number(entry.quantity) || 1), 0) >= it.stock}
+                          aria-label={`Augmenter la quantité de ${it.name}`}
                           className="h-6 w-6 flex items-center justify-center text-sm font-bold text-indigo-deep dark:text-white hover:bg-indigo/10 dark:hover:bg-white/10 rounded-r"
                         >
                           +
@@ -132,7 +157,7 @@ export default function OrderDrawer({ isOpen, onClose }) {
 
                       <button
                         type="button"
-                        onClick={() => removeFromOrder(it.slug)}
+                        onClick={() => removeFromOrder(getOrderLineId(it))}
                         className="text-xs text-red-500 hover:text-red-700 hover:underline ml-2"
                       >
                         Supprimer
@@ -147,7 +172,7 @@ export default function OrderDrawer({ isOpen, onClose }) {
 
         {/* Footer */}
         {items.length > 0 && (
-          <div className="border-t border-indigo/10 dark:border-white/10 p-5 bg-gray-50 dark:bg-[#141D3D]">
+          <form onSubmit={submitOrder} className="border-t border-indigo/10 dark:border-white/10 p-5 bg-gray-50 dark:bg-[#141D3D]">
             <div className="flex items-baseline justify-between mb-2">
               <span className="text-sm font-semibold text-indigo/70 dark:text-white/70">Total articles</span>
               <span className="font-titre text-xl font-extrabold text-emerald-600 dark:text-emerald-400">
@@ -155,22 +180,38 @@ export default function OrderDrawer({ isOpen, onClose }) {
               </span>
             </div>
 
-            <p className="text-[11px] text-indigo/60 dark:text-white/60 mb-4">
-              🚚 Prix de livraison selon trajet.
+            <label className="mb-3 block text-xs font-semibold text-indigo-deep dark:text-white">
+              Quartier / adresse de livraison *
+              <input
+                required
+                maxLength={120}
+                value={deliveryAddress}
+                onChange={(event) => setDeliveryAddress(event.target.value)}
+                placeholder="Ex. ACI 2000, rue..."
+                className="field mt-1"
+              />
+            </label>
+            <label className="mb-3 block text-xs font-semibold text-indigo-deep dark:text-white">
+              Mode de paiement souhaité *
+              <select required value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)} className="field mt-1">
+                <option value="">Choisir un mode de paiement</option>
+                <option value="Orange Money">Orange Money</option>
+                <option value="Moov Money">Moov Money</option>
+                <option value="Espèces">Espèces</option>
+              </select>
+            </label>
+            <p className="mb-4 text-[11px] text-indigo/75 dark:text-white/75">
+              Les frais de livraison et les modalités de paiement seront confirmés sur WhatsApp.
             </p>
+            {message && <p role="alert" className="mb-3 text-xs font-semibold text-red-700 dark:text-red-300">{message}</p>}
 
-            <a
-              href={getOrderWhatsAppUrl(items)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 rounded-2xl bg-emerald-500 hover:bg-emerald-600 active:scale-95 px-5 py-3.5 text-sm font-extrabold text-white shadow-lg transition-all"
-            >
+            <button type="submit" className="w-full flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 px-5 py-3.5 text-sm font-extrabold text-white shadow-lg transition-all">
               <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5 shrink-0">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
                 <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.057 23.47a.5.5 0 0 0 .606.638l5.805-1.524A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.956 9.956 0 0 1-5.354-1.556l-.385-.229-3.994 1.048 1.07-3.908-.252-.402A9.964 9.964 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
               </svg>
               Commander tout sur WhatsApp
-            </a>
+            </button>
 
             <button
               type="button"
@@ -179,7 +220,7 @@ export default function OrderDrawer({ isOpen, onClose }) {
             >
               Vider la commande
             </button>
-          </div>
+          </form>
         )}
       </aside>
     </div>

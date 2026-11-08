@@ -1,0 +1,31 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import { DEFAULT_OG_IMAGE, BRAND, waLink } from "../../lib/store.js";
+
+const description = `Comment contacter ${BRAND} à Bamako pour une demande de retour ou d'échange. Chaque demande est examinée avec la boutique.`;
+const phone = import.meta.env.PUBLIC_WHATSAPP_1 || "22362823995";
+---
+
+<SiteLayout
+  title={`Retours & échanges · ${BRAND}`}
+  description={description}
+  image={DEFAULT_OG_IMAGE}
+>
+  <article class="wrap max-w-3xl pb-16 pt-10">
+    <p class="text-sm font-bold uppercase tracking-widest text-ocre">Service client</p>
+    <h1 class="mt-2 font-titre text-3xl font-extrabold text-page-main sm:text-4xl">Retours & échanges</h1>
+    <p class="mt-4 text-page-muted">Vous avez une question au sujet d'un article reçu ? Contactez la boutique sur WhatsApp avant de vous déplacer. Les possibilités dépendent de la situation et doivent être confirmées avec Cissé Multi-Service.</p>
+
+    <section class="mt-8 rounded-2xl border p-5 sm:p-6" style="background: var(--bg-surface); border-color: var(--border);" aria-labelledby="demande">
+      <h2 id="demande" class="font-titre text-xl font-bold text-page-main">Comment faire une demande</h2>
+      <ol class="mt-3 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-page-main">
+        <li>Écrivez-nous en indiquant votre nom et la date ou le numéro de votre commande.</li>
+        <li>Décrivez le problème et joignez des photos si l'article reçu est abîmé ou ne correspond pas à la commande.</li>
+        <li>Attendez notre réponse avant de retourner ou d'échanger l'article. La boutique vous indiquera la suite possible et les modalités convenues.</li>
+      </ol>
+    </section>
+
+    <p class="mt-5 text-sm leading-relaxed text-page-muted">Cette procédure de contact ne remplace ni ne limite les droits prévus par la réglementation applicable.</p>
+    <a href={waLink(phone, "Bonjour Cissé Multi-Service, je souhaite parler d'un retour ou d'un échange pour ma commande.")} target="_blank" rel="noopener noreferrer" class="mt-6 inline-flex rounded-full bg-ocre px-5 py-3 text-sm font-bold text-indigo-deep">Contacter la boutique sur WhatsApp</a>
+  </article>
+</SiteLayout>

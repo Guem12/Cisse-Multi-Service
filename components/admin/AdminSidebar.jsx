@@ -34,9 +34,9 @@ export default function AdminSidebar({
       ),
     },
     {
-      label: "Vitrine Accueil",
+      label: "Page d’accueil",
       href: "/admin/vitrine",
-      badge: "★ Hero",
+      badge: "À la une",
       icon: (
         <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
@@ -71,7 +71,7 @@ export default function AdminSidebar({
       <div className="lg:hidden flex items-center justify-between bg-indigo px-4 py-3 text-white sticky top-0 z-50 shadow">
         <Link href="/admin" className="flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-fond-sombre.svg" alt="Cissé-multi-service" width="110" height="38" className="h-8 w-auto" />
+          <img src="/logo-fond-sombre.svg" alt="Cissé Multi-Service" width="110" height="38" className="h-8 w-auto" />
           <span className="text-xs bg-white/20 font-bold px-2 py-0.5 rounded text-ocre">Admin</span>
         </Link>
         <div className="flex items-center gap-2">
@@ -120,7 +120,7 @@ export default function AdminSidebar({
             ) : (
               <div>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo-fond-sombre.svg" alt="Cissé-multi-service" width="130" height="42" className="h-9 w-auto" />
+                <img src="/logo-fond-sombre.svg" alt="Cissé Multi-Service" width="130" height="42" className="h-9 w-auto" />
                 <div className="mt-1 flex items-center gap-1.5">
                   <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                   <span className="text-[10px] font-extrabold tracking-wider uppercase text-ocre">Espace Gestion</span>
@@ -172,7 +172,7 @@ export default function AdminSidebar({
         {/* Navigation Links */}
         <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
           {!collapsed && (
-            <p className="px-3 text-[10px] font-black uppercase tracking-wider text-white/35 mb-2">
+            <p className="px-3 text-[10px] font-black uppercase tracking-wider text-white/75 mb-2">
               Menu Principal
             </p>
           )}
@@ -224,7 +224,7 @@ export default function AdminSidebar({
 
           <div className="pt-4 border-t border-white/10 mt-4">
             {!collapsed && (
-              <p className="px-3 text-[10px] font-black uppercase tracking-wider text-white/35 mb-2">
+              <p className="px-3 text-[10px] font-black uppercase tracking-wider text-white/75 mb-2">
                 Raccourcis
               </p>
             )}

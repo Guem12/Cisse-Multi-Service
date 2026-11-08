@@ -26,13 +26,17 @@ Avant le déploiement, configurez ces variables dans Vercel:
 
 6. **ADMIN_PASSWORD** - Mot de passe administrateur fort
 
-7. **R2_BUCKET** - Nom du bucket de stockage (si utilisé)
+7. **ADMIN_TOTP_SECRET** - Secret TOTP Base32 facultatif pour demander un code à usage unique à la connexion
 
-8. **FILES_BINDING** - Binding de fichiers (si utilisé)
+La limitation des tentatives de connexion utilise PostgreSQL lorsqu’il est configuré.
 
-9. **AI_GATEWAY_BASE_URL** - URL du gateway AI (si utilisé)
+8. **R2_BUCKET** - Nom du bucket de stockage (si utilisé)
 
-10. **AI_GATEWAY_API_KEY** - Clé API du gateway AI (si utilisé)
+9. **FILES_BINDING** - Binding de fichiers (si utilisé)
+
+10. **AI_GATEWAY_BASE_URL** - URL du gateway AI (si utilisé)
+
+11. **AI_GATEWAY_API_KEY** - Clé API du gateway AI (si utilisé)
 
 11. **AI_DEFAULT_PROVIDER** - Provider AI par défaut (ex: `openai`)
 
@@ -41,6 +45,12 @@ Avant le déploiement, configurez ces variables dans Vercel:
 13. **PUBLIC_WHATSAPP_1** - Numéro WhatsApp 1
 
 14. **PUBLIC_WHATSAPP_2** - Numéro WhatsApp 2
+
+15. **PUBLIC_CALL_PHONE** - Numéro à appeler (facultatif, utilise `PUBLIC_WHATSAPP_1` par défaut)
+
+16. **PUBLIC_INSTAGRAM_URL**, **PUBLIC_FACEBOOK_URL**, **PUBLIC_TIKTOK_URL** - URLs HTTPS des profils sociaux (facultatives, seuls les profils configurés sont affichés)
+
+17. **PUBLIC_PLAUSIBLE_DOMAIN** - Domaine du site dans Plausible (facultatif ; sans cette variable, aucun script de mesure n'est chargé). L'événement `WhatsApp Click` compte les liens WhatsApp et `WhatsApp Order` les commandes envoyées depuis le panier.
 
 ## Étapes de Déploiement
 
@@ -80,6 +90,7 @@ Dans les paramètres du projet Vercel:
    ```bash
    npx prisma migrate deploy
    ```
+   Cette migration ajoute les variantes couleur et taille aux produits.
 
 #### Option B: Utiliser Vercel Postgres
 

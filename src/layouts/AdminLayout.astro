@@ -6,12 +6,13 @@ import SignOutButton from "../../components/admin/SignOutButton.jsx";
 
 const { title = "Administration · Cissé Multi-Service" } = Astro.props;
 const path = Astro.url.pathname;
+const pageTitle = path === "/admin" ? "Administration" : title.replace(" · Cissé Multi-Service", "");
 const links = [
   { href: "/admin", label: "Tableau de bord" },
   { href: "/admin/produits", label: "Produits" },
   { href: "/admin/categories", label: "Catégories" },
   { href: "/admin/clients", label: "Clients" },
-  { href: "/admin/vitrine", label: "Vitrine d’accueil" },
+  { href: "/admin/vitrine", label: "Page d’accueil" },
 ];
 ---
 
@@ -34,122 +35,141 @@ const links = [
         const theme = localStorage.getItem("cisse_theme");
         const dark = theme === "dark" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
         document.documentElement.classList.toggle("dark", dark);
+        if (localStorage.getItem("cisse_sidebar_collapsed") === "true") {
+          document.documentElement.classList.add("sidebar-collapsed");
+        }
       } catch {}
     </script>
   </head>
   <body class="min-h-screen font-sans" style="--font-titre: 'Bricolage Grotesque'; --font-main: 'Figtree'; background: var(--bg-subtle); color: var(--text-main);">
     <div class="min-h-screen lg:flex">
-      <aside id="admin-sidebar" class="bg-indigo-deep text-white lg:fixed lg:inset-y-0 lg:w-64 lg:transition-all lg:duration-300">
-        <div class="flex items-center justify-between border-b border-white/10 p-4">
-          <a href="/admin" class="flex items-center gap-3 font-titre text-lg font-extrabold text-white">
-            <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-ocre to-indigo flex items-center justify-center">
-              <span class="text-indigo-deep font-bold">C</span>
-            </div>
-            <span>Cissé · Admin</span>
-          </a>
-          <div class="flex items-center gap-2">
-            <button type="button" id="sidebar-toggle" class="lg:hidden rounded-lg p-2 hover:bg-white/10">
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            <a href="/" class="text-xs text-white/70 hover:text-white">Boutique</a>
-          </div>
+      <aside id="admin-sidebar" class="admin-sidebar bg-[#0c1228] text-white lg:fixed lg:inset-y-0 lg:z-40 lg:flex lg:w-64 lg:flex-col">
+        <div class="flex items-center gap-2 px-3 pt-3">
+          <button type="button" id="sidebar-toggle" class="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] lg:hidden" aria-label="Ouvrir le menu">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
-        <nav aria-label="Administration" class="flex gap-1 overflow-x-auto p-3 lg:flex-col">
+        <div class="brand-row mx-3 mt-3 flex items-center gap-2">
+          <a href="/admin" class="brand-link flex min-w-0 flex-1 items-center gap-3 rounded-2xl bg-white/[0.04] px-3 py-3 ring-1 ring-inset ring-white/10">
+            <div class="brand-mark grid h-9 w-9 shrink-0 place-items-center rounded-xl text-sm font-extrabold shadow-sm" style="background: linear-gradient(135deg, #f3c463, #d98b17); color: #0a1230;">C</div>
+            <span class="brand-copy min-w-0">
+              <span class="block truncate font-titre text-[15px] font-extrabold leading-tight">Cissé · Admin</span>
+              <span class="block text-[11px] font-medium tracking-wide text-white/75">Espace de gestion</span>
+            </span>
+          </a>
+          <button
+            type="button"
+            id="sidebar-collapse"
+            class="sidebar-toggle hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06] text-white/85 transition hover:border-ocre/50 hover:bg-ocre hover:text-indigo-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocre lg:inline-flex"
+            aria-expanded="true"
+            aria-controls="admin-sidebar"
+            aria-label="Réduire le menu"
+            title="Réduire le menu"
+          >
+            <svg class="collapse-icon h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            </svg>
+          </button>
+        </div>
+        <nav aria-label="Administration" class="mt-3 flex gap-1 overflow-x-auto px-3 pb-3 lg:mt-4 lg:flex-1 lg:flex-col lg:overflow-y-auto">
           <a
             href="/admin"
             aria-current={path === "/admin" ? "page" : undefined}
             class:list={[
-              "flex items-center gap-3 shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors hover:bg-white/10",
-              path === "/admin" ? "bg-white/15 text-ocre" : "text-white/90 hover:text-white",
+              "nav-link flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition",
+              path === "/admin" ? "bg-ocre/15 text-ocre ring-1 ring-inset ring-ocre/30" : "text-white/75 hover:bg-white/[0.06] hover:text-white",
             ]}
           >
             <svg class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z" />
             </svg>
-            <span>Tableau de bord</span>
+            <span class="nav-label">Tableau de bord</span>
           </a>
           <a
             href="/admin/produits"
             aria-current={path === "/admin/produits" ? "page" : undefined}
             class:list={[
-              "flex items-center gap-3 shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors hover:bg-white/10",
-              path === "/admin/produits" ? "bg-white/15 text-ocre" : "text-white/90 hover:text-white",
+              "nav-link flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition",
+              path === "/admin/produits" ? "bg-ocre/15 text-ocre ring-1 ring-inset ring-ocre/30" : "text-white/75 hover:bg-white/[0.06] hover:text-white",
             ]}
           >
             <svg class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
-            <span>Produits</span>
+            <span class="nav-label">Produits</span>
+            <span data-nav-alert-count class="nav-count hidden rounded-full bg-red-700 px-2 py-0.5 text-[10px] font-extrabold text-white" aria-label="Produits à réapprovisionner"></span>
           </a>
           <a
             href="/admin/categories"
             aria-current={path === "/admin/categories" ? "page" : undefined}
             class:list={[
-              "flex items-center gap-3 shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors hover:bg-white/10",
-              path === "/admin/categories" ? "bg-white/15 text-ocre" : "text-white/90 hover:text-white",
+              "nav-link flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition",
+              path === "/admin/categories" ? "bg-ocre/15 text-ocre ring-1 ring-inset ring-ocre/30" : "text-white/75 hover:bg-white/[0.06] hover:text-white",
             ]}
           >
             <svg class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
             </svg>
-            <span>Catégories</span>
+            <span class="nav-label">Catégories</span>
           </a>
           <a
             href="/admin/clients"
             aria-current={path === "/admin/clients" ? "page" : undefined}
             class:list={[
-              "flex items-center gap-3 shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors hover:bg-white/10",
-              path === "/admin/clients" ? "bg-white/15 text-ocre" : "text-white/90 hover:text-white",
+              "nav-link flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition",
+              path === "/admin/clients" ? "bg-ocre/15 text-ocre ring-1 ring-inset ring-ocre/30" : "text-white/75 hover:bg-white/[0.06] hover:text-white",
             ]}
           >
             <svg class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
-            <span>Clients</span>
+            <span class="nav-label">Clients</span>
           </a>
           <a
             href="/admin/vitrine"
             aria-current={path === "/admin/vitrine" ? "page" : undefined}
             class:list={[
-              "flex items-center gap-3 shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors hover:bg-white/10",
-              path === "/admin/vitrine" ? "bg-white/15 text-ocre" : "text-white/90 hover:text-white",
+              "nav-link flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition",
+              path === "/admin/vitrine" ? "bg-ocre/15 text-ocre ring-1 ring-inset ring-ocre/30" : "text-white/75 hover:bg-white/[0.06] hover:text-white",
             ]}
           >
             <svg class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5h16v14H4zM4 16l5-5 4 4 3-3 4 4M9 9h.01" />
             </svg>
-            <span>Vitrine d'accueil</span>
+            <span class="nav-label">Vitrine d'accueil</span>
           </a>
-          <a href="/admin/produits/nouveau" class="flex items-center gap-3 shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold text-white/90 hover:text-white transition-colors hover:bg-white/10">
+          <a href="/admin/produits/nouveau" class="nav-link mt-1 flex shrink-0 items-center gap-3 rounded-xl border border-dashed border-white/15 px-3 py-2.5 text-sm font-semibold text-white/80 transition hover:border-ocre/50 hover:bg-ocre/10 hover:text-ocre">
             <svg class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            <span>Ajouter un produit</span>
+            <span class="nav-label">Ajouter un produit</span>
           </a>
         </nav>
-        <div class="hidden border-t border-white/10 p-4 lg:flex lg:flex-col lg:gap-2">
-          <button type="button" id="sidebar-collapse" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-white/90 hover:bg-white/10 transition-colors">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-            </svg>
-            <span>Réduire</span>
-          </button>
+        <div class="hidden border-t border-white/10 p-3 lg:block">
           <SignOutButton client:load />
         </div>
       </aside>
       <div id="admin-content" class="min-w-0 flex-1 lg:transition-all lg:duration-300">
         <header class="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b px-4 backdrop-blur-md sm:px-8" style="background: var(--bg-surface); border-color: var(--border);">
+          <div class="min-w-0 flex-1 truncate text-sm font-semibold" style="color: var(--text-main);" title={pageTitle}>{pageTitle}</div>
           <div class="flex items-center gap-3">
-            <button type="button" id="sidebar-expand" class="hidden lg:flex rounded-lg p-2 hover:bg-white/10" style="color: var(--text-main);">
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-              </svg>
+            <button type="button" id="admin-search-open" class="hidden items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold sm:inline-flex" style="border-color: var(--border); background: var(--bg-subtle); color: var(--text-muted);" aria-keyshortcuts="Control+K Meta+K">
+              <span>Rechercher</span><kbd class="rounded border px-1.5 py-0.5 text-[10px]" style="border-color: var(--border);">Ctrl K</kbd>
             </button>
-            <div class="text-sm font-semibold" style="color: var(--text-main);">{title.replace(" · Cissé Multi-Service", "")}</div>
-          </div>
-          <div class="flex items-center gap-3">
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors hover:border-ocre hover:text-ocre"
+              style="border-color: var(--border); background: var(--bg-subtle); color: var(--text-muted);"
+            >
+              <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              <span>Boutique</span>
+            </a>
             <AdminNotifications client:load />
             <button type="button" id="admin-theme-toggle" class="rounded-lg border px-3 py-2 text-xs font-bold" style="border-color: var(--border); background: var(--bg-subtle);">Thème</button>
             <AdminProfileSettings client:load />
@@ -158,6 +178,14 @@ const links = [
         <main class="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8"><slot /></main>
       </div>
     </div>
+    <dialog id="admin-search-dialog" class="admin-search-dialog">
+      <form method="dialog" class="flex items-center justify-between border-b p-4" style="border-color: var(--border);">
+        <label for="admin-search-input" class="sr-only">Rechercher dans l’administration</label>
+        <input id="admin-search-input" type="search" placeholder="Produit, page…" autocomplete="off" class="min-w-0 flex-1 bg-transparent text-base text-page-main outline-none" />
+        <button type="submit" class="rounded-lg border px-3 py-1.5 text-xs font-semibold text-page-muted" style="border-color: var(--border);">Fermer · Échap</button>
+      </form>
+      <div id="admin-search-results" class="max-h-[60vh] overflow-y-auto p-2" role="listbox" aria-label="Résultats de recherche"></div>
+    </dialog>
     <script is:inline>
       document.getElementById("admin-theme-toggle")?.addEventListener("click", () => {
         const dark = !document.documentElement.classList.contains("dark");
@@ -165,55 +193,280 @@ const links = [
         localStorage.setItem("cisse_theme", dark ? "dark" : "light");
       });
 
-      // Sidebar toggle functionality
-      const sidebar = document.getElementById('admin-sidebar');
-      const content = document.getElementById('admin-content');
-      const collapseBtn = document.getElementById('sidebar-collapse');
-      const expandBtn = document.getElementById('sidebar-expand');
-      const mobileToggle = document.getElementById('sidebar-toggle');
-      let isCollapsed = localStorage.getItem('cisse_sidebar_collapsed') === 'true';
+      const sidebar = document.getElementById("admin-sidebar");
+      const collapseBtn = document.getElementById("sidebar-collapse");
+      const mobileToggle = document.getElementById("sidebar-toggle");
 
-      function updateSidebar() {
-        if (window.innerWidth >= 1024) {
-          if (isCollapsed) {
-            sidebar.classList.remove('lg:w-64');
-            sidebar.classList.add('lg:w-20');
-            content.classList.remove('lg:ml-64');
-            content.classList.add('lg:ml-20');
-            collapseBtn.querySelector('span')?.classList.add('hidden');
-            expandBtn.classList.remove('hidden');
-            expandBtn.classList.add('lg:flex');
-          } else {
-            sidebar.classList.remove('lg:w-20');
-            sidebar.classList.add('lg:w-64');
-            content.classList.remove('lg:ml-20');
-            content.classList.add('lg:ml-64');
-            collapseBtn.querySelector('span')?.classList.remove('hidden');
-            expandBtn.classList.add('hidden');
-            expandBtn.classList.remove('lg:flex');
-          }
+      function syncCollapseButton() {
+        const collapsed = document.documentElement.classList.contains("sidebar-collapsed");
+        if (!collapseBtn) return;
+        collapseBtn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+        collapseBtn.title = collapsed ? "Agrandir le menu" : "Réduire le menu";
+        collapseBtn.setAttribute("aria-label", collapsed ? "Agrandir le menu" : "Réduire le menu");
+      }
+
+      collapseBtn?.addEventListener("click", () => {
+        const collapsed = !document.documentElement.classList.contains("sidebar-collapsed");
+        document.documentElement.classList.toggle("sidebar-collapsed", collapsed);
+        localStorage.setItem("cisse_sidebar_collapsed", collapsed ? "true" : "false");
+        syncCollapseButton();
+      });
+
+      mobileToggle?.addEventListener("click", () => {
+        sidebar?.classList.toggle("max-lg:hidden");
+      });
+
+      const searchDialog = document.getElementById("admin-search-dialog");
+      const searchInput = document.getElementById("admin-search-input");
+      const searchResults = document.getElementById("admin-search-results");
+      const adminPages = [
+        { label: "Tableau de bord", href: "/admin", keywords: "accueil statistiques" },
+        { label: "Produits", href: "/admin/produits", keywords: "catalogue stock" },
+        { label: "Ajouter un produit", href: "/admin/produits/nouveau", keywords: "nouveau créer" },
+        { label: "Catégories", href: "/admin/categories", keywords: "familles" },
+        { label: "Clients", href: "/admin/clients", keywords: "contacts" },
+        { label: "Page d’accueil", href: "/admin/vitrine", keywords: "vitrine produits mis en avant" },
+      ];
+      let searchableProducts = [];
+      let productSearchLoaded = false;
+
+      function renderSearchResults() {
+        if (!searchResults || !searchInput) return;
+        const query = searchInput.value.trim().toLocaleLowerCase("fr");
+        searchResults.replaceChildren();
+        const matches = [
+          ...adminPages
+            .filter((page) => `${page.label} ${page.keywords}`.toLocaleLowerCase("fr").includes(query))
+            .map((page) => ({ label: page.label, detail: "Page admin", href: page.href })),
+          ...searchableProducts
+            .filter((product) => `${product.name} ${product.category?.name || ""}`.toLocaleLowerCase("fr").includes(query))
+            .slice(0, 8)
+            .map((product) => ({ label: product.name, detail: product.category?.name || "Produit", href: `/admin/produits/${encodeURIComponent(product._id)}` })),
+        ].slice(0, 12);
+
+        if (!matches.length) {
+          const empty = document.createElement("p");
+          empty.className = "px-3 py-5 text-center text-sm text-page-muted";
+          empty.textContent = query ? "Aucun résultat." : "Saisissez un nom de produit ou une page.";
+          searchResults.append(empty);
+          return;
+        }
+
+        for (const match of matches) {
+          const link = document.createElement("a");
+          link.href = match.href;
+          link.className = "flex items-center justify-between gap-3 rounded-xl px-3 py-3 text-sm text-page-main transition hover:bg-subtle focus-visible:outline focus-visible:outline-2 focus-visible:outline-ocre";
+          const label = document.createElement("span");
+          label.className = "font-semibold";
+          label.textContent = match.label;
+          const detail = document.createElement("span");
+          detail.className = "text-xs text-page-muted";
+          detail.textContent = match.detail;
+          link.append(label, detail);
+          link.addEventListener("click", () => searchDialog?.close());
+          searchResults.append(link);
         }
       }
 
-      collapseBtn?.addEventListener('click', () => {
-        isCollapsed = true;
-        localStorage.setItem('cisse_sidebar_collapsed', 'true');
-        updateSidebar();
+      async function openSearch() {
+        if (!searchDialog?.open) searchDialog?.showModal();
+        searchInput?.focus();
+        if (!productSearchLoaded) {
+          productSearchLoaded = true;
+          try {
+            const response = await fetch("/api/admin/products");
+            if (!response.ok) throw new Error(`Recherche indisponible (${response.status}).`);
+            const data = await response.json();
+            searchableProducts = data.products || [];
+          } catch (error) {
+            productSearchLoaded = false;
+            console.error("Impossible de charger les produits pour la recherche :", error);
+          }
+        }
+        renderSearchResults();
+      }
+
+      document.getElementById("admin-search-open")?.addEventListener("click", openSearch);
+      searchInput?.addEventListener("input", renderSearchResults);
+      document.addEventListener("keydown", (event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+          event.preventDefault();
+          openSearch();
+        }
       });
 
-      expandBtn?.addEventListener('click', () => {
-        isCollapsed = false;
-        localStorage.setItem('cisse_sidebar_collapsed', 'false');
-        updateSidebar();
-      });
+      fetch("/api/admin/products")
+        .then((response) => {
+          if (!response.ok) throw new Error(`Compteur de stock indisponible (${response.status}).`);
+          return response.json();
+        })
+        .then((data) => {
+          const alerts = (data.products || []).filter((product) => product.stock <= 5).length;
+          const badge = document.querySelector("[data-nav-alert-count]");
+          if (badge && alerts > 0) {
+            badge.textContent = String(alerts);
+            badge.classList.remove("hidden");
+          }
+        })
+        .catch((error) => console.error("Impossible de charger le compteur de stock :", error));
 
-      mobileToggle?.addEventListener('click', () => {
-        sidebar.classList.toggle('hidden');
-      });
-
-      window.addEventListener('resize', updateSidebar);
-      updateSidebar();
+      syncCollapseButton();
     </script>
+    <style is:global>
+      .admin-search-dialog {
+        width: min(42rem, calc(100vw - 2rem));
+        max-width: none;
+        padding: 0;
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        background: var(--bg-surface);
+        color: var(--text-main);
+        box-shadow: 0 24px 80px rgba(0, 0, 0, .28);
+      }
+      .admin-search-dialog::backdrop { background: rgba(6, 12, 30, .65); backdrop-filter: blur(3px); }
+      .admin-action-primary,
+      .admin-action-secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        min-height: 2.5rem;
+        border-radius: .75rem;
+        padding: .6rem .9rem;
+        font-size: .8125rem;
+        font-weight: 700;
+        transition: background-color 150ms ease, transform 150ms ease;
+      }
+      .admin-action-primary { background: #e0a030; color: #0e1530; }
+      .admin-action-primary:hover { background: #efb64d; transform: translateY(-1px); }
+      .admin-action-secondary { border: 1px solid var(--border); background: var(--bg-subtle); color: var(--text-main); }
+      .admin-action-secondary:hover { border-color: #e0a030; }
+      .admin-stock-button {
+        display: grid;
+        width: 2.25rem;
+        height: 2.25rem;
+        place-items: center;
+        border: 1px solid var(--border);
+        border-radius: .65rem;
+        background: var(--bg-surface);
+        color: var(--text-main);
+        font-size: 1.2rem;
+        font-weight: 700;
+      }
+      .admin-stock-button:hover:not(:disabled) { border-color: #e0a030; color: #925f00; }
+      .admin-stock-button:disabled { cursor: not-allowed; opacity: .45; }
+      .admin-alert-low { background: #fff7ed; color: #9a3412; }
+      .admin-alert-out { background: #fef2f2; color: #b91c1c; }
+      html.dark .admin-alert-low { background: rgba(245, 158, 11, .14); color: #fbbf24; }
+      html.dark .admin-alert-out { background: rgba(239, 68, 68, .14); color: #f87171; }
+      @media print {
+        #admin-sidebar, header, .no-print, .admin-search-dialog { display: none !important; }
+        #admin-content { margin: 0 !important; }
+        body, main { background: #fff !important; color: #111 !important; }
+        main { max-width: none !important; padding: 0 !important; }
+        section, article { break-inside: avoid; box-shadow: none !important; }
+      }
+      @media (max-width: 1023px) {
+        body { padding-bottom: calc(4.75rem + env(safe-area-inset-bottom)); }
+        #admin-sidebar {
+          position: fixed;
+          inset: auto 0 0;
+          z-index: 60;
+          width: 100%;
+          border-top: 1px solid rgba(255,255,255,.12);
+          box-shadow: 0 -8px 28px rgba(6,12,30,.2);
+        }
+        #admin-sidebar > div:first-child,
+        #admin-sidebar > .brand-row,
+        #admin-sidebar > div:last-child { display: none !important; }
+        #admin-sidebar nav {
+          display: flex;
+          flex: none;
+          justify-content: space-around;
+          gap: .15rem;
+          overflow-x: auto;
+          padding: .4rem .3rem calc(.4rem + env(safe-area-inset-bottom));
+        }
+        #admin-sidebar nav > a {
+          position: relative;
+          display: flex;
+          min-width: 3.5rem;
+          flex: 1;
+          flex-direction: column;
+          justify-content: center;
+          gap: .25rem;
+          padding: .4rem .15rem;
+          text-align: center;
+          font-size: .65rem;
+        }
+        #admin-sidebar nav > a:last-child { display: none; }
+        #admin-sidebar nav .nav-label { display: block; overflow: hidden; max-width: 100%; text-overflow: ellipsis; white-space: nowrap; }
+        #admin-sidebar nav .nav-count { position: absolute; top: .1rem; right: calc(50% - 1.65rem); padding: .05rem .3rem; }
+      }
+      @media (min-width: 1024px) {
+        #admin-sidebar,
+        #admin-content {
+          transition: width 280ms ease, margin-left 280ms ease;
+        }
+        #admin-content {
+          margin-left: 16rem;
+        }
+        html.sidebar-collapsed #admin-sidebar {
+          width: 4.75rem;
+        }
+        html.sidebar-collapsed #admin-content {
+          margin-left: 4.75rem;
+        }
+        html.sidebar-collapsed #admin-sidebar .nav-label,
+        html.sidebar-collapsed #admin-sidebar .brand-copy,
+        html.sidebar-collapsed #admin-sidebar .shop-link {
+          display: none;
+        }
+        html.sidebar-collapsed #admin-sidebar .collapse-icon {
+          transform: rotate(180deg);
+        }
+        html.sidebar-collapsed #admin-sidebar .nav-link,
+        html.sidebar-collapsed #admin-sidebar .sidebar-signout {
+          justify-content: center;
+          gap: 0;
+          padding-left: 0.7rem;
+          padding-right: 0.7rem;
+        }
+        html.sidebar-collapsed #admin-sidebar .nav-link {
+          position: relative;
+        }
+        html.sidebar-collapsed #admin-sidebar .nav-link > svg {
+          display: block;
+          flex: none;
+          margin: 0 auto;
+        }
+        html.sidebar-collapsed #admin-sidebar .nav-link .nav-count {
+          position: absolute;
+          top: .05rem;
+          right: .15rem;
+          z-index: 1;
+          min-width: 1.15rem;
+          padding: .05rem .3rem;
+          line-height: 1.15rem;
+        }
+        html.sidebar-collapsed #admin-sidebar .brand-row {
+          justify-content: center;
+          gap: .25rem;
+          margin-right: 0;
+          margin-left: 0;
+        }
+        html.sidebar-collapsed #admin-sidebar .brand-link {
+          display: none;
+        }
+        html.sidebar-collapsed #admin-sidebar .brand-mark {
+          display: none;
+        }
+        html.sidebar-collapsed #admin-sidebar .sidebar-toggle {
+          margin: 0 auto;
+          width: 2rem;
+          height: 2rem;
+        }
+      }
+    </style>
   </body>
 </html>
-

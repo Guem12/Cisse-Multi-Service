@@ -10,7 +10,9 @@
   --border:        #D9DCE8;   /* bordures */
   --text-main:     #0E1530;   /* texte principal */
   --text-muted:    #5A6384;   /* texte secondaire */
-  --text-faint:    #9AA0B8;   /* placeholder, hints */
+  --text-faint:    #5C6680;   /* placeholder, hints */
+  --alert-low-text: #9A3412;
+  --alert-out-text: #B91C1C;
 }
 
 html.dark {
@@ -20,7 +22,9 @@ html.dark {
   --border:        rgba(255,255,255,0.08);
   --text-main:     #F0F2FA;   /* blanc doux */
   --text-muted:    #8B96BC;   /* texte secondaire nuit */
-  --text-faint:    #4A526E;
+  --text-faint:    #A6B0CA;
+  --alert-low-text: #FBBF24;
+  --alert-out-text: #F87171;
 }
 
 @layer base {
@@ -36,6 +40,21 @@ html.dark {
   main   { background-color: var(--bg-page); }
 
   :focus-visible { @apply outline-2 outline-offset-2 outline-ocre; }
+
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -4rem;
+    z-index: 80;
+    border-radius: 9999px;
+    background: #E0A030;
+    color: #0E1530;
+    font-weight: 700;
+    padding: 0.6rem 1rem;
+  }
+  .skip-link:focus {
+    top: 1rem;
+  }
 
   /* Scrollbar discrète en mode sombre */
   html.dark ::-webkit-scrollbar        { width: 6px; height: 6px; }
@@ -154,4 +173,3 @@ html.dark {
   /* Séparateurs */
   .divider { border-color: var(--border); }
 }
-

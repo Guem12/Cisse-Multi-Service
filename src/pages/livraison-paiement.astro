@@ -1,0 +1,41 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import { DEFAULT_OG_IMAGE, BRAND, waLink } from "../../lib/store.js";
+
+const description = `Zones, frais de livraison et moyens de paiement de ${BRAND} à Bamako. Les détails sont confirmés selon votre trajet avant toute commande.`;
+const phone = import.meta.env.PUBLIC_WHATSAPP_1 || "22362823995";
+---
+
+<SiteLayout
+  title={`Livraison & paiement à Bamako · ${BRAND}`}
+  description={description}
+  image={DEFAULT_OG_IMAGE}
+>
+  <article class="wrap max-w-3xl pb-16 pt-10">
+    <p class="text-sm font-bold uppercase tracking-widest text-ocre">Informations pratiques</p>
+    <h1 class="mt-2 font-titre text-3xl font-extrabold text-page-main sm:text-4xl">Livraison & paiement</h1>
+    <p class="mt-4 text-page-muted">Les commandes sont préparées avec la boutique sur WhatsApp. Le coût et le délai sont confirmés avant validation, selon le quartier et le trajet.</p>
+
+    <section class="mt-8 rounded-2xl border p-5 sm:p-6" style="background: var(--bg-surface); border-color: var(--border);" aria-labelledby="zones">
+      <h2 id="zones" class="font-titre text-xl font-bold text-page-main">Zones et frais de livraison</h2>
+      <ul class="mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed text-page-main">
+        <li>Zone annoncée : Bamako. La disponibilité pour votre quartier est vérifiée lors de la commande.</li>
+        <li>Le tarif dépend du trajet et vous est communiqué sur WhatsApp avant confirmation.</li>
+        <li>Le délai et le point de remise sont convenus avec vous, sans délai fixe garanti affiché sur le site.</li>
+      </ul>
+    </section>
+
+    <section class="mt-5 rounded-2xl border p-5 sm:p-6" style="background: var(--bg-surface); border-color: var(--border);" aria-labelledby="paiement">
+      <h2 id="paiement" class="font-titre text-xl font-bold text-page-main">Moyens de paiement</h2>
+      <p class="mt-3 text-sm leading-relaxed text-page-main">Indiquez le moyen que vous préférez. Les modalités sont confirmées avec la boutique au moment de valider la commande.</p>
+      <ul class="mt-3 flex flex-wrap gap-2 text-sm font-semibold text-page-main">
+        <li class="rounded-full border px-3 py-1.5" style="border-color: var(--border);">Orange Money</li>
+        <li class="rounded-full border px-3 py-1.5" style="border-color: var(--border);">Moov Money</li>
+        <li class="rounded-full border px-3 py-1.5" style="border-color: var(--border);">Espèces</li>
+      </ul>
+      <p class="mt-3 text-sm leading-relaxed text-page-muted">Ne communiquez jamais votre code secret ou votre code de confirmation de paiement.</p>
+    </section>
+
+    <a href={waLink(phone, "Bonjour Cissé Multi-Service, je souhaite vérifier la livraison dans mon quartier.")} target="_blank" rel="noopener noreferrer" class="mt-6 inline-flex rounded-full bg-ocre px-5 py-3 text-sm font-bold text-indigo-deep">Vérifier mon quartier sur WhatsApp</a>
+  </article>
+</SiteLayout>

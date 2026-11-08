@@ -27,6 +27,7 @@ model Product {
   price      Decimal  @db.Decimal(10, 2)
   stock      Int      @default(0)
   images     String   @default("[]")
+  variants   String   @default("[]")
   categoryId String
   category   Category @relation("ProductCategory", fields: [categoryId], references: [id])
   active     Boolean  @default(true)

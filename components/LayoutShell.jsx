@@ -23,13 +23,13 @@ export default function LayoutShell({ children, numbers = [] }) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logo-fond-sombre.svg"
-                alt="Cissé-multi-service"
+                alt="Cissé Multi-Service"
                 width="110"
                 height="40"
                 className="h-8 sm:h-9 w-auto"
               />
               <p className="mt-2 max-w-sm text-xs sm:text-sm text-white/75 leading-relaxed">
-                Sacs, montres, écouteurs et accessoires de qualité. Commandez directement sur WhatsApp en toute simplicité.
+                Sacs, montres et accessoires à Bamako. Commandez directement sur WhatsApp.
               </p>
             </div>
             <div className="flex flex-col gap-2">
@@ -50,7 +50,7 @@ export default function LayoutShell({ children, numbers = [] }) {
             </div>
           </div>
           <div className="mt-5 border-t border-white/10 pt-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-xs text-white/50">
-            <p>© {new Date().getFullYear()} Cissé-multi-service · Bamako, Mali</p>
+            <p>© {new Date().getFullYear()} Cissé Multi-Service · Bamako, Mali</p>
             <p className="text-[11px] text-white/40">Tous droits réservés</p>
           </div>
         </div>

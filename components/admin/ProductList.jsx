@@ -2,10 +2,10 @@ import { useState, useMemo } from "react";
 import { Image, Link } from "@/lib/astro-compat";
 import { formatPrice } from "@/lib/format";
 
-export default function ProductList({ initialProducts, categories }) {
+export default function ProductList({ initialProducts, categories, initialStockFilter = "all" }) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [stockFilter, setStockFilter] = useState("all");
+  const [stockFilter, setStockFilter] = useState(initialStockFilter);
   const [statusFilter, setStatusFilter] = useState("all");
 
   const filtered = useMemo(() => {
@@ -21,6 +21,7 @@ export default function ProductList({ initialProducts, categories }) {
       if (stockFilter === "in_stock") matchesStock = p.stock > 5;
       else if (stockFilter === "low_stock") matchesStock = p.stock > 0 && p.stock <= 5;
       else if (stockFilter === "out_of_stock") matchesStock = p.stock <= 0;
+      else if (stockFilter === "alertes") matchesStock = p.stock <= 5;
       let matchesStatus = true;
       if (statusFilter === "active") matchesStatus = p.active;
       else if (statusFilter === "inactive") matchesStatus = !p.active;
@@ -43,11 +44,11 @@ export default function ProductList({ initialProducts, categories }) {
       icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
     },
     {
-      label: "Stock faible", value: lowStockCount, color: "#f59e0b", bg: "rgba(245,158,11,0.12)",
+      label: "Stock faible", value: lowStockCount, color: "var(--alert-low-text)", bg: "rgba(245,158,11,0.12)",
       icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>,
     },
     {
-      label: "Ruptures", value: outOfStockCount, color: "#ef4444", bg: "rgba(239,68,68,0.12)",
+      label: "Ruptures", value: outOfStockCount, color: "var(--alert-out-text)", bg: "rgba(239,68,68,0.12)",
       icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>,
     },
   ];
@@ -114,6 +115,7 @@ export default function ProductList({ initialProducts, categories }) {
             <option value="in_stock">En stock (plus de 5)</option>
             <option value="low_stock">Stock faible (1-5)</option>
             <option value="out_of_stock">Rupture (0)</option>
+            <option value="alertes">À réapprovisionner</option>
           </select>
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-2.5 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-ocre"
@@ -138,7 +140,7 @@ export default function ProductList({ initialProducts, categories }) {
         )}
       </div>
 
-      {/* Table */}
+      {/* Product table */}
       <div className="rounded-2xl border overflow-hidden"
         style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)" }}>
         {filtered.length === 0 ? (
@@ -158,7 +160,8 @@ export default function ProductList({ initialProducts, categories }) {
             </Link>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          <div className="hidden overflow-x-auto md:block">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="text-[11px] font-bold uppercase tracking-wider border-b"
@@ -176,6 +179,7 @@ export default function ProductList({ initialProducts, categories }) {
                   const img = p.images?.[0]?.url;
                   const isLow = p.stock > 0 && p.stock <= 5;
                   const isOut = p.stock <= 0;
+                  const stockClass = isOut ? "admin-alert-out" : isLow ? "admin-alert-low" : "bg-emerald-500/10 text-emerald-800 dark:text-emerald-300";
                   return (
                     <tr key={p._id} className="transition-colors border-b"
                       style={{ borderColor: "var(--border)" }}>
@@ -212,11 +216,11 @@ export default function ProductList({ initialProducts, categories }) {
                       </td>
                       <td className="py-4 px-5 whitespace-nowrap">
                         {isOut ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-500/10 text-red-500">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold admin-alert-out">
                             <span className="w-1.5 h-1.5 rounded-full bg-red-500" />Rupture
                           </span>
                         ) : isLow ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-500">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold admin-alert-low">
                             <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />Faible ({p.stock})
                           </span>
                         ) : (
@@ -261,6 +265,48 @@ export default function ProductList({ initialProducts, categories }) {
               </tbody>
             </table>
           </div>
+          <div className="space-y-3 p-3 md:hidden">
+            {filtered.map((product) => {
+              const isOut = product.stock <= 0;
+              const isLow = product.stock > 0 && product.stock <= 5;
+              const stockClass = isOut
+                ? "admin-alert-out"
+                : isLow
+                  ? "admin-alert-low"
+                  : "bg-emerald-500/10 text-emerald-800 dark:text-emerald-300";
+              return (
+                <article key={product._id} className="rounded-xl border p-4" style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)" }}>
+                  <div className="flex items-start gap-3">
+                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border" style={{ backgroundColor: "var(--bg-subtle)", borderColor: "var(--border)" }}>
+                      {product.images?.[0]?.url ? (
+                        <Image src={product.images[0].url} alt={product.name} fill className="object-cover" sizes="56px" />
+                      ) : (
+                        <div className="grid h-full place-items-center text-page-muted">?</div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <Link href={`/admin/produits/${product._id}`} className="block truncate text-sm font-bold text-page-main">{product.name}</Link>
+                      <p className="mt-1 truncate text-xs text-page-muted">{product.category?.name || "Non catégorisé"}</p>
+                      <p className="mt-1 text-sm font-bold text-ocre">{formatPrice(product.price)}</p>
+                    </div>
+                    <span className={`shrink-0 rounded-full px-2 py-1 text-[11px] font-bold ${stockClass}`}>
+                      {isOut ? "Rupture" : isLow ? `Faible · ${product.stock}` : `${product.stock} unités`}
+                    </span>
+                  </div>
+                  <div className="mt-4 flex items-center justify-between border-t pt-3" style={{ borderColor: "var(--border)" }}>
+                    <span className={`text-xs font-semibold ${product.active ? "text-emerald-700 dark:text-emerald-300" : "text-page-muted"}`}>
+                      {product.active ? "En ligne" : "Masqué"}
+                    </span>
+                    <div className="flex gap-2">
+                      <Link href={`/admin/produits/${product._id}`} className="admin-action-secondary">Modifier</Link>
+                      <Link href={`/produit/${product.slug}`} target="_blank" className="admin-action-secondary">Voir</Link>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+          </>
         )}
       </div>
     </div>

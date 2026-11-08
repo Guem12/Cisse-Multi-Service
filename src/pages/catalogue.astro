@@ -1,66 +1,116 @@
 ---
 import SiteLayout from "../layouts/SiteLayout.astro";
 import ProductCard from "../../components/ProductCard.astro";
-import { getCategories, getProductPage } from "../../lib/data.js";
+import { getProductPage, getStorefrontFacts } from "../../lib/data.js";
+import { PRICE_BANDS, SORTS, parsePriceBand } from "../../lib/store.js";
 
 export const prerender = false;
-export const metadata = { title: "Catalogue · Cissé-multi-service" };
 
-const active = Astro.url.searchParams.get("categorie");
-const parsedPage = Number.parseInt(Astro.url.searchParams.get("page") || "1", 10);
+const params = Astro.url.searchParams;
+const active = params.get("categorie") || "";
+const query = (params.get("q") || "").trim().slice(0, 80);
+const priceBand = PRICE_BANDS.some((band) => band.value === params.get("prix")) ? params.get("prix") : "";
+const sort = SORTS.some((item) => item.value === params.get("tri")) ? params.get("tri") : "recent";
+const parsedPage = Number.parseInt(params.get("page") || "1", 10);
 const page = Number.isSafeInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
 const pageSize = 24;
-const pageHref = (nextPage) => {
-  const params = new URLSearchParams();
-  if (active) params.set("categorie", active);
-  if (nextPage > 1) params.set("page", String(nextPage));
-  const query = params.toString();
-  return query ? `/catalogue?${query}` : "/catalogue";
+const { minPrice, maxPrice } = parsePriceBand(priceBand);
+
+const pageHref = (nextPage, overrides = {}) => {
+  const next = new URLSearchParams();
+  const categorie = overrides.categorie ?? active;
+  const q = overrides.q ?? query;
+  const prix = overrides.prix ?? priceBand;
+  const tri = overrides.tri ?? sort;
+  if (categorie) next.set("categorie", categorie);
+  if (q) next.set("q", q);
+  if (prix) next.set("prix", prix);
+  if (tri && tri !== "recent") next.set("tri", tri);
+  if (nextPage > 1) next.set("page", String(nextPage));
+  const search = next.toString();
+  return search ? `/catalogue?${search}` : "/catalogue";
 };
-const [categories, products] = await Promise.all([
-  getCategories(),
-  getProductPage({ categorySlug: active || undefined, page, pageSize }),
+
+const [facts, products] = await Promise.all([
+  getStorefrontFacts(),
+  getProductPage({ categorySlug: active || undefined, query, minPrice, maxPrice, sort, page, pageSize }),
 ]);
 if (products.pageCount > 0 && page > products.pageCount) {
   return Astro.redirect(pageHref(products.pageCount), 302);
 }
+const currentCategory = facts.categories.find((category) => category.slug === active);
+const title = currentCategory
+  ? `${currentCategory.name} · Cissé Multi-Service`
+  : "Catalogue · Cissé Multi-Service";
+const description = currentCategory
+  ? `${currentCategory.name} en vente chez Cissé Multi-Service à Bamako. Commande par WhatsApp.`
+  : "Catalogue Cissé Multi-Service à Bamako : sacs, montres et accessoires disponibles. Commande par WhatsApp.";
 const pill = (on) =>
   `whitespace-nowrap rounded-full border-2 px-5 py-2.5 text-sm font-bold transition-all ${
     on
-      ? "border-indigo bg-indigo text-white dark:border-ocre dark:bg-ocre dark:text-indigo-deep"
+      ? "border-ocre bg-ocre text-indigo-deep"
       : "border-indigo/30 text-indigo hover:bg-white/10 dark:border-white/20 dark:text-white/80"
   }`;
+const filtersOn = Boolean(query || priceBand || (sort && sort !== "recent") || active);
 ---
 
-<SiteLayout title="Catalogue · Cissé-multi-service">
+<SiteLayout title={title} description={description}>
   <div class="wrap pb-16">
-    <h1 class="mt-8 font-titre text-4xl font-extrabold sm:text-5xl dark:text-white">Catalogue</h1>
-    <nav aria-label="Catégories" class="-mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
-      <a href="/catalogue" class={pill(!active)}>Tout</a>
-      {categories.map((category) => (
-        <a href={`/catalogue?categorie=${encodeURIComponent(category.slug)}`} class={pill(active === category.slug)}>{category.name}</a>
+    <h1 class="mt-8 text-center font-titre text-4xl font-extrabold text-page-main sm:text-5xl">
+      {currentCategory ? currentCategory.name : "Catalogue"}
+    </h1>
+    <p class="mx-auto mt-2 max-w-2xl text-center text-page-muted">Recherchez parmi les articles réellement en ligne, puis commandez sur WhatsApp.</p>
+
+    <form method="get" action="/catalogue" class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" role="search">
+      {active && <input type="hidden" name="categorie" value={active} />}
+      <label class="block text-center text-sm font-semibold text-page-main">
+        Recherche
+        <input class="field mt-1" type="search" name="q" value={query} maxlength="80" placeholder="Nom ou description" />
+      </label>
+      <label class="block text-center text-sm font-semibold text-page-main">
+        Prix
+        <select class="field mt-1" name="prix">
+          {PRICE_BANDS.map((band) => <option value={band.value} selected={priceBand === band.value}>{band.label}</option>)}
+        </select>
+      </label>
+      <label class="block text-center text-sm font-semibold text-page-main">
+        Trier
+        <select class="field mt-1" name="tri">
+          {SORTS.map((item) => <option value={item.value} selected={sort === item.value}>{item.label}</option>)}
+        </select>
+      </label>
+      <div class="flex items-end justify-center gap-2">
+        <button type="submit" class="rounded-full bg-ocre px-5 py-2.5 text-sm font-bold text-indigo-deep">Appliquer</button>
+        {filtersOn && <a href="/catalogue" class="rounded-full border px-4 py-2.5 text-sm font-semibold" style="border-color: var(--border);">Effacer</a>}
+      </div>
+    </form>
+
+    <nav aria-label="Catégories" class="-mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:justify-center sm:px-0">
+      <a href={pageHref(1, { categorie: "" })} class={pill(!active)} aria-current={!active ? "true" : undefined}>Tout</a>
+      {facts.categories.map((category) => (
+        <a href={pageHref(1, { categorie: category.slug })} class={pill(active === category.slug)} aria-current={active === category.slug ? "page" : undefined}>{category.name}</a>
       ))}
     </nav>
     {products.items.length === 0 ? (
-      <p class="mt-8 text-indigo/70 dark:text-white/60">Aucun produit dans cette catégorie pour le moment.</p>
+      <p class="mt-8 text-center text-page-muted">Aucun produit ne correspond à cette recherche.</p>
     ) : (
       <>
-        <p class="mt-4 text-sm text-indigo/70 dark:text-white/60">{products.total} article{products.total > 1 ? "s" : ""}</p>
+        <p class="mt-4 text-center text-sm text-page-muted">{products.total} article{products.total > 1 ? "s" : ""}</p>
         <div class="mt-4 grid grid-cols-2 gap-x-3 gap-y-7 lg:grid-cols-4">
-          {products.items.map((product) => <ProductCard product={product} />)}
+          {products.items.map((product) => <ProductCard product={product} centered />)}
         </div>
         {products.pageCount > 1 && (
           <nav class="mt-10 flex items-center justify-center gap-4" aria-label="Pagination du catalogue">
             {page > 1 ? (
-              <a href={pageHref(page - 1)} rel="prev" class="rounded-full border border-indigo/20 px-4 py-2 text-sm font-semibold text-indigo hover:bg-indigo/5 dark:border-white/20 dark:text-white dark:hover:bg-white/10">Précédent</a>
+              <a href={pageHref(page - 1)} rel="prev" class="rounded-full border px-4 py-2 text-sm font-semibold" style="border-color: var(--border);">Précédent</a>
             ) : (
-              <span class="rounded-full border border-indigo/10 px-4 py-2 text-sm text-indigo/40 dark:border-white/10 dark:text-white/40">Précédent</span>
+              <span class="rounded-full border px-4 py-2 text-sm text-page-faint" style="border-color: var(--border);">Précédent</span>
             )}
-            <span class="text-sm font-semibold text-indigo/70 dark:text-white/70">Page {page} sur {products.pageCount}</span>
+            <span class="text-sm font-semibold text-page-muted">Page {page} sur {products.pageCount}</span>
             {page < products.pageCount ? (
-              <a href={pageHref(page + 1)} rel="next" class="rounded-full border border-indigo/20 px-4 py-2 text-sm font-semibold text-indigo hover:bg-indigo/5 dark:border-white/20 dark:text-white dark:hover:bg-white/10">Suivant</a>
+              <a href={pageHref(page + 1)} rel="next" class="rounded-full border px-4 py-2 text-sm font-semibold" style="border-color: var(--border);">Suivant</a>
             ) : (
-              <span class="rounded-full border border-indigo/10 px-4 py-2 text-sm text-indigo/40 dark:border-white/10 dark:text-white/40">Suivant</span>
+              <span class="rounded-full border px-4 py-2 text-sm text-page-faint" style="border-color: var(--border);">Suivant</span>
             )}
           </nav>
         )}

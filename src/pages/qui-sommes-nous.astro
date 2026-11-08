@@ -1,0 +1,35 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import { getStorefrontFacts } from "../../lib/data.js";
+import { BRAND, assortmentPhrase, waLink } from "../../lib/store.js";
+
+export const prerender = false;
+
+const facts = await getStorefrontFacts();
+const assortment = assortmentPhrase(facts.categories);
+const phone = import.meta.env.PUBLIC_WHATSAPP_1 || "22362823995";
+const title = `Qui sommes-nous · ${BRAND}`;
+const description = `${BRAND} est une boutique à Bamako. Le catalogue en ligne présente ${assortment}, et chaque commande se confirme sur WhatsApp.`;
+---
+
+<SiteLayout title={title} description={description}>
+  <article class="wrap py-10">
+    <p class="text-xs font-bold uppercase tracking-wider text-ocre">Bamako</p>
+    <h1 class="mt-2 font-titre text-4xl font-extrabold text-page-main">Qui sommes-nous</h1>
+    <div class="mt-6 max-w-3xl space-y-4 text-base leading-relaxed text-page-main">
+      <p>
+        {BRAND} vend {assortment} à Bamako. Le site montre les articles disponibles en ce moment : {facts.productCount} produit{facts.productCount > 1 ? "s" : ""} au catalogue.
+      </p>
+      <p>
+        Il n'y a pas de paiement en ligne. Vous choisissez un article, puis le message WhatsApp reprend les articles, les variantes, les quantités, le total, votre quartier et le mode de paiement souhaité. La boutique confirme ensuite la disponibilité et les modalités de livraison et de règlement.
+      </p>
+      <p>
+        L'adresse du point de retrait et les horaires du jour ne sont pas affichés ici : ils sont confirmés sur WhatsApp, selon le trajet et le stock réel.
+      </p>
+    </div>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href="/catalogue" class="rounded-full bg-ocre px-5 py-3 text-sm font-bold text-indigo-deep">Voir le catalogue</a>
+      <a href={waLink(phone)} target="_blank" rel="noopener noreferrer" class="rounded-full border px-5 py-3 text-sm font-bold" style="border-color: var(--border);">Écrire sur WhatsApp</a>
+    </div>
+  </article>
+</SiteLayout>

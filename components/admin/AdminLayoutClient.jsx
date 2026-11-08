@@ -47,7 +47,7 @@ export default function AdminLayoutClient({ children }) {
   // Breadcrumb intelligent
   let sectionName = "Tableau de bord";
   if (pathname === "/admin/clients") sectionName = "Clients";
-  else if (pathname === "/admin/vitrine") sectionName = "Vitrine Accueil";
+  else if (pathname === "/admin/vitrine") sectionName = "Page d’accueil";
   else if (pathname.startsWith("/admin/produits/nouveau")) sectionName = "Nouveau produit";
   else if (pathname.startsWith("/admin/produits")) sectionName = "Catalogue Produits";
   else if (pathname.startsWith("/admin/categories")) sectionName = "Catégories";

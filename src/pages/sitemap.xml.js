@@ -1,13 +1,17 @@
 import { getProducts } from "../../lib/data.js";
+import { siteOrigin } from "../../lib/store.js";
 
 export const prerender = false;
 
-export async function GET({ site }) {
-  const base = import.meta.env.PUBLIC_SITE_URL || site?.origin || "https://cisse-multi-service.netlify.app";
+export async function GET() {
+  const base = siteOrigin();
   const products = await getProducts();
   const urls = [
     { loc: base },
     { loc: `${base}/catalogue` },
+    { loc: `${base}/qui-sommes-nous` },
+    { loc: `${base}/livraison-paiement` },
+    { loc: `${base}/retours-echanges` },
     ...products.map((product) => ({
       loc: `${base}/produit/${encodeURIComponent(product.slug)}`,
       lastmod: product.updatedAt,

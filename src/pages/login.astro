@@ -6,6 +6,7 @@ const callbackUrl = callbackCandidate.startsWith("/") && !callbackCandidate.star
   ? callbackCandidate
   : "/admin";
 const error = Astro.url.searchParams.get("error");
+const twoFactorEnabled = Boolean(process.env.ADMIN_TOTP_SECRET);
 ---
 
 <SiteLayout title="Connexion administrateur · Cissé Multi-Service" chrome={false} noindex={true}>
@@ -23,6 +24,8 @@ const error = Astro.url.searchParams.get("error");
           <p class="mt-1 text-sm text-white/55">Connectez-vous pour gérer votre boutique.</p>
         </div>
         {error === "credentials" && <p role="alert" class="error-box mb-4">Email ou mot de passe incorrect.</p>}
+        {error === "throttled" && <p role="alert" class="error-box mb-4">Trop de tentatives. Réessayez après quelques minutes.</p>}
+        {error === "unavailable" && <p role="alert" class="error-box mb-4">La connexion est temporairement indisponible. Réessayez dans un instant.</p>}
         {error === "configuration" && <p role="alert" class="error-box mb-4">La connexion n’est pas configurée. Vérifiez la variable AUTH_SECRET.</p>}
         <form action="/api/auth/login" method="post" class="space-y-4">
           <input type="hidden" name="callbackUrl" value={callbackUrl} />
@@ -43,7 +46,7 @@ const error = Astro.url.searchParams.get("error");
             <button 
               type="button" 
               id="toggle-password"
-              class="absolute right-3 top-8 text-white/40 hover:text-white/80 transition-colors"
+              class="absolute right-3 top-8 text-ocre hover:text-yellow-300 transition-colors"
               aria-label="Afficher/masquer le mot de passe"
             >
               <svg id="eye-icon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -55,6 +58,12 @@ const error = Astro.url.searchParams.get("error");
               </svg>
             </button>
           </label>
+          {twoFactorEnabled && (
+            <label class="block">
+              <span class="lbl">Code de vérification</span>
+              <input class="input-admin" type="text" name="totpCode" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required />
+            </label>
+          )}
           <button type="submit" class="btn-submit">Se connecter</button>
         </form>
         <a href="/" class="mt-6 block text-center text-sm text-white/60 hover:text-white">Retour à la boutique</a>
@@ -88,7 +97,7 @@ const error = Astro.url.searchParams.get("error");
   .glass-card { width: 100%; max-width: 440px; border: 1px solid rgba(255,255,255,.08); border-radius: 24px; background: rgba(13,20,40,.92); box-shadow: 0 32px 80px rgba(0,0,0,.6); position: relative; z-index: 1; }
   .top-bar { height: 3px; border-radius: 24px 24px 0 0; background: linear-gradient(90deg, #6366f1, #e0a030, #10b981); }
   .card-body { padding: 36px 40px; }
-  .lbl { display: block; margin-bottom: 6px; color: rgba(255,255,255,.55); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .lbl { display: block; margin-bottom: 6px; color: rgba(255,255,255,.82); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
   .input-admin { width: 100%; box-sizing: border-box; border: 1px solid rgba(255,255,255,.1); border-radius: 12px; background: rgba(255,255,255,.05); padding: 13px 16px; color: #f0f2fa; font-size: 14px; outline: none; }
   .input-admin:focus { border-color: rgba(224,160,48,.6); box-shadow: 0 0 0 3px rgba(224,160,48,.1); }
   .btn-submit { width: 100%; border: 0; border-radius: 12px; background: linear-gradient(135deg,#e0a030,#c8901f); padding: 14px; color: #0e1530; font-size: 14px; font-weight: 700; cursor: pointer; }

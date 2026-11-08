@@ -6,6 +6,7 @@ import { getOrderItems } from "@/lib/cart";
 const NAV_LINKS = [
   { href: "/", label: "Accueil" },
   { href: "/catalogue", label: "Catalogue" },
+  { href: "/qui-sommes-nous", label: "Boutique" },
 ];
 
 function NavLink({ href, label, onClick }) {
@@ -40,6 +41,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [orderDrawerOpen, setOrderDrawerOpen] = useState(false);
   const [orderCount, setOrderCount] = useState(0);
+  const [orderPhone, setOrderPhone] = useState(import.meta.env.PUBLIC_WHATSAPP_1 || "22362823995");
 
   useEffect(() => {
     try {
@@ -50,6 +52,15 @@ export default function Navbar() {
       setDark(isDark);
       document.documentElement.classList.toggle("dark", isDark);
     } catch (e) {}
+  }, []);
+
+  useEffect(() => {
+    const openOrder = (event) => {
+      if (event.detail?.phone) setOrderPhone(event.detail.phone);
+      setOrderDrawerOpen(true);
+    };
+    window.addEventListener("cisse_open_order", openOrder);
+    return () => window.removeEventListener("cisse_open_order", openOrder);
   }, []);
 
   const toggleTheme = () => {
@@ -78,7 +89,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 bg-indigo-deep dark:bg-indigo-deep shadow-md">
-      <div className="w-full px-3 sm:px-6 lg:px-8 flex h-14 sm:h-[70px] items-center justify-between gap-4 relative">
+      <div className="w-full px-3 sm:px-6 lg:px-8 flex h-14 lg:h-[70px] items-center justify-between gap-3 sm:gap-4 relative">
 
         {/* ── Logo + Nom (gauche toute) ── */}
         <Link
@@ -105,7 +116,7 @@ export default function Navbar() {
         </Link>
 
         {/* ── Nav desktop (centre) ── */}
-        <nav className="hidden sm:flex absolute left-1/2 -translate-x-1/2 items-center gap-1" aria-label="Navigation principale">
+        <nav className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-1" aria-label="Navigation principale">
           <button
             onClick={toggleTheme}
             aria-label={dark ? "Passer en mode jour" : "Passer en mode nuit"}
@@ -153,7 +164,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setOrderDrawerOpen(true)}
-            className="relative hidden sm:inline-flex items-center gap-2 rounded-full bg-ocre hover:bg-yellow-500 active:scale-95 px-5 py-2 text-sm font-bold text-indigo-deep shadow-md transition-all duration-200 hover:shadow-lg"
+            className="relative hidden lg:inline-flex min-h-11 items-center gap-2 rounded-full bg-ocre hover:bg-yellow-500 active:scale-95 px-5 py-2 text-sm font-bold text-indigo-deep shadow-md transition-all duration-200 hover:shadow-lg"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
               <path d="M2.25 2.25a.75.75 0 0 0 0 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 0 0-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 0 0 0-1.5H5.378A2.25 2.25 0 0 1 7.5 15h11.218a.75.75 0 0 0 .674-.421 60.358 60.358 0 0 0 2.96-7.228.75.75 0 0 0-.525-.965A60.864 60.864 0 0 0 5.68 4.509l-.232-.867A1.875 1.875 0 0 0 3.636 2.25H2.25ZM3.75 20.25a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM16.5 20.25a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z" />
@@ -170,7 +181,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setMenuOpen(!menuOpen)}
-            className="relative sm:hidden h-9 w-9 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 active:scale-90 transition-all"
+            className="relative lg:hidden h-11 w-11 shrink-0 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 active:scale-90 transition-all"
             aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
             aria-expanded={menuOpen}
           >
@@ -196,8 +207,8 @@ export default function Navbar() {
 
       {/* ── Menu mobile déroulant ── */}
       <div
-        className={`sm:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-          menuOpen ? "max-h-60 opacity-100" : "max-h-0 opacity-0"
+        className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          menuOpen ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <nav
@@ -229,9 +240,18 @@ export default function Navbar() {
       </div>
 
       {/* ── Slide-over Tiroir de commande ── */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid min-h-12 grid-cols-3 border-t border-white/15 bg-indigo-deep px-2 pb-[env(safe-area-inset-bottom)] pt-1 text-white lg:hidden" aria-label="Navigation mobile">
+        <Link href="/" className="flex min-h-11 items-center justify-center px-1 text-center text-xs font-semibold text-white/85">Accueil</Link>
+        <Link href="/catalogue" className="flex min-h-11 items-center justify-center px-1 text-center text-xs font-semibold text-white/85">Catalogue</Link>
+        <button type="button" onClick={() => setOrderDrawerOpen(true)} className="relative flex min-h-11 items-center justify-center px-1 text-center text-xs font-semibold text-white/85">
+          Ma commande
+          {orderCount > 0 && <span className="ml-1 rounded-full bg-ocre px-1.5 text-[9px] font-extrabold text-indigo-deep">{orderCount}</span>}
+        </button>
+      </nav>
       <OrderDrawer
         isOpen={orderDrawerOpen}
         onClose={() => setOrderDrawerOpen(false)}
+        phone={orderPhone}
       />
     </header>
   );

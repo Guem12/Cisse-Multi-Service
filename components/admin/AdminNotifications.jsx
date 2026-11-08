@@ -230,7 +230,7 @@ export default function AdminNotifications({ variant = "desktop" }) {
               <div className="space-y-3">
                 {alerts.outOfStock.length > 0 && (
                   <div>
-                    <p className="mb-1 text-xs font-bold text-red-500">
+                    <p className="mb-1 text-xs font-bold" style={{ color: "var(--alert-out-text)" }}>
                       En rupture ({alerts.outOfStock.length})
                     </p>
                     <ul className="space-y-1">
@@ -241,7 +241,7 @@ export default function AdminNotifications({ variant = "desktop" }) {
                           style={{ backgroundColor: "rgba(239,68,68,0.08)", color: "var(--text-main)" }}
                         >
                           <span className="truncate font-semibold">{p.name}</span>
-                          <span className="shrink-0 font-black text-red-500">{p.stock}</span>
+                          <span className="shrink-0 font-black" style={{ color: "var(--alert-out-text)" }}>{p.stock}</span>
                         </li>
                       ))}
                     </ul>
@@ -250,7 +250,7 @@ export default function AdminNotifications({ variant = "desktop" }) {
 
                 {alerts.lowStock.length > 0 && (
                   <div>
-                    <p className="mb-1 text-xs font-bold text-amber-500">
+                    <p className="mb-1 text-xs font-bold" style={{ color: "var(--alert-low-text)" }}>
                       Stock faible · ≤ {LOW_STOCK_THRESHOLD} ({alerts.lowStock.length})
                     </p>
                     <ul className="space-y-1">
@@ -261,7 +261,7 @@ export default function AdminNotifications({ variant = "desktop" }) {
                           style={{ backgroundColor: "rgba(245,158,11,0.1)", color: "var(--text-main)" }}
                         >
                           <span className="truncate font-semibold">{p.name}</span>
-                          <span className="shrink-0 font-black text-amber-500">{p.stock}</span>
+                          <span className="shrink-0 font-black" style={{ color: "var(--alert-low-text)" }}>{p.stock}</span>
                         </li>
                       ))}
                     </ul>

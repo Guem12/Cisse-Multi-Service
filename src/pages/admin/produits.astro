@@ -8,8 +8,9 @@ const [products, categories] = await Promise.all([
   getProducts({ includeInactive: true }),
   getCategories(),
 ]);
+const initialStockFilter = Astro.url.searchParams.get("stock") === "alertes" ? "alertes" : "all";
 ---
 
 <AdminLayout title="Catalogue Produits · Cissé Multi-Service">
-  <ProductList client:load initialProducts={products} categories={categories} />
+  <ProductList client:load initialProducts={products} categories={categories} initialStockFilter={initialStockFilter} />
 </AdminLayout>

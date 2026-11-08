@@ -1,4 +1,5 @@
 import { createAdminSessionCookie, verifyAdminCredentials } from "../../../../lib/auth";
+import { clearLoginFailures, consumeLoginAttempt } from "../../../../lib/auth-rate-limit";
 
 export const prerender = false;
 
@@ -6,17 +7,20 @@ export async function POST({ request }) {
   const isJson = request.headers.get("content-type")?.includes("application/json");
   let email;
   let password;
+  let totpCode;
   let callbackUrl = "/admin";
 
   if (isJson) {
     const body = await request.json();
     email = body.email;
     password = body.password;
+    totpCode = body.totpCode;
     callbackUrl = body.callbackUrl || callbackUrl;
   } else {
     const form = await request.formData();
     email = form.get("email");
     password = form.get("password");
+    totpCode = form.get("totpCode");
     callbackUrl = form.get("callbackUrl") || callbackUrl;
   }
 
@@ -27,7 +31,26 @@ export async function POST({ request }) {
       safeCallback = `${targetUrl.pathname}${targetUrl.search}${targetUrl.hash}`;
     }
   }
-  const admin = await verifyAdminCredentials(email, password);
+  const rateLimit = await consumeLoginAttempt(request);
+  if (!rateLimit.allowed) {
+    if (isJson) {
+      return Response.json(
+        { error: "Trop de tentatives. Réessayez plus tard." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfter) } },
+      );
+    }
+    const loginUrl = new URL("/login?error=throttled", request.url);
+    loginUrl.searchParams.set("callbackUrl", safeCallback);
+    return new Response(null, {
+      status: 303,
+      headers: {
+        Location: loginUrl.toString(),
+        "Retry-After": String(rateLimit.retryAfter),
+      },
+    });
+  }
+
+  const admin = await verifyAdminCredentials(email, password, totpCode);
 
   if (!admin) {
     if (isJson) {
@@ -37,6 +60,16 @@ export async function POST({ request }) {
     loginUrl.searchParams.set("error", "credentials");
     loginUrl.searchParams.set("callbackUrl", safeCallback);
     return Response.redirect(loginUrl, 303);
+  }
+
+  try {
+    await clearLoginFailures(request);
+  } catch (error) {
+    console.error("Unable to clear administrator login attempts:", error);
+    if (isJson) {
+      return Response.json({ error: "La connexion est temporairement indisponible." }, { status: 503 });
+    }
+    return Response.redirect(new URL("/login?error=unavailable", request.url), 303);
   }
 
   try {

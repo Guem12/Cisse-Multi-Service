@@ -1,11 +1,13 @@
 ---
 import { formatPrice } from "../lib/format.js";
-import { optimizeCloudinaryImage } from "../lib/image-url.mjs";
+import { optimizeCloudinaryImage, responsiveImageSrcSet } from "../lib/image-url.mjs";
+import { isLowStock } from "../lib/store.js";
 
-const { product } = Astro.props;
+const { product, centered = false } = Astro.props;
 const image = product.images?.[0]?.url;
 const soldOut = product.stock <= 0;
-const phone = import.meta.env.PUBLIC_WHATSAPP_1 || "22362823995";
+const lowStock = isLowStock(product.stock);
+const stockLabel = soldOut ? "Rupture" : lowStock ? "Dernières pièces" : "En stock";
 const productHref = `/produit/${product.slug}`;
 ---
 
@@ -15,6 +17,7 @@ const productHref = `/produit/${product.slug}`;
       {image ? (
         <img
           src={optimizeCloudinaryImage(image, 480)}
+          srcset={responsiveImageSrcSet(image)}
           alt={product.name}
           width="480"
           height="480"
@@ -26,19 +29,19 @@ const productHref = `/produit/${product.slug}`;
       ) : (
         <div class="flex h-full items-center justify-center text-xs text-page-faint">Photo à venir</div>
       )}
-      <span class:list={["absolute right-2 top-2 rounded-full px-2.5 py-0.5 text-[10px] font-extrabold shadow sm:text-xs", soldOut ? "bg-red-500 text-white" : "bg-emerald-500 text-white"]}>
-        {soldOut ? "RUPTURE" : "EN STOCK"}
+      <span class:list={["absolute right-2 top-2 rounded-full px-2.5 py-0.5 text-[10px] font-extrabold shadow sm:text-xs", soldOut ? "bg-red-600 text-white" : lowStock ? "bg-ocre text-indigo-deep" : "bg-emerald-600 text-white"]}>
+        {stockLabel}
       </span>
     </a>
 
     <div class="mt-2.5">
-      {product.category?.name && <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 sm:text-xs">{product.category.name}</p>}
+      {product.category?.name && <p class:list={["text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 sm:text-xs", centered && "text-center"]}>{product.category.name}</p>}
       <a href={productHref}>
-        <h3 class="mt-0.5 line-clamp-2 font-titre text-sm font-bold leading-tight transition-colors hover:text-ocre sm:text-base" style="color: var(--text-main);">
+        <h3 class:list={["mt-0.5 line-clamp-2 font-titre text-sm font-bold leading-tight transition-colors hover:text-ocre sm:text-base", centered && "text-center"]} style="color: var(--text-main);">
           {product.name}
         </h3>
       </a>
-      <p class="mt-1 font-titre text-base font-extrabold text-emerald-600 dark:text-emerald-400 sm:text-lg">{formatPrice(product.price)}</p>
+      <p class:list={["mt-1 font-titre text-base font-extrabold text-emerald-600 dark:text-emerald-400 sm:text-lg", centered && "text-center"]}>{formatPrice(product.price)}</p>
     </div>
   </div>
 
@@ -54,11 +57,11 @@ const productHref = `/produit/${product.slug}`;
           data-order-whatsapp
           data-name={product.name}
           data-price={product.price}
+          data-stock={product.stock}
           data-slug={product.slug}
           data-image={image || ""}
-          data-phone={phone}
           class="flex w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-500 px-2 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-emerald-600 active:scale-[0.97] sm:text-sm"
-          title="Commander directement cet article sur WhatsApp"
+          title="Ajouter cet article puis compléter votre commande"
         >
           <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4 shrink-0" aria-hidden="true">
             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
@@ -72,6 +75,7 @@ const productHref = `/produit/${product.slug}`;
           data-add-to-order
           data-name={product.name}
           data-price={product.price}
+          data-stock={product.stock}
           data-slug={product.slug}
           data-image={image || ""}
           data-default-text="Ajouter à ma commande"
@@ -88,35 +92,48 @@ const productHref = `/produit/${product.slug}`;
 
 <script>
   import { addToOrder } from "../lib/cart.js";
-  import { sendWhatsAppProductOrder } from "../lib/whatsapp.js";
 
-  document.addEventListener("click", async (event) => {
+  document.addEventListener("click", (event) => {
     if (!(event.target instanceof Element)) return;
 
     const whatsappButton = event.target.closest("[data-order-whatsapp]");
     if (whatsappButton) {
-      await sendWhatsAppProductOrder({
+      const added = addToOrder({
+        slug: whatsappButton.dataset.slug,
         name: whatsappButton.dataset.name,
         price: Number(whatsappButton.dataset.price),
-        qty: 1,
-        slug: whatsappButton.dataset.slug,
-        imageUrl: whatsappButton.dataset.image,
-        phone: whatsappButton.dataset.phone,
+        stock: Number(whatsappButton.dataset.stock),
+        image: whatsappButton.dataset.image,
       });
+      if (!added) {
+        window.dispatchEvent(new Event("cisse_open_order"));
+        return;
+      }
+      window.dispatchEvent(new Event("cisse_open_order"));
       return;
     }
 
     const addButton = event.target.closest("[data-add-to-order]");
     if (!addButton) return;
 
-    addToOrder({
+    const added = addToOrder({
       slug: addButton.dataset.slug,
       name: addButton.dataset.name,
       price: Number(addButton.dataset.price),
+      stock: Number(addButton.dataset.stock),
       images: [{ url: addButton.dataset.image }],
     });
 
     const label = addButton.querySelector("[data-add-label]");
+    if (!added) {
+      label.textContent = "Ajout impossible";
+      addButton.classList.add("border-red-500", "text-red-700", "dark:text-red-300");
+      window.setTimeout(() => {
+        label.textContent = addButton.dataset.defaultText;
+        addButton.classList.remove("border-red-500", "text-red-700", "dark:text-red-300");
+      }, 1800);
+      return;
+    }
     label.textContent = "Ajouté !";
     addButton.classList.add("border-emerald-500", "bg-emerald-50", "text-emerald-700", "shadow-inner", "dark:bg-emerald-950/60", "dark:text-emerald-300");
     window.setTimeout(() => {

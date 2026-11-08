@@ -3,6 +3,7 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
 import DashboardStats from "../../../components/admin/DashboardStats.jsx";
 import { getCategories, getProducts } from "../../../lib/data.js";
 import { getHeroShowcase } from "../../../lib/hero.js";
+import { recordDashboardSnapshot } from "../../../lib/admin-dashboard.js";
 
 export const prerender = false;
 
@@ -11,8 +12,9 @@ const [products, categories, heroSlots] = await Promise.all([
   getCategories(),
   getHeroShowcase(),
 ]);
+const history = await recordDashboardSnapshot(products);
 ---
 
 <AdminLayout title="Tableau de bord · Cissé Multi-Service">
-  <DashboardStats client:load products={products} categories={categories} heroSlots={heroSlots} />
+  <DashboardStats client:load products={products} categories={categories} heroSlots={heroSlots} history={history} />
 </AdminLayout>

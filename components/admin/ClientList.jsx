@@ -261,10 +261,84 @@ export default function ClientList({ initialClients = [] }) {
 
       {/* Tableau des Clients */}
       <div
-        className="rounded-2xl border overflow-hidden shadow-sm"
+        className="rounded-2xl border shadow-sm"
         style={{ backgroundColor: "var(--bg-surface)", borderColor: "var(--border)" }}
       >
-        <div className="overflow-x-auto">
+        <div className="space-y-3 p-3 md:hidden">
+          {filtered.length === 0 ? (
+            <p className="py-8 text-center text-sm" style={{ color: "var(--text-muted)" }}>
+              Aucun client ne correspond à votre recherche.
+            </p>
+          ) : filtered.map((cli) => {
+            const cleanPhone = cli.phone.replace(/\D/g, "");
+            const initials = cli.name
+              .split(" ")
+              .map((part) => part[0])
+              .slice(0, 2)
+              .join("")
+              .toUpperCase();
+
+            return (
+              <article
+                key={cli._id}
+                className="rounded-xl border p-4"
+                style={{ backgroundColor: "var(--bg-page)", borderColor: "var(--border)" }}
+              >
+                <div className="flex min-w-0 items-start gap-3">
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-tr from-[#1B2A5C] to-[#E0A030] text-xs font-bold text-white shadow">
+                    {initials}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="break-words font-bold text-sm" style={{ color: "var(--text-main)" }}>{cli.name}</p>
+                    {cli.email && <p className="mt-0.5 break-all text-xs" style={{ color: "var(--text-faint)" }}>{cli.email}</p>}
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <span className={`rounded-full border px-2.5 py-1 text-[11px] font-bold ${STATUS_COLORS[cli.status] || STATUS_COLORS.Actif}`}>
+                        {cli.status === "VIP" && "★ "}{cli.status}
+                      </span>
+                      <a
+                        href={`https://wa.me/${cleanPhone}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex min-h-9 items-center rounded-full bg-emerald-500/10 px-3 text-xs font-bold text-emerald-600 dark:text-emerald-400"
+                      >
+                        WhatsApp · {formatPhone(cli.phone)}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <dl className="mt-4 grid grid-cols-2 gap-3 border-t pt-3 text-xs" style={{ borderColor: "var(--border)" }}>
+                  <div className="min-w-0">
+                    <dt style={{ color: "var(--text-muted)" }}>Ville / quartier</dt>
+                    <dd className="mt-0.5 break-words font-semibold" style={{ color: "var(--text-main)" }}>
+                      {[cli.city, cli.address].filter(Boolean).join(" · ") || "Non renseigné"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt style={{ color: "var(--text-muted)" }}>Commandes</dt>
+                    <dd className="mt-0.5 font-semibold" style={{ color: "var(--text-main)" }}>{cli.ordersCount}</dd>
+                  </div>
+                  <div className="col-span-2">
+                    <dt style={{ color: "var(--text-muted)" }}>Total dépensé</dt>
+                    <dd className="mt-0.5 font-black text-ocre">{formatPrice(cli.totalSpent)}</dd>
+                  </div>
+                </dl>
+                <div className="mt-3 flex justify-end border-t pt-3" style={{ borderColor: "var(--border)" }}>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(cli._id, cli.name)}
+                    className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-red-500/20 px-3 text-xs font-semibold text-red-600 transition hover:bg-red-500/10 dark:text-red-400"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v3M4 7h16" />
+                    </svg>
+                    Supprimer
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full text-left text-sm">
             <thead className="border-b text-xs font-bold uppercase tracking-wider" style={{ borderColor: "var(--border)", color: "var(--text-muted)", backgroundColor: "var(--bg-subtle)" }}>
               <tr>

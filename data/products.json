@@ -107,28 +107,9 @@
       }
     ],
     "category": {
-      "_id": {
-        "_id": {
-          "_id": {
-            "_id": {
-              "_id": {
-                "name": "Bracelets & bijouterie",
-                "slug": "bracelets-bijouterie"
-              },
-              "name": "Article",
-              "slug": "article"
-            },
-            "name": "Article",
-            "slug": "article"
-          },
-          "name": "Article",
-          "slug": "article"
-        },
-        "name": "Article",
-        "slug": "article"
-      },
-      "name": "Article",
-      "slug": "article"
+      "_id": "cat-6",
+      "name": "Bracelets & bijouterie",
+      "slug": "bracelets-bijouterie"
     },
     "active": true
   },
@@ -145,9 +126,9 @@
       }
     ],
     "category": {
-      "_id": "cat-1",
-      "name": "Sacs à dos",
-      "slug": "sacs-a-dos"
+      "_id": "cat-9",
+      "name": "Maroquinerie",
+      "slug": "maroquinerie"
     },
     "active": true
   },
@@ -167,6 +148,206 @@
       "_id": "cat-4",
       "name": "Montres",
       "slug": "montres"
+    },
+    "active": true
+  },
+  {
+    "_id": "prod-9",
+    "name": "Casquette ajustable urbaine",
+    "slug": "casquette-ajustable-urbaine",
+    "description": "Une casquette au style sobre pour les sorties et le quotidien. Fermeture réglable à l'arrière.",
+    "price": 4500,
+    "stock": 8,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=800&auto=format&fit=crop&q=80"
+      }
+    ],
+    "variants": [
+      {
+        "name": "Couleur",
+        "options": ["Noir", "Beige", "Bleu"]
+      }
+    ],
+    "category": {
+      "_id": "cat-7",
+      "name": "Casquettes",
+      "slug": "casquettes"
+    },
+    "active": true
+  },
+  {
+    "_id": "prod-10",
+    "name": "Lunettes de soleil classiques",
+    "slug": "lunettes-soleil-classiques",
+    "description": "Une monture classique facile à porter avec vos tenues de tous les jours.",
+    "price": 5000,
+    "stock": 10,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=800&auto=format&fit=crop&q=80"
+      }
+    ],
+    "variants": [
+      {
+        "name": "Couleur",
+        "options": ["Noir", "Marron"]
+      }
+    ],
+    "category": {
+      "_id": "cat-8",
+      "name": "Lunettes de soleil",
+      "slug": "lunettes-soleil"
+    },
+    "active": true
+  },
+  {
+    "_id": "prod-11",
+    "name": "Portefeuille compact",
+    "slug": "portefeuille-compact",
+    "description": "Un portefeuille compact pour garder cartes et billets à portée de main.",
+    "price": 6000,
+    "stock": 8,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1627123424574-724758594e93?w=800&auto=format&fit=crop&q=80"
+      }
+    ],
+    "variants": [
+      {
+        "name": "Couleur",
+        "options": ["Noir", "Marron"]
+      }
+    ],
+    "category": {
+      "_id": "cat-9",
+      "name": "Maroquinerie",
+      "slug": "maroquinerie"
+    },
+    "active": true
+  },
+  {
+    "_id": "prod-12",
+    "name": "Sac banane compact",
+    "slug": "sac-banane-compact",
+    "description": "Un format pratique pour transporter téléphone, clés et petits essentiels lors de vos déplacements.",
+    "price": 7500,
+    "stock": 8,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&auto=format&fit=crop&q=80"
+      }
+    ],
+    "variants": [
+      {
+        "name": "Couleur",
+        "options": ["Noir", "Kaki"]
+      }
+    ],
+    "category": {
+      "_id": "cat-3",
+      "name": "Bandoulières",
+      "slug": "bandoulieres"
+    },
+    "active": true
+  },
+  {
+    "_id": "prod-13",
+    "name": "Bracelet en acier style classique",
+    "slug": "bracelet-acier-style-classique",
+    "description": "Un bracelet au design simple à porter seul ou avec d'autres accessoires.",
+    "price": 4000,
+    "stock": 12,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800&auto=format&fit=crop&q=80"
+      }
+    ],
+    "variants": [
+      {
+        "name": "Couleur",
+        "options": ["Argenté", "Doré"]
+      }
+    ],
+    "category": {
+      "_id": "cat-6",
+      "name": "Bracelets & bijouterie",
+      "slug": "bracelets-bijouterie"
+    },
+    "active": true
+  },
+  {
+    "_id": "prod-14",
+    "name": "Montre classique bracelet métal",
+    "slug": "montre-classique-bracelet-metal",
+    "description": "Une montre au cadran sobre avec bracelet métallique pour un style élégant au quotidien.",
+    "price": 14000,
+    "stock": 6,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&auto=format&fit=crop&q=80"
+      }
+    ],
+    "variants": [
+      {
+        "name": "Couleur",
+        "options": ["Argenté", "Doré"]
+      }
+    ],
+    "category": {
+      "_id": "cat-4",
+      "name": "Montres",
+      "slug": "montres"
+    },
+    "active": true
+  },
+  {
+    "_id": "prod-15",
+    "name": "Sacoche téléphone bandoulière",
+    "slug": "sacoche-telephone-bandouliere",
+    "description": "Une petite sacoche pratique pour garder votre téléphone et vos essentiels à portée de main.",
+    "price": 6500,
+    "stock": 10,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80"
+      }
+    ],
+    "variants": [
+      {
+        "name": "Couleur",
+        "options": ["Noir", "Marron"]
+      }
+    ],
+    "category": {
+      "_id": "cat-3",
+      "name": "Bandoulières",
+      "slug": "bandoulieres"
+    },
+    "active": true
+  },
+  {
+    "_id": "prod-16",
+    "name": "Sac à main élégant",
+    "slug": "sac-a-main-elegant",
+    "description": "Un sac à main au format pratique pour accompagner vos sorties et vos activités du quotidien.",
+    "price": 12000,
+    "stock": 6,
+    "images": [
+      {
+        "url": "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&auto=format&fit=crop&q=80"
+      }
+    ],
+    "variants": [
+      {
+        "name": "Couleur",
+        "options": ["Noir", "Beige"]
+      }
+    ],
+    "category": {
+      "_id": "cat-9",
+      "name": "Maroquinerie",
+      "slug": "maroquinerie"
     },
     "active": true
   }
