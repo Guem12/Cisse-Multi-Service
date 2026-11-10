@@ -33,49 +33,98 @@ const productLabel = facts.productCount > 1 ? "Produits" : "Produit";
 ---
 
 <SiteLayout title={DEFAULT_TITLE} description={description}>
-  <section class="motif-tissu overlay-dark overflow-hidden text-white">
-    <div class="wrap grid grid-cols-1 items-center gap-10 py-14 sm:py-20 lg:grid-cols-2">
+  <section class="relative isolate overflow-hidden bg-gradient-to-br from-[#0E1530] via-[#17264A] to-[#101A36] text-white">
+    <div aria-hidden="true" class="pointer-events-none absolute -right-32 -top-40 h-[28rem] w-[28rem] rounded-full bg-ocre/10 blur-3xl"></div>
+    <div aria-hidden="true" class="pointer-events-none absolute -bottom-48 left-1/4 h-80 w-80 rounded-full bg-sky-400/10 blur-3xl"></div>
+    <div class="wrap relative grid grid-cols-1 items-center gap-8 py-12 sm:py-16 lg:min-h-[590px] lg:grid-cols-[1fr_0.95fr] lg:gap-10 lg:py-16">
       <div class="flex flex-col items-start text-left">
-        <h1 class="max-w-2xl font-titre text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-          Affirmez <span class="text-ocre">votre style.</span>
+        <span class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 text-xs font-semibold tracking-wide text-white/80">
+          <span aria-hidden="true" class="h-1.5 w-1.5 rounded-full bg-ocre"></span>
+          LA BOUTIQUE À BAMAKO
+        </span>
+        <h1 class="mt-5 max-w-2xl font-titre text-4xl font-extrabold leading-[1.04] tracking-tight sm:text-5xl lg:text-[4.25rem]">
+          Le détail qui fait <span class="text-ocre">votre style.</span>
         </h1>
-        <p class="mt-5 max-w-md text-base text-white/85 sm:text-lg">
+        <p class="mt-5 max-w-lg text-base leading-relaxed text-white/75 sm:text-lg">
           {soldCategories.length
-            ? `Découvrez ${assortmentPhrase(soldCategories)} en boutique à Bamako. Commandez sur WhatsApp ; la livraison est confirmée selon votre trajet.`
-            : "Découvrez nos accessoires en boutique à Bamako. Commandez sur WhatsApp ; la livraison est confirmée selon votre trajet."}
+            ? `Découvrez ${assortmentPhrase(soldCategories)} sélectionnés pour vous.`
+            : "Découvrez nos accessoires sélectionnés pour vous."}
+          {" "}Commandez simplement sur WhatsApp ; nous confirmons le stock et la livraison avant validation.
         </p>
-        <div class="mt-8 flex flex-wrap items-center gap-4">
-          <a href="/catalogue" class="rounded-full bg-ocre px-7 py-3.5 font-bold text-indigo-deep shadow-lg transition-transform hover:scale-105 active:scale-95">Voir le catalogue</a>
-          <a href={waLink(phone)} target="_blank" rel="noopener noreferrer" class="rounded-full border-2 border-white/40 px-6 py-3 font-semibold text-white transition-colors hover:bg-white/10 active:scale-95">Commander par WhatsApp</a>
+        <div class="mt-7 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+          <a href="/catalogue" class="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-ocre px-6 py-3 text-sm font-extrabold text-indigo-deep shadow-lg shadow-black/15 transition hover:-translate-y-0.5 hover:bg-amber-300 focus-visible:outline-white">
+            Explorer le catalogue
+            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" class="h-4 w-4">
+              <path d="M4.167 10h11.666m0 0-5-5m5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+          <a href={waLink(phone)} target="_blank" rel="noopener noreferrer" class="inline-flex min-h-12 items-center justify-center rounded-full border border-white/25 px-5 py-3 text-sm font-semibold text-white transition hover:border-white/50 hover:bg-white/[0.06]">
+            Une question ? Écrivez-nous
+          </a>
         </div>
-        <div class="mt-10 flex gap-8">
-          <div>
-            <span class="block font-titre text-2xl font-extrabold tabular-nums text-ocre">{facts.productCount}</span>
-            <span class="text-xs uppercase tracking-wider text-white/70">{productLabel}</span>
-          </div>
-          <div class="w-px bg-white/20"></div>
-          <div><span class="block text-2xl font-extrabold text-ocre">WhatsApp</span><span class="text-xs uppercase tracking-wider text-white/70">Commande rapide</span></div>
-          <div class="w-px bg-white/20"></div>
-          <div><span class="block text-2xl font-extrabold text-ocre">Bamako</span><span class="text-xs uppercase tracking-wider text-white/70">Retrait et livraison</span></div>
+        <div class="mt-9 flex flex-wrap gap-x-6 gap-y-3 border-t border-white/15 pt-5 text-sm text-white/70">
+          <span class="inline-flex items-center gap-2">
+            <span class="font-titre text-xl font-extrabold text-white">{facts.productCount}</span>
+            {productLabel.toLowerCase()} disponibles
+          </span>
+          <span class="inline-flex items-center gap-2">
+            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" class="h-4 w-4 text-ocre">
+              <path d="M10 17s6-4.1 6-9a6 6 0 1 0-12 0c0 4.9 6 9 6 9Z" stroke="currentColor" stroke-width="1.5" />
+              <circle cx="10" cy="8" r="2" stroke="currentColor" stroke-width="1.5" />
+            </svg>
+            Retrait et livraison à Bamako
+          </span>
         </div>
       </div>
-      <HeroCollage items={heroItems} phone={phone} />
+      <div class="relative mx-auto w-full max-w-[540px]">
+        <div aria-hidden="true" class="absolute inset-4 rounded-[2rem] bg-ocre/20 blur-2xl"></div>
+        <div class="relative overflow-hidden rounded-[1.75rem] border border-white/15 bg-gradient-to-br from-[#F8F3E9] via-[#EFE8DA] to-[#DFD3BE] px-3 py-2 shadow-2xl shadow-black/25 sm:px-5">
+          <div class="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white/40 to-transparent"></div>
+          <div class="relative z-10 flex items-center justify-between px-3 pt-3">
+            <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-indigo-deep/60">Cissé Multi-Service</span>
+            <span class="rounded-full border border-indigo-deep/10 bg-white/60 px-3 py-1 text-[11px] font-semibold text-indigo-deep/75">Bamako, Mali</span>
+          </div>
+          {heroItems.length > 0 ? (
+            <HeroCollage items={heroItems} phone={phone} />
+          ) : (
+            <div class="relative flex min-h-[310px] flex-col items-center justify-center px-6 pb-8 text-center sm:min-h-[420px]">
+              <span class="font-titre text-3xl font-extrabold text-indigo-deep">Votre style commence ici.</span>
+              <span class="mt-2 text-sm text-indigo-deep/65">Parcourez les articles disponibles en boutique.</span>
+            </div>
+          )}
+        </div>
+        <div class="relative mt-3 flex items-center justify-center gap-2 text-xs font-medium text-white/60">
+          <span class="h-px w-8 bg-white/20"></span>
+          Des pièces disponibles en boutique
+          <span class="h-px w-8 bg-white/20"></span>
+        </div>
+      </div>
     </div>
   </section>
 
   <div class="wrap pb-16">
-    <section class="mt-10" aria-labelledby="categories-titre">
-      <h2 id="categories-titre" class="text-center font-titre text-2xl font-bold text-page-main">Catégories en vente</h2>
+    <section class="mt-12 sm:mt-16" aria-labelledby="categories-titre">
+      <div class="flex items-end justify-between gap-4">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.18em] text-brule dark:text-ocre">À explorer</p>
+          <h2 id="categories-titre" class="mt-1 font-titre text-2xl font-bold text-page-main sm:text-3xl">Nos catégories</h2>
+        </div>
+        <a href="/catalogue" class="mb-1 inline-flex shrink-0 items-center gap-1.5 text-sm font-bold text-indigo hover:text-brule dark:text-ocre dark:hover:text-amber-300">
+          Tout voir
+          <span aria-hidden="true">→</span>
+        </a>
+      </div>
       {soldCategories.length === 0 ? (
-        <p class="mt-4 text-page-muted">Aucune catégorie avec un produit en ligne pour le moment.</p>
+        <p class="mt-4 rounded-2xl border border-dashed p-6 text-center text-page-muted" style="border-color: var(--border);">Aucune catégorie avec un produit en ligne pour le moment.</p>
       ) : (
-        <ul class="-mx-4 mt-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+        <ul class="-mx-4 mt-5 flex snap-x gap-3 overflow-x-auto px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0 lg:grid-cols-4">
           {soldCategories.map((category) => (
-            <li class="shrink-0">
-              <a href={`/catalogue?categorie=${encodeURIComponent(category.slug)}`} class="relative block h-48 w-40 overflow-hidden rounded-lg bg-indigo-deep">
+            <li class="shrink-0 snap-start sm:w-auto">
+              <a href={`/catalogue?categorie=${encodeURIComponent(category.slug)}`} class="group relative block h-48 w-40 overflow-hidden rounded-2xl bg-indigo-deep shadow-sm ring-1 ring-black/5 transition hover:-translate-y-1 hover:shadow-lg sm:h-56 sm:w-auto">
                 {category.image && <img src={optimizeCloudinaryImage(category.image, 320)} alt="" width="320" height="384" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover" />}
-                <span class="absolute inset-0 bg-gradient-to-t from-indigo-deep/85 via-transparent to-transparent"></span>
+                <span class="absolute inset-0 bg-gradient-to-t from-indigo-deep/90 via-indigo-deep/10 to-transparent transition group-hover:from-indigo-deep/95"></span>
                 <span class="absolute bottom-3 left-3 right-3 font-titre text-lg font-bold leading-tight text-white">{category.name}</span>
+                <span aria-hidden="true" class="absolute bottom-3 right-3 translate-x-2 opacity-0 text-ocre transition group-hover:translate-x-0 group-hover:opacity-100">→</span>
               </a>
             </li>
           ))}
@@ -83,33 +132,37 @@ const productLabel = facts.productCount > 1 ? "Produits" : "Produit";
       )}
     </section>
 
-    <section class="mt-12" aria-labelledby="nouveautes-titre">
-      <div class="relative flex flex-col items-center gap-3 text-center sm:min-h-11 sm:flex-row sm:justify-center">
-        <h2 id="nouveautes-titre" class="font-titre text-2xl font-bold text-page-main">À découvrir en boutique</h2>
-        <a href="/catalogue" class="inline-flex items-center gap-2 self-end rounded-full border border-ocre bg-ocre px-4 py-2 text-sm font-bold text-indigo-deep shadow-sm transition hover:-translate-y-0.5 hover:bg-yellow-500 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocre sm:absolute sm:right-0 sm:top-1/2 sm:-translate-y-1/2">
-          Voir tout le catalogue
-          <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" class="h-4 w-4">
-            <path d="M4.167 10h11.666m0 0-5-5m5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
+    <section class="mt-14 sm:mt-20" aria-labelledby="nouveautes-titre">
+      <div class="flex items-end justify-between gap-4">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.18em] text-brule dark:text-ocre">La sélection de la boutique</p>
+          <h2 id="nouveautes-titre" class="mt-1 font-titre text-2xl font-bold text-page-main sm:text-3xl">À découvrir en boutique</h2>
+        </div>
+        <a href="/catalogue" class="mb-1 inline-flex shrink-0 items-center gap-1.5 text-sm font-bold text-indigo hover:text-brule dark:text-ocre dark:hover:text-amber-300">
+          Tout le catalogue
+          <span aria-hidden="true">→</span>
         </a>
       </div>
       {products.length === 0 ? (
-        <p class="mt-4 text-page-muted">Aucun produit pour le moment.</p>
+        <p class="mt-4 rounded-2xl border border-dashed p-6 text-center text-page-muted" style="border-color: var(--border);">Aucun produit pour le moment.</p>
       ) : (
-        <div class="mt-4 grid grid-cols-2 gap-x-3 gap-y-7 lg:grid-cols-4">
+        <div class="mt-5 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
           {products.slice(0, 12).map((product) => <ProductCard product={product} centered />)}
         </div>
       )}
     </section>
 
-    <section class="mt-16 border-t divider pt-10">
-      <h2 class="text-center font-titre text-2xl font-bold text-page-main">Comment commander</h2>
-      <ol class="mt-6 grid gap-8 md:grid-cols-3">
+    <section class="mt-16 rounded-[1.75rem] bg-[#F0EEE8] px-5 py-8 dark:bg-white/[0.04] sm:mt-20 sm:px-8 sm:py-10" aria-labelledby="commander-titre">
+      <div class="mx-auto max-w-2xl text-center">
+        <p class="text-xs font-bold uppercase tracking-[0.18em] text-brule dark:text-ocre">Simple et accompagné</p>
+        <h2 id="commander-titre" class="mt-1 font-titre text-2xl font-bold text-page-main sm:text-3xl">Votre commande, en trois étapes</h2>
+      </div>
+      <ol class="mt-7 grid gap-6 md:grid-cols-3">
         {steps.map(([title, text], index) => (
-          <li class="flex flex-col items-center text-center">
-            <span class="font-titre text-5xl font-extrabold text-brule dark:text-ocre">{index + 1}</span>
-            <h3 class="mt-1 text-lg font-bold text-page-main">{title}</h3>
-            <p class="mt-1 max-w-xs text-page-muted">{text}</p>
+          <li class="rounded-2xl border bg-surface p-5 text-center" style="border-color: var(--border);">
+            <span class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-indigo-deep font-titre text-lg font-extrabold text-ocre">{index + 1}</span>
+            <h3 class="mt-3 text-base font-bold text-page-main">{title}</h3>
+            <p class="mx-auto mt-1 max-w-xs text-sm leading-relaxed text-page-muted">{text}</p>
           </li>
         ))}
       </ol>

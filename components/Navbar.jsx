@@ -88,14 +88,14 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 bg-indigo-deep dark:bg-indigo-deep shadow-md">
-      <div className="w-full px-3 sm:px-6 lg:px-8 flex h-14 lg:h-[70px] items-center justify-between gap-3 sm:gap-4 relative">
+    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0E1530]/95 shadow-sm shadow-black/10 backdrop-blur-xl">
+      <div className="relative mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-3 px-3 sm:px-6 lg:h-[76px] lg:px-8">
 
         {/* ── Logo + Nom (gauche toute) ── */}
         <Link
           href="/"
           aria-label="Cissé Multi-Service, accueil"
-          className="flex items-center gap-2.5 sm:gap-3 shrink-0 group transition-transform hover:scale-[1.02]"
+          className="group flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-90 sm:gap-3"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -103,7 +103,7 @@ export default function Navbar() {
             alt=""
             width="36"
             height="36"
-            className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg shadow group-hover:brightness-110 transition"
+            className="h-9 w-9 rounded-lg shadow-sm transition group-hover:brightness-110 sm:h-10 sm:w-10"
           />
           <div className="leading-tight">
             <span className="block font-titre font-extrabold text-white text-sm sm:text-base tracking-tight">
@@ -116,22 +116,7 @@ export default function Navbar() {
         </Link>
 
         {/* ── Nav desktop (centre) ── */}
-        <nav className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-1" aria-label="Navigation principale">
-          <button
-            onClick={toggleTheme}
-            aria-label={dark ? "Passer en mode jour" : "Passer en mode nuit"}
-            className="sm:hidden h-9 w-9 rounded-full border border-white/20 flex items-center justify-center text-white/70 hover:bg-white/10 hover:text-white active:scale-90 transition-all duration-200"
-          >
-            {dark ? (
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-                <path d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591ZM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.758 17.303a.75.75 0 0 0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59ZM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12ZM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591Z" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-                <path fillRule="evenodd" d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 0 1 .818.162Z" clipRule="evenodd" />
-              </svg>
-            )}
-          </button>
+        <nav className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 lg:flex" aria-label="Navigation principale">
           {NAV_LINKS.map((l) => (
             <NavLink key={l.href} href={l.href} label={l.label} />
           ))}
