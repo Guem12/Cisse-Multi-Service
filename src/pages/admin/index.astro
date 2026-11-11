@@ -2,19 +2,19 @@
 import AdminLayout from "../../layouts/AdminLayout.astro";
 import DashboardStats from "../../../components/admin/DashboardStats.jsx";
 import { getCategories, getProducts } from "../../../lib/data.js";
-import { getHeroShowcase } from "../../../lib/hero.js";
+import { getHeroSelection } from "../../../lib/hero.js";
 import { recordDashboardSnapshot } from "../../../lib/admin-dashboard.js";
 
 export const prerender = false;
 
-const [products, categories, heroSlots] = await Promise.all([
+const [products, categories] = await Promise.all([
   getProducts({ includeInactive: true }),
   getCategories(),
-  getHeroShowcase(),
 ]);
+const heroSelection = await getHeroSelection(products);
 const history = await recordDashboardSnapshot(products);
 ---
 
 <AdminLayout title="Tableau de bord · Cissé Multi-Service">
-  <DashboardStats client:load products={products} categories={categories} heroSlots={heroSlots} history={history} />
+  <DashboardStats client:load products={products} categories={categories} heroSelection={heroSelection} history={history} />
 </AdminLayout>

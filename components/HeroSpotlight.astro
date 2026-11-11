@@ -1,0 +1,84 @@
+---
+import { formatPrice } from "../lib/format.js";
+import { optimizeCloudinaryImage } from "../lib/image-url.mjs";
+import { waLink } from "../lib/store.js";
+
+const { product, phone, imageIndex = 0 } = Astro.props;
+const image = product.images?.[imageIndex]?.url || product.images?.[0]?.url;
+const inStock = Number(product.stock) > 0;
+const orderLink = waLink(phone, `Bonjour Cissé Multi-Service, je souhaite commander ${product.name}.`);
+---
+
+<article class="spotlight relative mx-auto aspect-square w-full max-w-[440px] overflow-hidden rounded-[1.75rem] border border-white/20 shadow-2xl shadow-black/30">
+  <div aria-hidden="true" class="spotlight-grid absolute inset-0"></div>
+  <div aria-hidden="true" class="spotlight-orbit absolute left-1/2 top-[48%] aspect-square w-[82%] -translate-x-1/2 -translate-y-1/2 rounded-full"></div>
+  <div aria-hidden="true" class="spotlight-orbit-inner absolute left-1/2 top-[48%] aspect-square w-[66%] -translate-x-1/2 -translate-y-1/2 rounded-full"></div>
+
+  <span class="absolute left-[9%] top-[12%] z-10 -rotate-6 rounded-full bg-ocre px-3.5 py-1.5 text-xs font-extrabold text-indigo-deep shadow-lg">À découvrir</span>
+  <span class="absolute right-[7%] top-[8%] z-10 flex aspect-square w-[19%] max-w-[82px] items-center justify-center rounded-full border border-dashed border-ocre bg-indigo-deep/90 p-2 text-center text-[10px] font-bold leading-tight text-white shadow-lg sm:text-xs">
+    {inStock ? "Disponible" : "Stock à confirmer"}
+  </span>
+
+  <a href={`/produit/${product.slug}`} class="absolute left-1/2 top-[48%] z-[1] flex aspect-square w-[68%] -translate-x-1/2 -translate-y-1/2 items-center justify-center overflow-hidden rounded-full border border-white/35 bg-indigo/30 shadow-[0_20px_40px_rgba(4,10,26,0.22)]" aria-label={`Voir ${product.name}`}>
+    {image && (
+      <img
+        src={optimizeCloudinaryImage(image, 640)}
+        alt={product.name}
+        width="640"
+        height="640"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+        class="h-full w-full rounded-full object-contain p-2 drop-shadow-[0_20px_18px_rgba(4,10,26,0.35)]"
+      />
+    )}
+  </a>
+
+  <div class="absolute inset-x-[6%] bottom-[5%] z-10 flex min-h-[68px] items-center gap-2 rounded-xl bg-white px-3 py-2.5 text-indigo-deep shadow-xl sm:gap-3 sm:px-4">
+    <div class="min-w-0 flex-1">
+      <p class="line-clamp-2 text-xs font-extrabold leading-tight sm:text-sm">{product.name}</p>
+      <p class="mt-1 text-[11px] font-medium text-indigo-deep/60">{formatPrice(product.price)} FCFA</p>
+    </div>
+    {inStock ? (
+      <a href={orderLink} target="_blank" rel="noopener noreferrer" class="shrink-0 rounded-full bg-indigo-deep px-3.5 py-2.5 text-[11px] font-bold text-white transition hover:bg-indigo sm:px-4 sm:text-xs">Commander</a>
+    ) : (
+      <a href={`/produit/${product.slug}`} class="shrink-0 rounded-full bg-indigo-deep px-3.5 py-2.5 text-[11px] font-bold text-white transition hover:bg-indigo sm:px-4 sm:text-xs">Voir le produit</a>
+    )}
+  </div>
+</article>
+
+<style>
+  .spotlight {
+    background:
+      radial-gradient(ellipse at 50% 49%, rgba(224, 160, 48, 0.24), transparent 49%),
+      linear-gradient(145deg, #202f58, #111a36 78%);
+  }
+
+  .spotlight-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: linear-gradient(to bottom, black, transparent 95%);
+  }
+
+  .spotlight-orbit {
+    border: 1px solid rgba(224, 160, 48, 0.62);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.025), inset 0 0 45px rgba(224, 160, 48, 0.08);
+  }
+
+  .spotlight-orbit-inner {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .spotlight-orbit-inner {
+      animation: spotlight-pulse 7s ease-in-out infinite;
+    }
+  }
+
+  @keyframes spotlight-pulse {
+    50% { transform: translate(-50%, -50%) scale(1.035); }
+  }
+</style>

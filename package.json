@@ -9,6 +9,7 @@
     "dev": "astro dev",
     "build": "prisma generate && astro build",
     "preview": "astro preview",
+    "migrate:data": "node --env-file=.env.local scripts/migrate-data-to-db.mjs",
     "seed": "node --env-file=.env.local scripts/seed.mjs",
     "postinstall": "prisma generate"
   },

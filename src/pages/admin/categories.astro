@@ -8,6 +8,5 @@ const categories = await getCategories();
 ---
 
 <AdminLayout title="Catégories · Cissé Multi-Service">
-  <h1 class="mb-4 text-2xl font-extrabold">Catégories</h1>
   <CategoriesManager client:load categories={categories} />
 </AdminLayout>

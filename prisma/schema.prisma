@@ -13,6 +13,7 @@ model Category {
   id        String   @id @default(cuid())
   name      String
   slug      String   @unique
+  images    String   @default("[]")
   active    Boolean  @default(true)
   products  Product[] @relation("ProductCategory")
   createdAt DateTime @default(now())

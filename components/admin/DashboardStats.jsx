@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { formatPrice } from "@/lib/format";
 
 function Sparkline({ values, positive = true }) {
@@ -109,7 +109,7 @@ function downloadCsv(products) {
 export default function DashboardStats({
   products = [],
   categories = [],
-  heroSlots = [],
+  heroSelection = null,
   history = [],
 }) {
   const [currentProducts, setCurrentProducts] = useState(products);
@@ -149,17 +149,10 @@ export default function DashboardStats({
     })
     .sort((left, right) => right.count - left.count || String(left.name).localeCompare(String(right.name), "fr"));
 
-  const showcaseItems = useMemo(() => {
-    const activeById = new Map(activeProducts.map((product) => [String(product._id), product]));
-    const usedIds = new Set();
-    return heroSlots.flatMap((slot) => {
-      const id = String(slot.productId || "");
-      const product = activeById.get(id);
-      if (!product || usedIds.has(id)) return [];
-      usedIds.add(id);
-      return [{ ...slot, product }];
-    });
-  }, [activeProducts, heroSlots]);
+  const featuredProduct = activeProducts.find(
+    (product) => String(product._id || product.id) === String(heroSelection?.productId),
+  );
+  const featuredImage = featuredProduct?.images?.[heroSelection?.imageIndex ?? 0]?.url;
 
   const recentChanges = [...currentProducts]
     .filter((product) => product.updatedAt || product.createdAt)
@@ -256,7 +249,7 @@ export default function DashboardStats({
               Vue d’ensemble
             </h1>
             <p className="mt-1 max-w-2xl text-sm text-page-muted">
-              Gérez votre catalogue, vos stocks et les produits mis en avant sur la page d’accueil de votre boutique.
+              Gérez votre catalogue, vos stocks et le produit à la une sur la page d’accueil de votre site.
             </p>
           </div>
           <div className="flex flex-wrap gap-2 no-print">
@@ -308,47 +301,29 @@ export default function DashboardStats({
       >
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h2 className="font-titre text-lg font-bold text-page-main">Produits mis en avant</h2>
+            <h2 className="font-titre text-lg font-bold text-page-main">Produit à la une</h2>
             <p className="mt-1 text-sm text-page-muted">
-              {showcaseItems.length} produit{showcaseItems.length !== 1 ? "s" : ""} actif{showcaseItems.length !== 1 ? "s" : ""} mis en avant sur {activeProducts.length} produit{activeProducts.length !== 1 ? "s" : ""} en ligne.
+              {featuredProduct ? `${featuredProduct.name} est affiché sur la page d’accueil.` : "Aucun produit à la une n’est configuré."}
             </p>
-            {showcaseItems.length !== heroSlots.length && (
-              <p className="mt-2 text-xs font-semibold text-amber-800 dark:text-amber-300" role="status">
-                Certains emplacements ne correspondent plus à un produit actif du catalogue.
-              </p>
-            )}
           </div>
           <a href="/admin/vitrine" className="admin-action-primary no-print">Gérer la page d’accueil</a>
         </div>
 
-        {showcaseItems.length === 0 ? (
+        {!featuredProduct ? (
           <div className="mt-5 rounded-xl border border-dashed p-6 text-center text-sm text-page-muted" style={{ borderColor: "var(--border)" }}>
             Aucun produit actif n’est actuellement mis en avant.
           </div>
         ) : (
-          <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {showcaseItems.map((item) => {
-              const imageUrl = item.product.images?.[item.imageIndex || 0]?.url;
-              return (
-                <article key={`${item.slot}-${item.product._id}`} className="overflow-hidden rounded-xl border" style={{ borderColor: "var(--border)" }}>
-                  <div className="relative aspect-square bg-subtle">
-                    {imageUrl ? (
-                      <img src={imageUrl} alt={item.product.name} loading="lazy" className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="grid h-full place-items-center text-xs font-semibold text-page-muted">Pas de photo</div>
-                    )}
-                    <span className="absolute left-2 top-2 rounded-full bg-indigo-deep/90 px-2 py-1 text-[10px] font-bold text-white">
-                      {item.label || `Emplacement ${Number(item.slot) + 1}`}
-                    </span>
-                  </div>
-                  <div className="p-3">
-                    <p className="truncate text-sm font-bold text-page-main">{item.product.name}</p>
-                    <p className="mt-1 text-xs font-bold text-ocre">{formatPrice(item.product.price)}</p>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+          <article className="mt-5 flex max-w-lg items-center gap-4 rounded-xl border p-3" style={{ borderColor: "var(--border)" }}>
+            <div className="grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-full bg-indigo/20">
+              {featuredImage && <img src={featuredImage} alt={featuredProduct.name} loading="lazy" className="h-full w-full object-contain p-2" />}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-bold text-page-main">{featuredProduct.name}</p>
+              <p className="mt-1 text-xs font-bold text-ocre">{formatPrice(featuredProduct.price)} FCFA</p>
+              <p className="mt-1 text-xs text-page-muted">Photo {Number(heroSelection?.imageIndex ?? 0) + 1}</p>
+            </div>
+          </article>
         )}
       </section>
 
@@ -488,7 +463,7 @@ export default function DashboardStats({
         <a href="/admin/produits/nouveau" className="admin-action-primary">+ Nouveau produit</a>
         <a href="/admin/categories" className="admin-action-secondary">Gérer les catégories</a>
         <a href="/admin/clients" className="admin-action-secondary">Consulter les clients</a>
-        <a href="/admin/vitrine" className="admin-action-secondary">Produits mis en avant</a>
+        <a href="/admin/vitrine" className="admin-action-secondary">Produit à la une</a>
         <button type="button" onClick={() => downloadCsv(currentProducts)} className="admin-action-secondary">Exporter le catalogue</button>
       </section>
     </div>

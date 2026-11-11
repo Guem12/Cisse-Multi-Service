@@ -1,14 +1,14 @@
 ---
 import AdminLayout from "../../layouts/AdminLayout.astro";
-import HeroShowcaseManager from "../../../components/admin/HeroShowcaseManager.jsx";
+import HeroSpotlightManager from "../../../components/admin/HeroSpotlightManager.jsx";
 import { getProducts } from "../../../lib/data.js";
-import { getHeroShowcase } from "../../../lib/hero.js";
+import { getHeroSelection } from "../../../lib/hero.js";
 
 export const prerender = false;
 const products = await getProducts({ includeInactive: true });
-const initialSlots = await getHeroShowcase(products);
+const initialSelection = await getHeroSelection(products);
 ---
 
-<AdminLayout title="Photos flottantes · Cissé Multi-Service">
-  <HeroShowcaseManager client:load initialSlots={initialSlots} products={products} />
+<AdminLayout title="Produit à la une · Cissé Multi-Service">
+  <HeroSpotlightManager client:load initialSelection={initialSelection} products={products} />
 </AdminLayout>
