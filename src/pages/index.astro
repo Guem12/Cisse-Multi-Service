@@ -43,14 +43,14 @@ const productLabel = facts.productCount > 1 ? "Produits" : "Produit";
           <a href="/catalogue" class="rounded-full bg-ocre px-7 py-3.5 font-bold text-indigo-deep shadow-lg transition-transform hover:scale-105 active:scale-95">Voir le catalogue</a>
           <a href={waLink(phone)} target="_blank" rel="noopener noreferrer" class="rounded-full border-2 border-white/40 px-6 py-3 font-semibold text-white transition-colors hover:bg-white/10 active:scale-95">Commander par WhatsApp</a>
         </div>
-        <div class="mt-10 flex gap-8">
+        <div class="mt-10 grid grid-cols-2 gap-4 sm:flex sm:gap-8">
           <div>
             <span class="block font-titre text-2xl font-extrabold tabular-nums text-ocre">{facts.productCount}</span>
             <span class="text-xs uppercase tracking-wider text-white/70">{productLabel}</span>
           </div>
-          <div class="w-px bg-white/20"></div>
+          <div class="hidden w-px bg-white/20 sm:block"></div>
           <div><span class="block text-2xl font-extrabold text-ocre">WhatsApp</span><span class="text-xs uppercase tracking-wider text-white/70">Commande rapide</span></div>
-          <div class="w-px bg-white/20"></div>
+          <div class="hidden w-px bg-white/20 sm:block"></div>
           <div><span class="block text-2xl font-extrabold text-ocre">Bamako</span><span class="text-xs uppercase tracking-wider text-white/70">Livraison selon trajet</span></div>
         </div>
       </div>
