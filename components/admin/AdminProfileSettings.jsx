@@ -36,20 +36,24 @@ export default function AdminProfileSettings() {
     try {
       setLoading(true);
       const res = await fetch("/api/admin/profile");
-      if (res.ok) {
-        const data = await res.json();
-        if (data.profile) {
-          setProfile({
-            firstName: data.profile.firstName || "Mamadou",
-            lastName: data.profile.lastName || "Cissé",
-            phone: data.profile.phone || "22362823995",
-            email: data.profile.email || "admin@cisse.ml",
-            avatar: data.profile.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
-          });
-        }
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Erreur lors du chargement du profil.");
       }
+      if (!data.profile) {
+        throw new Error("Les informations du profil sont indisponibles.");
+      }
+
+      setProfile({
+        firstName: data.profile.firstName || "Mamadou",
+        lastName: data.profile.lastName || "Cissé",
+        phone: data.profile.phone || "22362823995",
+        email: data.profile.email || "admin@cisse.ml",
+        avatar: data.profile.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+      });
     } catch (e) {
       console.warn("Impossible de charger le profil admin:", e);
+      setErrorMsg(e.message || "Impossible de charger les informations du profil.");
     } finally {
       setLoading(false);
     }
@@ -261,6 +265,7 @@ export default function AdminProfileSettings() {
                 setErrorMsg("");
                 setSuccessMsg("");
                 setModalOpen(true);
+                fetchProfile();
               }}
               className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-semibold text-left transition-colors hover:bg-black/5 dark:hover:bg-white/5 group cursor-pointer"
               style={{ color: "var(--text-main)" }}
@@ -574,7 +579,7 @@ export default function AdminProfileSettings() {
                 </button>
                 <button
                   type="submit"
-                  disabled={saving || uploadingAvatar}
+                  disabled={saving || uploadingAvatar || loading}
                   className="w-full sm:w-auto px-8 py-2.5 rounded-xl text-xs font-bold text-indigo-deep bg-ocre shadow hover:scale-105 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {saving ? (
