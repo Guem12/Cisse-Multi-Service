@@ -1,8 +1,9 @@
 ---
 import SiteLayout from "../layouts/SiteLayout.astro";
 import ProductCard from "../../components/ProductCard.astro";
+import CatalogOrderBar from "../../components/CatalogOrderBar.jsx";
 import { getProductPage, getStorefrontFacts } from "../../lib/data.js";
-import { PRICE_BANDS, SORTS, parsePriceBand } from "../../lib/store.js";
+import { PRICE_BANDS, SORTS, getVisibleStorefrontCategories, parsePriceBand } from "../../lib/store.js";
 
 export const prerender = false;
 
@@ -13,8 +14,9 @@ const priceBand = PRICE_BANDS.some((band) => band.value === params.get("prix")) 
 const sort = SORTS.some((item) => item.value === params.get("tri")) ? params.get("tri") : "recent";
 const parsedPage = Number.parseInt(params.get("page") || "1", 10);
 const page = Number.isSafeInteger(parsedPage) && parsedPage > 0 ? parsedPage : 1;
-const pageSize = 24;
+const pageSize = 12;
 const { minPrice, maxPrice } = parsePriceBand(priceBand);
+const phone = import.meta.env.PUBLIC_WHATSAPP_1 || "22362823995";
 
 const pageHref = (nextPage, overrides = {}) => {
   const next = new URLSearchParams();
@@ -35,22 +37,17 @@ const [facts, products] = await Promise.all([
   getStorefrontFacts(),
   getProductPage({ categorySlug: active || undefined, query, minPrice, maxPrice, sort, page, pageSize }),
 ]);
+const categories = getVisibleStorefrontCategories(facts.categories);
 if (products.pageCount > 0 && page > products.pageCount) {
   return Astro.redirect(pageHref(products.pageCount), 302);
 }
-const currentCategory = facts.categories.find((category) => category.slug === active);
+const currentCategory = categories.find((category) => category.slug === active);
 const title = currentCategory
   ? `${currentCategory.name} · Cissé Multi-Service`
   : "Catalogue · Cissé Multi-Service";
 const description = currentCategory
   ? `${currentCategory.name} en vente chez Cissé Multi-Service à Bamako. Commande par WhatsApp.`
   : "Catalogue Cissé Multi-Service à Bamako : sacs, montres et accessoires disponibles. Commande par WhatsApp.";
-const pill = (on) =>
-  `whitespace-nowrap rounded-full border-2 px-5 py-2.5 text-sm font-bold transition-all ${
-    on
-      ? "border-ocre bg-ocre text-indigo-deep"
-      : "border-indigo/30 text-indigo hover:bg-white/10 dark:border-white/20 dark:text-white/80"
-  }`;
 const filtersOn = Boolean(query || priceBand || (sort && sort !== "recent") || active);
 ---
 
@@ -59,45 +56,53 @@ const filtersOn = Boolean(query || priceBand || (sort && sort !== "recent") || a
     <h1 class="mt-8 text-center font-titre text-4xl font-extrabold text-page-main sm:text-5xl">
       {currentCategory ? currentCategory.name : "Catalogue"}
     </h1>
-    <p class="mx-auto mt-2 max-w-2xl text-center text-page-muted">Recherchez parmi les articles réellement en ligne, puis commandez sur WhatsApp.</p>
+    <p class="mx-auto mt-2 max-w-2xl text-center text-page-muted">Choisissez vos articles, puis commandez sur WhatsApp.</p>
 
-    <form method="get" action="/catalogue" class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4" role="search">
-      {active && <input type="hidden" name="categorie" value={active} />}
-      <label class="block text-center text-sm font-semibold text-page-main">
+    <form id="catalogue-filters" method="get" action="/catalogue" class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,1fr))_auto]" role="search">
+      <label class="block min-w-0 text-center text-sm font-semibold text-page-main">
         Recherche
-        <input class="field mt-1" type="search" name="q" value={query} maxlength="80" placeholder="Nom ou description" />
+        <input class="field mt-1 min-h-12 w-full" type="search" name="q" value={query} maxlength="80" placeholder="Nom ou description" />
       </label>
-      <label class="block text-center text-sm font-semibold text-page-main">
+      <label class="block min-w-0 text-center text-sm font-semibold text-page-main">
+        Catégorie
+        <select class="field mt-1 min-h-12 w-full" name="categorie">
+          <option value="" selected={!active}>Toutes les catégories</option>
+          {categories.map((category) => <option value={category.slug} selected={active === category.slug}>{category.name}</option>)}
+        </select>
+      </label>
+      <label class="block min-w-0 text-center text-sm font-semibold text-page-main">
         Prix
-        <select class="field mt-1" name="prix">
+        <select class="field mt-1 min-h-12 w-full" name="prix">
           {PRICE_BANDS.map((band) => <option value={band.value} selected={priceBand === band.value}>{band.label}</option>)}
         </select>
       </label>
-      <label class="block text-center text-sm font-semibold text-page-main">
+      <label class="block min-w-0 text-center text-sm font-semibold text-page-main">
         Trier
-        <select class="field mt-1" name="tri">
+        <select class="field mt-1 min-h-12 w-full" name="tri">
           {SORTS.map((item) => <option value={item.value} selected={sort === item.value}>{item.label}</option>)}
         </select>
       </label>
-      <div class="flex items-end justify-center gap-2">
-        <button type="submit" class="rounded-full bg-ocre px-5 py-2.5 text-sm font-bold text-indigo-deep">Appliquer</button>
-        {filtersOn && <a href="/catalogue" class="rounded-full border px-4 py-2.5 text-sm font-semibold" style="border-color: var(--border);">Effacer</a>}
-      </div>
+      {filtersOn && <a href="/catalogue" class="inline-flex min-h-12 items-center justify-center rounded-full border px-4 text-sm font-semibold" style="border-color: var(--border);">Réinitialiser</a>}
     </form>
 
-    <nav aria-label="Catégories" class="-mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:justify-center sm:px-0">
-      <a href={pageHref(1, { categorie: "" })} class={pill(!active)} aria-current={!active ? "true" : undefined}>Tout</a>
-      {facts.categories.map((category) => (
-        <a href={pageHref(1, { categorie: category.slug })} class={pill(active === category.slug)} aria-current={active === category.slug ? "page" : undefined}>{category.name}</a>
-      ))}
-    </nav>
     {products.items.length === 0 ? (
-      <p class="mt-8 text-center text-page-muted">Aucun produit ne correspond à cette recherche.</p>
+      <div class="mt-8 text-center">
+        <p class="text-page-muted">Aucun article trouvé.</p>
+        <a href="/catalogue" class="mt-2 inline-block text-sm font-semibold text-indigo hover:underline dark:text-ocre">Effacer les filtres</a>
+      </div>
     ) : (
       <>
         <p class="mt-4 text-center text-sm text-page-muted">{products.total} article{products.total > 1 ? "s" : ""}</p>
         <div class="mt-4 grid grid-cols-2 gap-x-3 gap-y-7 lg:grid-cols-4">
-          {products.items.map((product) => <ProductCard product={product} centered />)}
+          {products.items.map((product, index) => (
+            <ProductCard
+              product={product}
+              centered
+              featuredGrid
+              eager={index < 4}
+              imageSizes="(min-width: 1024px) 214px, (min-width: 640px) calc(50vw - 48px), calc(50vw - 40px)"
+            />
+          ))}
         </div>
         {products.pageCount > 1 && (
           <nav class="mt-10 flex items-center justify-center gap-4" aria-label="Pagination du catalogue">
@@ -117,4 +122,35 @@ const filtersOn = Boolean(query || priceBand || (sort && sort !== "recent") || a
       </>
     )}
   </div>
+  <CatalogOrderBar client:load phone={phone} />
 </SiteLayout>
+
+<script>
+  const form = document.querySelector("#catalogue-filters");
+  if (!(form instanceof HTMLFormElement)) {
+    throw new Error("Le formulaire des filtres du catalogue est introuvable.");
+  }
+
+  const search = form.querySelector('input[name="q"]');
+  let searchTimeout;
+
+  function submitFilters() {
+    window.clearTimeout(searchTimeout);
+    if (typeof form.requestSubmit === "function") {
+      form.requestSubmit();
+    } else {
+      form.submit();
+    }
+  }
+
+  search?.addEventListener("input", () => {
+    window.clearTimeout(searchTimeout);
+    searchTimeout = window.setTimeout(submitFilters, 300);
+  });
+
+  form.querySelectorAll("select").forEach((select) => {
+    select.addEventListener("change", submitFilters);
+  });
+
+  form.addEventListener("submit", () => window.clearTimeout(searchTimeout));
+</script>

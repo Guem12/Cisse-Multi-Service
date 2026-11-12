@@ -96,7 +96,7 @@
   },
   {
     "_id": "prod-6",
-    "name": "Bracelet chaîne gourmette dorée",
+    "name": "Collier double à pendentifs",
     "slug": "bracelet-chaine-gourmette-doree",
     "description": "Finitions soignées en acier inoxydable plaqué or, éclat durable résistant à l'eau.",
     "price": 4500,
@@ -278,7 +278,7 @@
   },
   {
     "_id": "prod-14",
-    "name": "Montre classique bracelet métal",
+    "name": "Montre à cadran rond et bracelet blanc",
     "slug": "montre-classique-bracelet-metal",
     "description": "Une montre au cadran sobre avec bracelet métallique pour un style élégant au quotidien.",
     "price": 14000,

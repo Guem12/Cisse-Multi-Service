@@ -19,25 +19,25 @@ const orderLink = waLink(phone, `Bonjour Cissé Multi-Service, je souhaite comma
     {inStock ? "Disponible" : "Stock à confirmer"}
   </span>
 
-  <a href={`/produit/${product.slug}`} class="absolute left-1/2 top-[48%] z-[1] flex aspect-square w-[68%] -translate-x-1/2 -translate-y-1/2 items-center justify-center overflow-hidden rounded-full border border-white/35 bg-indigo/30 shadow-[0_20px_40px_rgba(4,10,26,0.22)]" aria-label={`Voir ${product.name}`}>
-    {image && (
-      <img
-        src={optimizeCloudinaryImage(image, 640)}
-        alt={product.name}
-        width="640"
-        height="640"
-        loading="eager"
-        fetchpriority="high"
-        decoding="async"
-        class="h-full w-full rounded-full object-contain p-2 drop-shadow-[0_20px_18px_rgba(4,10,26,0.35)]"
-      />
-    )}
-  </a>
+  <div class="spotlight-product-position absolute left-1/2 top-[48%] z-[1] -translate-x-1/2 -translate-y-1/2">
+    <a href={`/produit/${product.slug}`} class="relative block h-full w-full aspect-square overflow-hidden rounded-full border border-white/35 bg-indigo/30 shadow-[0_20px_40px_rgba(4,10,26,0.22)]" aria-label={`Voir ${product.name}`}>
+      {image && (
+        <img
+          src={optimizeCloudinaryImage(image, 640)}
+          alt={product.name}
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+          class="h-full w-full object-cover object-center drop-shadow-[0_20px_18px_rgba(4,10,26,0.35)]"
+        />
+      )}
+    </a>
+  </div>
 
   <div class="absolute inset-x-[6%] bottom-[5%] z-10 flex min-h-[68px] items-center gap-2 rounded-xl bg-white px-3 py-2.5 text-indigo-deep shadow-xl sm:gap-3 sm:px-4">
     <div class="min-w-0 flex-1">
       <p class="line-clamp-2 text-xs font-extrabold leading-tight sm:text-sm">{product.name}</p>
-      <p class="mt-1 text-[11px] font-medium text-indigo-deep/60">{formatPrice(product.price)} FCFA</p>
+      <p class="mt-1 text-[11px] font-medium text-indigo-deep/60">{formatPrice(product.price)}</p>
     </div>
     {inStock ? (
       <a href={orderLink} target="_blank" rel="noopener noreferrer" class="shrink-0 rounded-full bg-indigo-deep px-3.5 py-2.5 text-[11px] font-bold text-white transition hover:bg-indigo sm:px-4 sm:text-xs">Commander</a>
@@ -48,6 +48,17 @@ const orderLink = waLink(phone, `Bonjour Cissé Multi-Service, je souhaite comma
 </article>
 
 <style>
+  .spotlight-product-position {
+    width: 68%;
+    aspect-ratio: 1 / 1;
+  }
+
+  @media (max-width: 480px) {
+    .spotlight-product-position {
+      width: min(80vw, 280px);
+    }
+  }
+
   .spotlight {
     background:
       radial-gradient(ellipse at 50% 49%, rgba(224, 160, 48, 0.24), transparent 49%),

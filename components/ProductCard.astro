@@ -3,7 +3,7 @@ import { formatPrice } from "../lib/format.js";
 import { optimizeCloudinaryImage, responsiveImageSrcSet } from "../lib/image-url.mjs";
 import { isLowStock } from "../lib/store.js";
 
-const { product, centered = false } = Astro.props;
+const { product, centered = false, featuredGrid = false, eager = false, imageSizes } = Astro.props;
 const image = product.images?.[0]?.url;
 const soldOut = product.stock <= 0;
 const lowStock = isLowStock(product.stock);
@@ -11,41 +11,42 @@ const stockLabel = soldOut ? "Rupture" : lowStock ? "Dernières pièces" : "En s
 const productHref = `/produit/${product.slug}`;
 ---
 
-<article class="group flex flex-col justify-between rounded-2xl border p-2 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:p-3" style="background-color: var(--bg-surface); border-color: var(--border);">
-  <div>
-    <a href={productHref} class="relative block aspect-[4/5] overflow-hidden rounded-xl bg-[#F3F0E9] dark:bg-white/[0.04]">
+<article class:list={["group flex flex-col justify-between rounded-2xl border p-2 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:p-3", featuredGrid && "h-full"]} style="background-color: var(--bg-surface); border-color: var(--border);">
+  <div class:list={featuredGrid && "flex flex-1 flex-col"}>
+    <a href={productHref} class:list={["relative block overflow-hidden", featuredGrid ? "aspect-square rounded-[20px]" : "aspect-[4/5] rounded-xl bg-[#F3F0E9] dark:bg-white/[0.04]"]}>
       {image ? (
         <img
           src={optimizeCloudinaryImage(image, 480)}
           srcset={responsiveImageSrcSet(image)}
           alt={product.name}
-          width="480"
-          height="480"
-          loading="lazy"
+          width={featuredGrid ? undefined : "480"}
+          height={featuredGrid ? undefined : "480"}
+          loading={eager ? "eager" : "lazy"}
+          fetchpriority={eager ? "high" : undefined}
           decoding="async"
-          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-          class="absolute inset-0 h-full w-full object-contain p-2 transition-transform duration-300 group-hover:scale-[1.04] sm:p-3"
+          sizes={imageSizes || (featuredGrid ? "(min-width: 1215px) 248px, (min-width: 1024px) calc(25vw - 57px), (min-width: 640px) calc(50vw - 68px), calc(50vw - 60px)" : "(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw")}
+          class:list={["absolute inset-0 h-full w-full transition-transform duration-300 group-hover:scale-[1.04]", featuredGrid ? "object-cover object-center" : "object-contain p-2 sm:p-3"]}
         />
       ) : (
         <div class="flex h-full items-center justify-center text-xs text-page-faint">Photo à venir</div>
       )}
-      <span class:list={["absolute left-2 top-2 rounded-full px-2.5 py-1 text-[10px] font-bold shadow-sm sm:left-3 sm:top-3 sm:text-xs", soldOut ? "bg-red-600 text-white" : lowStock ? "bg-ocre text-indigo-deep" : "bg-white/95 text-emerald-800"]}>
+      <span class:list={[featuredGrid ? "absolute left-3 top-3 z-[2]" : "absolute left-2 top-2 sm:left-3 sm:top-3", "rounded-full px-2.5 py-1 text-[10px] font-bold shadow-sm sm:text-xs", soldOut ? "bg-red-600 text-white" : lowStock ? "bg-ocre text-indigo-deep" : "bg-white/95 text-emerald-800"]}>
         {stockLabel}
       </span>
     </a>
 
-    <div class="mt-3 px-0.5">
+    <div class:list={["mt-3 px-0.5", featuredGrid && "flex flex-1 flex-col"]}>
       {product.category?.name && <p class:list={["text-[10px] font-bold uppercase tracking-[0.14em] text-page-muted sm:text-[11px]", centered && "text-center"]}>{product.category.name}</p>}
       <a href={productHref}>
-        <h3 class:list={["mt-1 line-clamp-2 min-h-10 font-titre text-sm font-bold leading-snug transition-colors hover:text-brule dark:hover:text-ocre sm:text-base", centered && "text-center"]} style="color: var(--text-main);">
+        <h3 class:list={["mt-1 line-clamp-2 font-titre text-sm font-bold transition-colors hover:text-brule dark:hover:text-ocre sm:text-base", featuredGrid ? "min-h-12 leading-[1.35] sm:leading-[1.35]" : "min-h-10 leading-snug", centered && "text-center"]} style="color: var(--text-main);">
           {product.name}
         </h3>
       </a>
-      <p class:list={["mt-1 font-titre text-base font-extrabold text-brule dark:text-ocre sm:text-lg", centered && "text-center"]}>{formatPrice(product.price)}</p>
+      <p class:list={[featuredGrid ? "mt-auto pt-2" : "mt-1", "font-titre text-base font-extrabold text-brule dark:text-ocre sm:text-lg", centered && "text-center"]}>{formatPrice(product.price)}</p>
     </div>
   </div>
 
-  <div class="mt-3 flex flex-col gap-1.5 border-t pt-2" style="border-color: var(--border);">
+  <div class:list={[featuredGrid ? "mt-auto" : "mt-3", "flex flex-col gap-1.5 border-t pt-2"]} style="border-color: var(--border);">
     {soldOut ? (
       <button type="button" disabled class="w-full cursor-not-allowed rounded-xl bg-gray-100 py-2 text-center text-xs font-bold text-gray-400 dark:bg-white/10 dark:text-white/40">
         Rupture de stock

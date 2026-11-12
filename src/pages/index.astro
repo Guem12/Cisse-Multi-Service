@@ -6,7 +6,7 @@ import TrustSections from "../../components/TrustSections.astro";
 import { getProducts, getStorefrontFacts } from "../../lib/data.js";
 import { getHeroSelection } from "../../lib/hero.js";
 import { optimizeCloudinaryImage } from "../../lib/image-url.mjs";
-import { DEFAULT_TITLE, assortmentPhrase, metaDescription, waLink } from "../../lib/store.js";
+import { DEFAULT_TITLE, assortmentPhrase, getVisibleStorefrontCategories, metaDescription, waLink } from "../../lib/store.js";
 
 export const prerender = false;
 
@@ -14,7 +14,7 @@ const [facts, products] = await Promise.all([
   getStorefrontFacts(),
   getProducts({ limit: 24 }),
 ]);
-const soldCategories = facts.categories;
+const soldCategories = getVisibleStorefrontCategories(facts.categories);
 const description = metaDescription(soldCategories, facts.productCount);
 const phone = import.meta.env.PUBLIC_WHATSAPP_1 || "22362823995";
 const heroSelection = await getHeroSelection(products);
@@ -58,58 +58,80 @@ const productLabel = facts.productCount > 1 ? "Produits" : "Produit";
     </div>
   </section>
 
-  <div class="wrap pb-16">
-    <section class="mt-10" aria-labelledby="categories-titre">
-      <h2 id="categories-titre" class="text-center font-titre text-2xl font-bold text-page-main">Catégories en vente</h2>
-      {soldCategories.length === 0 ? (
-        <p class="mt-4 text-page-muted">Aucune catégorie avec un produit en ligne pour le moment.</p>
-      ) : (
-        <ul class="-mx-4 mt-4 flex gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
-          {soldCategories.map((category) => (
-            <li class="shrink-0 snap-start sm:w-auto">
-              <a href={`/catalogue?categorie=${encodeURIComponent(category.slug)}`} class="relative block h-48 w-40 overflow-hidden rounded-lg bg-indigo-deep">
-                {category.image && <img src={optimizeCloudinaryImage(category.image, 320)} alt="" width="320" height="384" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover" />}
-                <span class="absolute inset-0 bg-gradient-to-t from-indigo-deep/85 via-transparent to-transparent"></span>
-                <span class="absolute bottom-3 left-3 right-3 font-titre text-lg font-bold leading-tight text-white">{category.name}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+  <div class="pb-16">
+    <div class="wrap">
+      <section class="mt-10" aria-labelledby="categories-titre">
+        <div class="flex items-end justify-between gap-4">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.14em] text-brule dark:text-ocre">Catalogue</p>
+            <h2 id="categories-titre" class="mt-1 font-titre text-2xl font-bold text-page-main">Catégories en vente</h2>
+          </div>
+          <a href="/catalogue" class="mb-1 shrink-0 text-sm font-bold text-indigo hover:text-brule dark:text-ocre dark:hover:text-amber-300">Tout voir <span aria-hidden="true">→</span></a>
+        </div>
+        {soldCategories.length === 0 ? (
+          <p class="mt-4 text-page-muted">Aucune catégorie avec un produit en ligne pour le moment.</p>
+        ) : (
+          <ul class="-mx-4 mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:gap-5 sm:px-0">
+            {soldCategories.map((category) => (
+              <li class="w-44 shrink-0 snap-start sm:w-52">
+                <a href={`/catalogue?categorie=${encodeURIComponent(category.slug)}`} class="group block overflow-hidden rounded-xl border border-black/10 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocre">
+                  <div class="aspect-[4/3] overflow-hidden bg-gray-100">
+                    {category.image ? (
+                      <img src={optimizeCloudinaryImage(category.image, 480)} alt="" width="480" height="360" loading="lazy" decoding="async" class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.04]" />
+                    ) : (
+                      <div class="grid h-full place-items-center text-indigo-deep/35">
+                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" class="h-9 w-9"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h4l1.5 1.5h9A1.5 1.5 0 0 1 20.5 9v9a1.5 1.5 0 0 1-1.5 1.5H5A2 2 0 0 1 3 17.5v-10Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /><path d="m7 16 3-3 2 2 2-2 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                      </div>
+                    )}
+                  </div>
+                  <div class="flex min-h-14 items-center justify-between gap-2 px-3.5 py-3">
+                    <span class="font-titre text-sm font-bold leading-snug text-black sm:text-base">{category.name}</span>
+                    <span aria-hidden="true" class="shrink-0 text-sm font-bold text-black/45 transition group-hover:translate-x-0.5 group-hover:text-black">→</span>
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
 
     <section class="mt-12" aria-labelledby="nouveautes-titre">
-      <div class="relative flex flex-col items-center gap-3 text-center sm:min-h-11 sm:flex-row sm:justify-center">
-        <h2 id="nouveautes-titre" class="font-titre text-2xl font-bold text-page-main">À découvrir en ligne</h2>
-        <a href="/catalogue" class="inline-flex items-center gap-2 self-end rounded-full border border-ocre bg-ocre px-4 py-2 text-sm font-bold text-indigo-deep shadow-sm transition hover:-translate-y-0.5 hover:bg-yellow-500 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocre sm:absolute sm:right-0 sm:top-1/2 sm:-translate-y-1/2">
-          Voir tout le catalogue
-          <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" class="h-4 w-4">
-            <path d="M4.167 10h11.666m0 0-5-5m5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </a>
-      </div>
-      {products.length === 0 ? (
-        <p class="mt-4 text-page-muted">Aucun produit pour le moment.</p>
-      ) : (
-        <div class="mt-4 grid grid-cols-2 gap-x-3 gap-y-7 lg:grid-cols-4">
-          {products.slice(0, 12).map((product) => <ProductCard product={product} centered />)}
+      <div class="mx-auto max-w-[1200px] px-6">
+        <div class="flex flex-col items-center justify-between gap-3 text-center sm:flex-row sm:text-left">
+          <h2 id="nouveautes-titre" class="font-titre text-2xl font-bold text-page-main">À découvrir en ligne</h2>
+          <a href="/catalogue" class="inline-flex items-center gap-2 rounded-full border border-ocre bg-ocre px-4 py-2 text-sm font-bold text-indigo-deep shadow-sm transition hover:-translate-y-0.5 hover:bg-yellow-500 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocre">
+            Voir tout le catalogue
+            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" class="h-4 w-4">
+              <path d="M4.167 10h11.666m0 0-5-5m5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
         </div>
-      )}
+        {products.length === 0 ? (
+          <p class="mt-4 text-page-muted">Aucun produit pour le moment.</p>
+        ) : (
+          <div class="mt-4 grid grid-cols-2 gap-5 lg:grid-cols-4">
+            {products.slice(0, 12).map((product) => <ProductCard product={product} centered featuredGrid />)}
+          </div>
+        )}
+        </div>
     </section>
 
-    <section class="mt-16 border-t divider pt-10">
-      <h2 class="text-center font-titre text-2xl font-bold text-page-main">Comment commander</h2>
-      <ol class="mt-6 grid gap-8 md:grid-cols-3">
-        {steps.map(([title, text], index) => (
-          <li class="flex flex-col items-center text-center">
-            <span class="font-titre text-5xl font-extrabold text-brule dark:text-ocre">{index + 1}</span>
-            <h3 class="mt-1 text-lg font-bold text-page-main">{title}</h3>
-            <p class="mt-1 max-w-xs text-page-muted">{text}</p>
-          </li>
-        ))}
-      </ol>
-    </section>
+    <div class="wrap">
+      <section class="mt-16 border-t divider pt-10">
+        <h2 class="text-center font-titre text-2xl font-bold text-page-main">Comment commander</h2>
+        <ol class="mt-6 grid gap-8 md:grid-cols-3">
+          {steps.map(([title, text], index) => (
+            <li class="flex flex-col items-center text-center">
+              <span class="font-titre text-5xl font-extrabold text-brule dark:text-ocre">{index + 1}</span>
+              <h3 class="mt-1 text-lg font-bold text-page-main">{title}</h3>
+              <p class="mt-1 max-w-xs text-page-muted">{text}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
 
-    <TrustSections phone={phone} />
+      <TrustSections phone={phone} />
+    </div>
   </div>
 </SiteLayout>

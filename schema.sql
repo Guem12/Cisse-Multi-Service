@@ -119,7 +119,7 @@ INSERT INTO products (name, slug, description, price, stock, active, category_id
     '[{"url": "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&auto=format&fit=crop&q=80"}]'
   ),
   (
-    'Bracelet chaîne gourmette dorée',
+    'Collier double à pendentifs',
     'bracelet-chaine-gourmette-doree',
     'Finitions soignées en acier inoxydable plaqué or, éclat durable résistant à l\'eau.',
     4500,
