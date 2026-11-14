@@ -20,7 +20,7 @@ function NavLink({ href, label, onClick, mobile = false, menuOpen = false }) {
       href={href}
       onClick={onClick}
       className={mobile
-        ? `relative flex h-14 w-full items-center border-b border-white/10 px-4 text-lg font-semibold transition-colors duration-200 motion-reduce:transition-none ${active ? "text-ocre" : "text-white hover:bg-white/5"}`
+        ? `relative flex min-h-14 w-full items-center rounded-2xl px-4 text-base font-semibold transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ocre motion-reduce:transition-none ${active ? "bg-white/10 text-ocre" : "text-white/80 hover:bg-white/5 hover:text-white"}`
         : `relative rounded-full px-4 py-1.5 text-sm font-semibold transition-all duration-200 select-none ${active ? "bg-white/20 text-white shadow-inner ring-1 ring-white/40" : "text-white/70 hover:bg-white/10 hover:text-white active:scale-95"}`
       }
       aria-current={active ? "page" : undefined}
@@ -29,7 +29,7 @@ function NavLink({ href, label, onClick, mobile = false, menuOpen = false }) {
       {mobile && (
         <span
           aria-hidden="true"
-          className={`absolute inset-y-0 left-0 w-[3px] bg-ocre transition-opacity duration-200 motion-reduce:transition-none ${active ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-y-3 left-0 w-1 rounded-full bg-ocre transition-opacity duration-200 motion-reduce:transition-none ${active ? "opacity-100" : "opacity-0"}`}
         />
       )}
       {label}
@@ -258,7 +258,7 @@ export default function Navbar() {
             ref={menuButtonRef}
             type="button"
             onClick={toggleMobileMenu}
-            aria-label="Menu"
+            aria-label={mobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
             aria-expanded={mobileMenuOpen}
             aria-controls="navigation-mobile-menu"
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ocre motion-reduce:transition-none md:hidden"
@@ -297,48 +297,38 @@ export default function Navbar() {
         aria-hidden={!mobileMenuOpen}
         className={`fixed inset-0 z-[60] transition-opacity duration-200 motion-reduce:transition-none md:hidden ${mobileMenuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}`}
       >
-          <button
-            type="button"
-            tabIndex={mobileMenuOpen ? 0 : -1}
+          <div
+            aria-hidden="true"
             onClick={closeMobileMenu}
-            aria-label="Fermer le menu"
-            className="absolute inset-0 h-full w-full bg-black/60"
+            className="absolute inset-0 h-full w-full bg-black/60 backdrop-blur-[2px]"
           />
           <aside
             ref={menuPanelRef}
             role="dialog"
             aria-modal={mobileMenuOpen ? "true" : undefined}
             aria-label="Menu de navigation"
-            className={`absolute bottom-0 right-0 top-[calc(60px+env(safe-area-inset-top,0px))] flex w-full max-w-sm flex-col bg-[#0E1530] pb-[env(safe-area-inset-bottom,0px)] shadow-2xl transition-transform duration-200 motion-reduce:transition-none ${mobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
+            className={`absolute bottom-0 right-0 top-[calc(60px+env(safe-area-inset-top,0px))] flex w-full max-w-sm flex-col rounded-l-3xl border-l border-white/10 bg-[#0E1530]/95 pb-[env(safe-area-inset-bottom,0px)] shadow-2xl backdrop-blur-xl transition-transform duration-200 motion-reduce:transition-none ${mobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
           >
-            <div className="flex-1 overflow-y-auto px-4">
-              <nav aria-label="Navigation mobile">
+            <div className="flex-1 overflow-y-auto px-5 pt-7">
+              <div className="mb-5 px-3">
+                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-ocre">Navigation</p>
+                <p className="mt-1 text-sm text-white/55">Découvrez la boutique</p>
+              </div>
+              <nav aria-label="Navigation mobile" className="space-y-2">
                 <NavLink href="/" label="Accueil" mobile menuOpen={mobileMenuOpen} onClick={closeMenuAfterNavigation} />
                 <NavLink href="/catalogue" label="Catalogue" mobile menuOpen={mobileMenuOpen} onClick={closeMenuAfterNavigation} />
-                <button
-                  type="button"
-                  tabIndex={mobileMenuOpen ? 0 : -1}
-                  onClick={() => {
-                    closeMobileMenu();
-                    openOrderDrawer();
-                  }}
-                  className="flex h-14 w-full items-center justify-between border-b border-white/10 px-4 text-left text-lg font-semibold text-white transition-colors duration-200 hover:bg-white/5 motion-reduce:transition-none"
-                >
-                  <span>Ma commande</span>
-                  <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-ocre px-1.5 text-sm font-bold text-indigo-deep">
-                    {orderCount}
-                  </span>
-                </button>
+                <NavLink href="/qui-sommes-nous" label="Boutique" mobile menuOpen={mobileMenuOpen} onClick={closeMenuAfterNavigation} />
               </nav>
             </div>
-            <div className="px-4 py-4">
+            <div className="border-t border-white/10 px-5 py-5">
+              <p className="mb-3 px-1 text-xs font-medium text-white/60">Besoin d’aide ? Écrivez-nous.</p>
               <a
                 href={waLink(orderPhone)}
                 target="_blank"
                 rel="noopener noreferrer"
                 tabIndex={mobileMenuOpen ? 0 : -1}
                 onClick={closeMobileMenu}
-                className="flex h-[52px] w-full items-center justify-center gap-2 rounded-xl bg-[#0F766E] px-4 text-base font-bold text-white transition-colors duration-200 hover:bg-[#0d6e63] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocre motion-reduce:transition-none"
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#0F766E] px-4 text-sm font-bold text-white transition-colors duration-200 hover:bg-[#0d6e63] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocre motion-reduce:transition-none"
               >
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.76-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.15-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
