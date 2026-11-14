@@ -31,7 +31,24 @@ export async function POST({ request }) {
       safeCallback = `${targetUrl.pathname}${targetUrl.search}${targetUrl.hash}`;
     }
   }
-  const rateLimit = await consumeLoginAttempt(request);
+  let rateLimit;
+  try {
+    rateLimit = await consumeLoginAttempt(request);
+  } catch (error) {
+    console.error("Unable to enforce administrator login rate limit:", {
+      code: error?.code,
+      meta: error?.meta,
+      message: error?.message,
+    });
+    if (isJson) {
+      return Response.json(
+        { error: "La connexion est temporairement indisponible." },
+        { status: 503 },
+      );
+    }
+    return Response.redirect(new URL("/login?error=unavailable", request.url), 303);
+  }
+
   if (!rateLimit.allowed) {
     if (isJson) {
       return Response.json(
