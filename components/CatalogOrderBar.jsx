@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { formatPrice } from "@/lib/format";
-import { getOrderItems, getOrderWhatsAppUrl } from "@/lib/cart";
+import { clearOrder, getOrderItems } from "@/lib/cart";
+import { submitWhatsAppOrder } from "@/lib/orders-client";
 
 export default function CatalogOrderBar({ phone = "22362823995" }) {
   const [items, setItems] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const updateItems = () => setItems(getOrderItems());
@@ -23,7 +26,21 @@ export default function CatalogOrderBar({ phone = "22362823995" }) {
     (sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1),
     0,
   );
-  const whatsappUrl = getOrderWhatsAppUrl(items, phone);
+  async function sendOrder() {
+    setError("");
+    setIsSubmitting(true);
+    try {
+      const order = await submitWhatsAppOrder(items, phone);
+      window.dispatchEvent(new CustomEvent("cisse_whatsapp_order", {
+        detail: { count: order.items.reduce((sum, item) => sum + item.quantity, 0), value: order.total },
+      }));
+      clearOrder();
+    } catch (submitError) {
+      setError(submitError.message || "La commande n'a pas pu être enregistrée.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <>
@@ -33,14 +50,17 @@ export default function CatalogOrderBar({ phone = "22362823995" }) {
           <p aria-live="polite" className="text-sm font-semibold text-indigo-deep dark:text-white">
             Ma commande ({count} article{count === 1 ? "" : "s"}) <span aria-hidden="true">·</span> Total {formatPrice(total)}
           </p>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex min-h-11 items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700"
-          >
-            Envoyer sur WhatsApp
-          </a>
+          <div className="flex flex-col gap-1">
+            <button
+              type="button"
+              onClick={sendOrder}
+              disabled={isSubmitting}
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-wait disabled:opacity-70"
+            >
+              {isSubmitting ? "Enregistrement…" : "Envoyer sur WhatsApp"}
+            </button>
+            {error && <span role="alert" className="text-xs font-semibold text-red-700 dark:text-red-300">{error}</span>}
+          </div>
         </div>
       </aside>
     </>

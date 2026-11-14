@@ -4,8 +4,6 @@ node_modules
 dist
 .vercel
 .netlify
-.env*.local
-.env
 .freebuff
 
 # cookies de test / sessions administrateur (créés par les tests de connexion)
@@ -27,8 +25,16 @@ dist
 .vercel
 .env*
 !.env.example
-!.env.production.example
-!.env.production.local
+
+# Clés privées, certificats et identifiants locaux
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+credentials*.json
+service-account*.json
+/secrets/
 
 # IDE et outils
 .agents/

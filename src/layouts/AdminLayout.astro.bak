@@ -1,0 +1,156 @@
+---
+import "../styles/global.css";
+import AdminNotifications from "../../components/admin/AdminNotifications.jsx";
+import AdminProfileSettings from "../../components/admin/AdminProfileSettings.jsx";
+import SignOutButton from "../../components/admin/SignOutButton.jsx";
+
+const { title = "Administration · Cissé Multi-Service" } = Astro.props;
+const path = Astro.url.pathname;
+const links = [
+  { href: "/admin", label: "Tableau de bord" },
+  { href: "/admin/produits", label: "Produits" },
+  { href: "/admin/categories", label: "Catégories" },
+  { href: "/admin/clients", label: "Clients" },
+  { href: "/admin/vitrine", label: "Vitrine d’accueil" },
+];
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <link rel="icon" href="/logo-icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400..800&family=Figtree:wght@400..800&display=swap"
+      rel="stylesheet"
+    />
+    <title>{title}</title>
+    <script is:inline>
+      try {
+        const theme = localStorage.getItem("cisse_theme");
+        const dark = theme === "dark" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", dark);
+      } catch {}
+    </script>
+  </head>
+  <body class="min-h-screen font-sans" style="--font-titre: 'Bricolage Grotesque'; --font-main: 'Figtree'; background: var(--bg-subtle); color: var(--text-main);">
+    <div class="min-h-screen lg:flex">
+      <aside id="admin-sidebar" class="bg-indigo-deep text-white lg:fixed lg:inset-y-0 lg:w-64 lg:transition-all lg:duration-300">
+        <div class="flex items-center justify-between border-b border-white/10 p-4">
+          <a href="/admin" class="font-titre text-lg font-extrabold text-white">Cissé · Admin</a>
+          <div class="flex items-center gap-2">
+            <button type="button" id="sidebar-toggle" class="lg:hidden rounded-lg p-2 hover:bg-white/10">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <a href="/" class="text-xs text-white/70 hover:text-white">Boutique</a>
+          </div>
+        </div>
+        <nav aria-label="Administration" class="flex gap-1 overflow-x-auto p-3 lg:flex-col">
+          {links.map(({ href, label }) => (
+            <a
+              href={href}
+              aria-current={path === href ? "page" : undefined}
+              class:list={[
+                "shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors hover:bg-white/10",
+                path === href ? "bg-white/15 text-ocre" : "text-white/90 hover:text-white",
+              ]}
+            >
+              {label}
+            </a>
+          ))}
+          <a href="/admin/produits/nouveau" class="shrink-0 rounded-lg px-3 py-2.5 text-sm font-semibold text-white/90 hover:text-white transition-colors hover:bg-white/10">Ajouter un produit</a>
+        </nav>
+        <div class="hidden border-t border-white/10 p-4 lg:flex lg:flex-col lg:gap-2">
+          <button type="button" id="sidebar-collapse" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-white/90 hover:bg-white/10 transition-colors">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            </svg>
+            <span>Réduire</span>
+          </button>
+          <SignOutButton client:load />
+        </div>
+      </aside>
+      <div id="admin-content" class="min-w-0 flex-1 lg:transition-all lg:duration-300">
+        <header class="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b px-4 backdrop-blur-md sm:px-8" style="background: var(--bg-surface); border-color: var(--border);">
+          <div class="flex items-center gap-3">
+            <button type="button" id="sidebar-expand" class="hidden lg:flex rounded-lg p-2 hover:bg-white/10" style="color: var(--text-main);">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+              </svg>
+            </button>
+            <div class="text-sm font-semibold" style="color: var(--text-main);">{title.replace(" · Cissé Multi-Service", "")}</div>
+          </div>
+          <div class="flex items-center gap-3">
+            <AdminNotifications client:load />
+            <button type="button" id="admin-theme-toggle" class="rounded-lg border px-3 py-2 text-xs font-bold" style="border-color: var(--border); background: var(--bg-subtle);">Thème</button>
+            <AdminProfileSettings client:load />
+          </div>
+        </header>
+        <main class="mx-auto w-full max-w-7xl p-4 sm:p-6 lg:p-8"><slot /></main>
+      </div>
+    </div>
+    <script is:inline>
+      document.getElementById("admin-theme-toggle")?.addEventListener("click", () => {
+        const dark = !document.documentElement.classList.contains("dark");
+        document.documentElement.classList.toggle("dark", dark);
+        localStorage.setItem("cisse_theme", dark ? "dark" : "light");
+      });
+
+      // Sidebar toggle functionality
+      const sidebar = document.getElementById('admin-sidebar');
+      const content = document.getElementById('admin-content');
+      const collapseBtn = document.getElementById('sidebar-collapse');
+      const expandBtn = document.getElementById('sidebar-expand');
+      const mobileToggle = document.getElementById('sidebar-toggle');
+      let isCollapsed = localStorage.getItem('cisse_sidebar_collapsed') === 'true';
+
+      function updateSidebar() {
+        if (window.innerWidth >= 1024) {
+          if (isCollapsed) {
+            sidebar.classList.remove('lg:w-64');
+            sidebar.classList.add('lg:w-20');
+            content.classList.remove('lg:ml-64');
+            content.classList.add('lg:ml-20');
+            collapseBtn.querySelector('span')?.classList.add('hidden');
+            expandBtn.classList.remove('hidden');
+            expandBtn.classList.add('lg:flex');
+          } else {
+            sidebar.classList.remove('lg:w-20');
+            sidebar.classList.add('lg:w-64');
+            content.classList.remove('lg:ml-20');
+            content.classList.add('lg:ml-64');
+            collapseBtn.querySelector('span')?.classList.remove('hidden');
+            expandBtn.classList.add('hidden');
+            expandBtn.classList.remove('lg:flex');
+          }
+        }
+      }
+
+      collapseBtn?.addEventListener('click', () => {
+        isCollapsed = true;
+        localStorage.setItem('cisse_sidebar_collapsed', 'true');
+        updateSidebar();
+      });
+
+      expandBtn?.addEventListener('click', () => {
+        isCollapsed = false;
+        localStorage.setItem('cisse_sidebar_collapsed', 'false');
+        updateSidebar();
+      });
+
+      mobileToggle?.addEventListener('click', () => {
+        sidebar.classList.toggle('hidden');
+      });
+
+      window.addEventListener('resize', updateSidebar);
+      updateSidebar();
+    </script>
+  </body>
+</html>
+

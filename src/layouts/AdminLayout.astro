@@ -12,6 +12,7 @@ const links = [
   { href: "/admin/produits", label: "Produits" },
   { href: "/admin/categories", label: "Catégories" },
   { href: "/admin/clients", label: "Clients" },
+  { href: "/admin/commandes", label: "Commandes" },
   { href: "/admin/vitrine", label: "Page d’accueil" },
 ];
 ---
@@ -128,6 +129,19 @@ const links = [
             <span class="nav-label">Clients</span>
           </a>
           <a
+            href="/admin/commandes"
+            aria-current={path === "/admin/commandes" ? "page" : undefined}
+            class:list={[
+              "nav-link flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition",
+              path === "/admin/commandes" ? "bg-ocre/15 text-ocre ring-1 ring-inset ring-ocre/30" : "text-white/75 hover:bg-white/[0.06] hover:text-white",
+            ]}
+          >
+            <svg class="h-5 w-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+            </svg>
+            <span class="nav-label">Commandes</span>
+          </a>
+          <a
             href="/admin/vitrine"
             aria-current={path === "/admin/vitrine" ? "page" : undefined}
             class:list={[
@@ -225,6 +239,7 @@ const links = [
         { label: "Ajouter un produit", href: "/admin/produits/nouveau", keywords: "nouveau créer" },
         { label: "Catégories", href: "/admin/categories", keywords: "familles" },
         { label: "Clients", href: "/admin/clients", keywords: "contacts" },
+        { label: "Commandes", href: "/admin/commandes", keywords: "whatsapp historique achats" },
         { label: "Page d’accueil", href: "/admin/vitrine", keywords: "vitrine produits mis en avant" },
       ];
       let searchableProducts = [];

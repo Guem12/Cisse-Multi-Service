@@ -30,27 +30,17 @@ Avant le déploiement, configurez ces variables dans Vercel:
 
 La limitation des tentatives de connexion utilise PostgreSQL lorsqu’il est configuré.
 
-8. **R2_BUCKET** - Nom du bucket de stockage (si utilisé)
-
-9. **FILES_BINDING** - Binding de fichiers (si utilisé)
-
-10. **AI_GATEWAY_BASE_URL** - URL du gateway AI (si utilisé)
-
-11. **AI_GATEWAY_API_KEY** - Clé API du gateway AI (si utilisé)
-
+8. **NEON_STORAGE_BUCKET** - `cisse-media`
+9. **AWS_ENDPOINT_URL_S3**, **AWS_REGION**, **AWS_ACCESS_KEY_ID**, **AWS_SECRET_ACCESS_KEY** - Identifiants S3 du bucket Neon Object Storage
+10. **AI_GATEWAY_BASE_URL** et **AI_GATEWAY_API_KEY** - Variables AI facultatives
 11. **AI_DEFAULT_PROVIDER** - Provider AI par défaut (ex: `openai`)
-
 12. **PUBLIC_SITE_URL** - URL de votre application Vercel (ex: `https://votre-app.vercel.app`)
+13. **PUBLIC_WHATSAPP_1** et **PUBLIC_WHATSAPP_2** - Numéros WhatsApp
+14. **PUBLIC_CALL_PHONE** - Numéro à appeler (facultatif, utilise `PUBLIC_WHATSAPP_1` par défaut)
+15. **PUBLIC_INSTAGRAM_URL**, **PUBLIC_FACEBOOK_URL**, **PUBLIC_TIKTOK_URL** - URLs HTTPS des profils sociaux (facultatives)
+16. **PUBLIC_PLAUSIBLE_DOMAIN** - Domaine du site dans Plausible (facultatif)
 
-13. **PUBLIC_WHATSAPP_1** - Numéro WhatsApp 1
-
-14. **PUBLIC_WHATSAPP_2** - Numéro WhatsApp 2
-
-15. **PUBLIC_CALL_PHONE** - Numéro à appeler (facultatif, utilise `PUBLIC_WHATSAPP_1` par défaut)
-
-16. **PUBLIC_INSTAGRAM_URL**, **PUBLIC_FACEBOOK_URL**, **PUBLIC_TIKTOK_URL** - URLs HTTPS des profils sociaux (facultatives, seuls les profils configurés sont affichés)
-
-17. **PUBLIC_PLAUSIBLE_DOMAIN** - Domaine du site dans Plausible (facultatif ; sans cette variable, aucun script de mesure n'est chargé). L'événement `WhatsApp Click` compte les liens WhatsApp et `WhatsApp Order` les commandes envoyées depuis le panier.
+Les variables `AWS_ACCESS_KEY_ID` et `AWS_SECRET_ACCESS_KEY` sont des secrets propres à la branche Neon. Ne les mettez jamais dans le code ou dans le dépôt. Sur la branche de production, créez un identifiant S3 avec `neon credentials create --scope storage:read --scope storage:write`; utilisez son endpoint et sa région pour `AWS_ENDPOINT_URL_S3` et `AWS_REGION`, puis ajoutez les quatre variables `AWS_*` et `NEON_STORAGE_BUCKET` à l'environnement Production de Vercel. Ne collez jamais ces secrets dans une conversation.
 
 ## Étapes de Déploiement
 
@@ -86,11 +76,11 @@ Dans les paramètres du projet Vercel:
 2. Créez un nouveau projet
 3. Copiez le `DATABASE_URL` depuis Neon
 4. Ajoutez-le comme variable d'environnement sur Vercel
-5. Exécutez les migrations:
+5. Avant de déployer le nouveau code, exécutez les migrations:
    ```bash
    npx prisma migrate deploy
    ```
-   Cette migration ajoute les variantes couleur et taille aux produits.
+   Cela applique uniquement les migrations Prisma en attente, dont la table des commandes.
 
 #### Option B: Utiliser Vercel Postgres
 
@@ -99,23 +89,26 @@ Dans les paramètres du projet Vercel:
 3. Copiez le `POSTGRES_URL` généré
 4. Utilisez-le comme `DATABASE_URL`
 
-### 5. Lancer le déploiement
+### 5. Appliquer le schéma et migrer les anciennes données
 
-1. Cliquez sur **Deploy** dans Vercel
-2. Attendez la fin du build
-3. Votre application sera disponible à l'URL fournie
+Avant le nouveau déploiement, vérifiez que `.env.local` contient la variable `DATABASE_URL` de la branche de production, puis appliquez les migrations avec ce fichier sans afficher sa valeur:
 
-### 6. Exécuter les migrations (si nécessaire)
-
-Si les migrations ne s'exécutent pas automatiquement, ajoutez un script de build:
-
-Dans `package.json`, ajoutez:
-```json
-"scripts": {
-  "postinstall": "prisma generate",
-  "vercel-build": "prisma migrate deploy && astro build"
-}
+```bash
+node --env-file=.env.local .\node_modules\prisma\build\index.js migrate deploy
 ```
+
+Ensuite, configurez `.env.local` avec la même URL, `NEON_STORAGE_BUCKET=cisse-media` et les quatre variables `AWS_*` de cette branche Neon. Depuis la racine du projet, lancez:
+
+```bash
+npx prisma generate
+npm run migrate:data
+```
+
+Le script importe les anciennes données JSON sans remplacer les enregistrements déjà présents, téléverse `public/uploads` vers Neon Object Storage et remplace les anciennes références d'images dans le catalogue et les réglages. Vérifiez que les deux configurations locales ciblent bien la même base et branche avant de lancer ces commandes. Les paniers conservés uniquement dans le `localStorage` des visiteurs et l'historique déjà présent uniquement dans WhatsApp ne peuvent pas être récupérés rétroactivement; les nouvelles commandes sont enregistrées en base lorsqu'elles sont envoyées vers WhatsApp.
+
+### 6. Lancer le déploiement
+
+Après vérification des migrations et des images, déployez le dépôt dans Vercel. Les variables de stockage doivent être configurées dans **Settings > Environment Variables** pour l'environnement **Production** avant le redéploiement.
 
 Ou configurez dans `vercel.json`:
 ```json
