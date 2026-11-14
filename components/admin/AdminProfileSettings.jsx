@@ -36,14 +36,15 @@ export default function AdminProfileSettings() {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   // Données du profil administrateur
   const [profile, setProfile] = useState({
-    firstName: "Mamadou",
-    lastName: "Cissé",
-    phone: "22362823995",
-    email: "admin@cisse.ml",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+    firstName: "",
+    lastName: "",
+    phone: "",
+    email: "",
+    avatar: "",
   });
 
   // Champs pour le changement de mot de passe
@@ -59,19 +60,20 @@ export default function AdminProfileSettings() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/profile");
+      const res = await fetch("/api/admin/profile", { cache: "no-store" });
       const data = await readApiResponse(res, "GET /api/admin/profile");
       if (!data.profile) {
         throw new Error("Les informations du profil sont indisponibles.");
       }
 
       setProfile({
-        firstName: data.profile.firstName || "Mamadou",
-        lastName: data.profile.lastName || "Cissé",
-        phone: data.profile.phone || "22362823995",
-        email: data.profile.email || "admin@cisse.ml",
-        avatar: data.profile.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
+        firstName: data.profile.firstName || "",
+        lastName: data.profile.lastName || "",
+        phone: data.profile.phone || "",
+        email: data.profile.email || "",
+        avatar: data.profile.avatar || "",
       });
+      setProfileLoaded(true);
     } catch (e) {
       console.warn("Impossible de charger le profil admin:", e);
       setErrorMsg(e.message || "Impossible de charger les informations du profil.");
@@ -174,6 +176,7 @@ export default function AdminProfileSettings() {
 
       if (data.profile) {
         setProfile((prev) => ({ ...prev, ...data.profile }));
+        setProfileLoaded(true);
       }
 
       setTimeout(() => {
@@ -188,7 +191,9 @@ export default function AdminProfileSettings() {
     }
   };
 
-  const fullName = `${profile.firstName} ${profile.lastName}`.trim() || "Admin Cissé";
+  const fullName = profileLoaded
+    ? `${profile.firstName} ${profile.lastName}`.trim() || "Admin Cissé"
+    : "";
 
   return (
     <div className="relative" ref={menuRef}>
@@ -206,18 +211,26 @@ export default function AdminProfileSettings() {
         title="Options du compte administrateur"
       >
         <div className="relative">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={profile.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"}
-            alt={fullName}
-            className="w-8 h-8 rounded-full object-cover ring-2 ring-ocre/40 group-hover:ring-ocre transition-all shadow-sm"
-          />
+          {profileLoaded && profile.avatar ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={profile.avatar}
+              alt={fullName}
+              className="w-8 h-8 rounded-full object-cover ring-2 ring-ocre/40 group-hover:ring-ocre transition-all shadow-sm"
+            />
+          ) : (
+            <span className="flex w-8 h-8 items-center justify-center rounded-full bg-ocre/15 text-ocre ring-2 ring-ocre/40">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </span>
+          )}
           <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#0D1428]" />
         </div>
 
         <div className="hidden sm:flex flex-col text-left leading-tight">
           <span className="text-xs font-bold truncate max-w-[120px]" style={{ color: "var(--text-main)" }}>
-            {fullName}
+            {fullName || "Chargement…"}
           </span>
           <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>
             Administrateur
@@ -249,18 +262,26 @@ export default function AdminProfileSettings() {
           {/* En-tête profil */}
           <div className="p-4 border-b" style={{ borderColor: "var(--border)", backgroundColor: "var(--bg-subtle)" }}>
             <div className="flex items-center gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={profile.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"}
-                alt={fullName}
-                className="w-11 h-11 rounded-full object-cover ring-2 ring-ocre shadow"
-              />
+              {profileLoaded && profile.avatar ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={profile.avatar}
+                  alt={fullName}
+                  className="w-11 h-11 rounded-full object-cover ring-2 ring-ocre shadow"
+                />
+              ) : (
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-ocre/15 text-ocre ring-2 ring-ocre">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </span>
+              )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-extrabold truncate" style={{ color: "var(--text-main)" }}>
-                  {fullName}
+                  {fullName || "Chargement du profil…"}
                 </p>
                 <p className="text-xs truncate text-slate-400">
-                  {profile.email}
+                  {profileLoaded ? profile.email : ""}
                 </p>
                 <span className="inline-block mt-1 text-[10px] font-black px-2 py-0.5 rounded-full bg-ocre/20 text-ocre border border-ocre/30">
                   Super Administrateur
@@ -384,12 +405,20 @@ export default function AdminProfileSettings() {
                 style={{ backgroundColor: "var(--bg-subtle)", borderColor: "var(--border)" }}
               >
                 <div className="relative group shrink-0">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={profile.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=160&auto=format&fit=crop&q=80"}
-                    alt={fullName}
-                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover ring-2 ring-ocre/60 shadow-md"
-                  />
+                  {profileLoaded && profile.avatar ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={profile.avatar}
+                      alt={fullName}
+                      className="w-20 h-20 sm:h-24 sm:w-24 rounded-full object-cover ring-2 ring-ocre/60 shadow-md"
+                    />
+                  ) : (
+                    <span className="flex h-20 w-20 items-center justify-center rounded-full bg-ocre/15 text-ocre ring-2 ring-ocre/60 sm:h-24 sm:w-24">
+                      <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </span>
+                  )}
                   {uploadingAvatar ? (
                     <div className="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center">
                       <span className="w-6 h-6 border-2 border-ocre border-t-transparent rounded-full animate-spin" />
