@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { formatPrice } from "@/lib/format";
-import { clearOrder, getOrderItems } from "@/lib/cart";
-import { submitWhatsAppOrder } from "@/lib/orders-client";
+import { getOrderItems } from "@/lib/cart";
 
 export default function CatalogOrderBar({ phone = "22362823995" }) {
   const [items, setItems] = useState([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     const updateItems = () => setItems(getOrderItems());
@@ -26,20 +23,8 @@ export default function CatalogOrderBar({ phone = "22362823995" }) {
     (sum, item) => sum + (Number(item.price) || 0) * (Number(item.quantity) || 1),
     0,
   );
-  async function sendOrder() {
-    setError("");
-    setIsSubmitting(true);
-    try {
-      const order = await submitWhatsAppOrder(items, phone);
-      window.dispatchEvent(new CustomEvent("cisse_whatsapp_order", {
-        detail: { count: order.items.reduce((sum, item) => sum + item.quantity, 0), value: order.total },
-      }));
-      clearOrder();
-    } catch (submitError) {
-      setError(submitError.message || "La commande n'a pas pu être enregistrée.");
-    } finally {
-      setIsSubmitting(false);
-    }
+  function continueOrder() {
+    window.dispatchEvent(new CustomEvent("cisse_open_order", { detail: { phone } }));
   }
 
   return (
@@ -53,13 +38,11 @@ export default function CatalogOrderBar({ phone = "22362823995" }) {
           <div className="flex flex-col gap-1">
             <button
               type="button"
-              onClick={sendOrder}
-              disabled={isSubmitting}
-              className="inline-flex min-h-11 items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-wait disabled:opacity-70"
+              onClick={continueOrder}
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700"
             >
-              {isSubmitting ? "Enregistrement…" : "Envoyer sur WhatsApp"}
+              Finaliser ma commande
             </button>
-            {error && <span role="alert" className="text-xs font-semibold text-red-700 dark:text-red-300">{error}</span>}
           </div>
         </div>
       </aside>

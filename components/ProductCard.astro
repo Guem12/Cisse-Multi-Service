@@ -6,6 +6,7 @@ import { isLowStock } from "../lib/store.js";
 const { product, centered = false, featuredGrid = false, eager = false, imageSizes } = Astro.props;
 const image = product.images?.[0]?.url;
 const soldOut = product.stock <= 0;
+const needsVariantSelection = product.variants?.some((variant) => variant.options?.length > 0) || false;
 const lowStock = isLowStock(product.stock);
 const stockLabel = soldOut ? "Rupture" : lowStock ? "Dernières pièces" : "En stock";
 const productHref = `/produit/${product.slug}`;
@@ -51,6 +52,14 @@ const productHref = `/produit/${product.slug}`;
       <button type="button" disabled class="w-full cursor-not-allowed rounded-xl bg-gray-100 py-2 text-center text-xs font-bold text-gray-400 dark:bg-white/10 dark:text-white/40">
         Rupture de stock
       </button>
+    ) : needsVariantSelection ? (
+      <a
+        href={productHref}
+        class="flex w-full items-center justify-center rounded-xl bg-emerald-500 px-2 py-2 text-center text-xs font-bold text-white shadow-sm transition-all hover:bg-emerald-600 active:scale-[0.97] sm:text-sm"
+        title="Choisir les options du produit avant de commander"
+      >
+        Choisir les options
+      </a>
     ) : (
       <>
         <button

@@ -221,16 +221,16 @@ export default function Navbar() {
             onClick={toggleTheme}
             aria-label={dark ? "Passer en mode jour" : "Passer en mode nuit"}
             title={dark ? "Mode jour" : "Mode nuit"}
-            className="hidden h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/80 transition-colors duration-200 hover:bg-white/10 hover:text-white motion-reduce:transition-none md:flex"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 text-white/80 transition-colors duration-200 hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-ocre motion-reduce:transition-none md:h-9 md:w-9"
           >
             {dark ? (
               /* Soleil */
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5 md:h-4 md:w-4">
                 <path d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591ZM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.758 17.303a.75.75 0 0 0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59ZM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12ZM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591Z" />
               </svg>
             ) : (
               /* Lune */
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5 md:h-4 md:w-4">
                 <path fillRule="evenodd" d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 0 1 .818.162Z" clipRule="evenodd" />
               </svg>
             )}
@@ -330,23 +330,6 @@ export default function Navbar() {
                   </span>
                 </button>
               </nav>
-              <div className="flex min-h-16 items-center justify-between border-b border-white/10 px-4">
-                <span className="text-base font-semibold text-white">Thème</span>
-                <button
-                  type="button"
-                  tabIndex={mobileMenuOpen ? 0 : -1}
-                  role="switch"
-                  aria-label="Thème sombre"
-                  aria-checked={dark}
-                  onClick={toggleTheme}
-                  className={`relative h-7 w-12 rounded-full transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ocre motion-reduce:transition-none ${dark ? "bg-ocre" : "bg-white/25"}`}
-                >
-                  <span
-                    aria-hidden="true"
-                    className={`absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 motion-reduce:transition-none ${dark ? "translate-x-5" : "translate-x-0"}`}
-                  />
-                </button>
-              </div>
             </div>
             <div className="px-4 py-4">
               <a
