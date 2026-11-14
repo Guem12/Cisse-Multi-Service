@@ -78,11 +78,11 @@ Dans les paramètres du projet Vercel:
 2. Créez un nouveau projet
 3. Copiez le `DATABASE_URL` depuis Neon
 4. Ajoutez-le comme variable d'environnement sur Vercel
-5. Avant de déployer le nouveau code, exécutez les migrations:
+5. Avant de déployer le nouveau code manuellement, exécutez les migrations:
    ```bash
    npx prisma migrate deploy
    ```
-   Cela applique uniquement les migrations Prisma en attente, dont la table des commandes.
+   Cela applique uniquement les migrations Prisma en attente, dont la table des commandes. Les déploiements Vercel exécutent cette commande automatiquement via `vercel.json`.
 
 #### Option B: Utiliser Vercel Postgres
 
@@ -110,14 +110,7 @@ Le script importe les anciennes données JSON sans remplacer les enregistrements
 
 ### 6. Lancer le déploiement
 
-Après vérification des migrations et des images, déployez le dépôt dans Vercel. Les variables de stockage doivent être configurées dans **Settings > Environment Variables** pour l'environnement **Production** avant le redéploiement.
-
-Ou configurez dans `vercel.json`:
-```json
-{
-  "buildCommand": "npx prisma migrate deploy && npm run build"
-}
-```
+Après vérification des migrations et des images, déployez le dépôt dans Vercel. Son build applique automatiquement les migrations en attente, puis compile l'application. Configurez `DATABASE_URL` dans chaque environnement Vercel visé pour que les migrations ciblent la bonne base.
 
 ## Configuration Actuelle
 
