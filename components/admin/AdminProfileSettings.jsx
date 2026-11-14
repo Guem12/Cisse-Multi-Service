@@ -2,6 +2,30 @@ import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { signOut } from "@/lib/astro-compat";
 
+async function readApiResponse(response, operation) {
+  let data;
+  try {
+    data = await response.json();
+  } catch (error) {
+    console.error(`[AdminProfileSettings] ${operation} returned invalid JSON`, {
+      status: response.status,
+      error,
+    });
+    throw new Error("Le serveur a renvoyé une réponse invalide.");
+  }
+
+  if (!response.ok) {
+    console.error(`[AdminProfileSettings] ${operation} failed`, {
+      status: response.status,
+      requestId: data.requestId,
+      error: data.error,
+    });
+    throw new Error(data.error || "La requête a échoué.");
+  }
+
+  return data;
+}
+
 export default function AdminProfileSettings() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -36,10 +60,7 @@ export default function AdminProfileSettings() {
     try {
       setLoading(true);
       const res = await fetch("/api/admin/profile");
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Erreur lors du chargement du profil.");
-      }
+      const data = await readApiResponse(res, "GET /api/admin/profile");
       if (!data.profile) {
         throw new Error("Les informations du profil sont indisponibles.");
       }
@@ -97,10 +118,7 @@ export default function AdminProfileSettings() {
         body: fd,
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Erreur lors du téléversement de la photo.");
-      }
+      const data = await readApiResponse(res, "POST /api/admin/upload");
 
       if (data.url) {
         setProfile((prev) => ({ ...prev, avatar: data.url }));
@@ -149,12 +167,7 @@ export default function AdminProfileSettings() {
         }),
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setErrorMsg(data.error || "Erreur lors de l'enregistrement");
-        return;
-      }
+      const data = await readApiResponse(res, "PUT /api/admin/profile");
 
       setSuccessMsg("Informations et mot de passe enregistrés avec succès !");
       setPasswords({ newPassword: "", confirmPassword: "" });
@@ -168,8 +181,8 @@ export default function AdminProfileSettings() {
         setModalOpen(false);
       }, 1500);
     } catch (err) {
-      console.error(err);
-      setErrorMsg("Une erreur est survenue lors de la sauvegarde.");
+      console.error("[AdminProfileSettings] save failed", err);
+      setErrorMsg(err.message || "Une erreur est survenue lors de la sauvegarde.");
     } finally {
       setSaving(false);
     }
