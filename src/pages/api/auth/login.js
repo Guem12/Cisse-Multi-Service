@@ -91,6 +91,9 @@ export async function POST({ request }) {
 
   try {
     const cookie = createAdminSessionCookie(admin);
+    if (admin.accountType === "recovery") {
+      console.info("Recovery administrator login succeeded.", { accountType: "recovery" });
+    }
     if (isJson) {
       return Response.json({ success: true }, { headers: { "Set-Cookie": cookie } });
     }

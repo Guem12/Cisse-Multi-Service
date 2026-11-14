@@ -6,7 +6,7 @@ const callbackUrl = callbackCandidate.startsWith("/") && !callbackCandidate.star
   ? callbackCandidate
   : "/admin";
 const error = Astro.url.searchParams.get("error");
-const twoFactorEnabled = Boolean(process.env.ADMIN_TOTP_SECRET);
+const twoFactorEnabled = Boolean(process.env.ADMIN_TOTP_SECRET || process.env.ADMIN_RECOVERY_TOTP_SECRET);
 ---
 
 <SiteLayout title="Connexion administrateur · Cissé Multi-Service" chrome={false} noindex={true}>
@@ -61,7 +61,8 @@ const twoFactorEnabled = Boolean(process.env.ADMIN_TOTP_SECRET);
           {twoFactorEnabled && (
             <label class="block">
               <span class="lbl">Code de vérification</span>
-              <input class="input-admin" type="text" name="totpCode" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required />
+              <input class="input-admin" type="text" name="totpCode" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" />
+              <span class="mt-1 block text-xs text-white/45">Requis si la double authentification est activée pour ce compte.</span>
             </label>
           )}
           <button type="submit" class="btn-submit">Se connecter</button>

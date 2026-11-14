@@ -28,6 +28,8 @@ Avant le déploiement, configurez ces variables dans Vercel:
 
 7. **ADMIN_TOTP_SECRET** - Secret TOTP Base32 facultatif pour demander un code à usage unique à la connexion
 
+Pour garder un accès de secours indépendant du profil administrateur modifiable, configurez aussi **ADMIN_RECOVERY_EMAIL**, **ADMIN_RECOVERY_PASSWORD** et **ADMIN_RECOVERY_TOTP_SECRET**. Les trois variables sont nécessaires. Utilisez une adresse, un mot de passe et un secret TOTP distincts du compte principal; l’utilisation du compte de secours est journalisée. Ajoutez ces secrets dans l’environnement Production de Vercel, jamais dans le dépôt ni dans une conversation.
+
 La limitation des tentatives de connexion utilise PostgreSQL lorsqu’il est configuré.
 
 8. **NEON_STORAGE_BUCKET** - `cisse-media`
