@@ -61,8 +61,19 @@ const twoFactorEnabled = Boolean(process.env.ADMIN_TOTP_SECRET || process.env.AD
           {twoFactorEnabled && (
             <label class="block">
               <span class="lbl">Code de vérification</span>
-              <input class="input-admin" type="text" name="totpCode" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" />
-              <span class="mt-1 block text-xs text-white/45">Requis si la double authentification est activée pour ce compte.</span>
+              <input
+                class="input-admin"
+                type="text"
+                name="totpCode"
+                inputmode="numeric"
+                pattern="[0-9]{6}"
+                maxlength="6"
+                autocomplete="one-time-code"
+                placeholder="Ex : 678716"
+              />
+              <span class="mt-1 block text-xs text-white/45">
+                Requis uniquement pour le compte administrateur de secours.
+              </span>
             </label>
           )}
           <button type="submit" class="btn-submit">Se connecter</button>

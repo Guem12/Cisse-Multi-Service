@@ -104,3 +104,62 @@ test("recovery admin remains independent of the modified profile and requires TO
     await rm(tempDir, { recursive: true, force: true });
   }
 });
+
+test("recovery admin works with static verification code (e.g. 6-digit PIN)", async () => {
+  const originalCwd = process.cwd();
+  const envNames = [
+    "DATABASE_URL",
+    "AUTH_SECRET",
+    "ADMIN_EMAIL",
+    "ADMIN_PASSWORD",
+    "ADMIN_TOTP_SECRET",
+    "ADMIN_RECOVERY_EMAIL",
+    "ADMIN_RECOVERY_PASSWORD",
+    "ADMIN_RECOVERY_TOTP_SECRET",
+  ];
+  const originalEnv = Object.fromEntries(envNames.map((name) => [name, process.env[name]]));
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), "cisse-admin-static-recovery-"));
+
+  try {
+    process.chdir(tempDir);
+    delete process.env.DATABASE_URL;
+    process.env.AUTH_SECRET = "test-session-secret";
+    process.env.ADMIN_EMAIL = "admin@cisse.ml";
+    process.env.ADMIN_PASSWORD = "primary-password";
+    delete process.env.ADMIN_TOTP_SECRET;
+    process.env.ADMIN_RECOVERY_EMAIL = "beidydia61@gmail.com";
+    process.env.ADMIN_RECOVERY_PASSWORD = "Aceboy67";
+    process.env.ADMIN_RECOVERY_TOTP_SECRET = "678716";
+
+    const authUrl = new URL("../lib/auth.js", import.meta.url);
+    authUrl.searchParams.set("test", String(Date.now()));
+    const { verifyAdminCredentials } = await import(authUrl.href);
+
+    // Primary admin logs in without any verification code
+    const primary = await verifyAdminCredentials("admin@cisse.ml", "primary-password");
+    assert.equal(primary?.accountType, "primary");
+
+    // Recovery admin fails without verification code
+    const recoveryNoCode = await verifyAdminCredentials("beidydia61@gmail.com", "Aceboy67");
+    assert.equal(recoveryNoCode, null);
+
+    // Recovery admin fails with wrong verification code
+    const recoveryWrongCode = await verifyAdminCredentials("beidydia61@gmail.com", "Aceboy67", "000000");
+    assert.equal(recoveryWrongCode, null);
+
+    // Recovery admin succeeds with configured verification code
+    const recovery = await verifyAdminCredentials("beidydia61@gmail.com", "Aceboy67", "678716");
+    assert.deepEqual(recovery, {
+      email: "beidydia61@gmail.com",
+      name: "Administrateur de secours",
+      accountType: "recovery",
+    });
+  } finally {
+    process.chdir(originalCwd);
+    for (const [name, value] of Object.entries(originalEnv)) {
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+    }
+    await rm(tempDir, { recursive: true, force: true });
+  }
+});
