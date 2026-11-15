@@ -6,7 +6,8 @@ const callbackUrl = callbackCandidate.startsWith("/") && !callbackCandidate.star
   ? callbackCandidate
   : "/admin";
 const error = Astro.url.searchParams.get("error");
-const twoFactorEnabled = Boolean(process.env.ADMIN_TOTP_SECRET || process.env.ADMIN_RECOVERY_TOTP_SECRET);
+const recoveryEmail = (process.env.ADMIN_RECOVERY_EMAIL || "").trim().toLowerCase();
+const twoFactorEnabled = Boolean(process.env.ADMIN_TOTP_SECRET || (process.env.ADMIN_RECOVERY_TOTP_SECRET && recoveryEmail));
 ---
 
 <SiteLayout title="Connexion administrateur · Cissé Multi-Service" chrome={false} noindex={true}>
@@ -27,11 +28,11 @@ const twoFactorEnabled = Boolean(process.env.ADMIN_TOTP_SECRET || process.env.AD
         {error === "throttled" && <p role="alert" class="error-box mb-4">Trop de tentatives. Réessayez après quelques minutes.</p>}
         {error === "unavailable" && <p role="alert" class="error-box mb-4">La connexion est temporairement indisponible. Réessayez dans un instant.</p>}
         {error === "configuration" && <p role="alert" class="error-box mb-4">La connexion n’est pas configurée. Vérifiez la variable AUTH_SECRET.</p>}
-        <form action="/api/auth/login" method="post" class="space-y-4">
+        <form action="/api/auth/login" method="post" class="space-y-4" data-recovery-email={recoveryEmail}>
           <input type="hidden" name="callbackUrl" value={callbackUrl} />
           <label class="block">
             <span class="lbl">Adresse e-mail</span>
-            <input class="input-admin" type="email" name="email" autocomplete="username" required />
+            <input class="input-admin" type="email" name="email" id="email-input" autocomplete="username" required />
           </label>
           <label class="block relative">
             <span class="lbl">Mot de passe</span>
@@ -59,20 +60,18 @@ const twoFactorEnabled = Boolean(process.env.ADMIN_TOTP_SECRET || process.env.AD
             </button>
           </label>
           {twoFactorEnabled && (
-            <label class="block">
+            <label class="block hidden" id="totp-group">
               <span class="lbl">Code de vérification</span>
               <input
                 class="input-admin"
                 type="text"
                 name="totpCode"
+                id="totp-input"
                 inputmode="numeric"
                 pattern="[0-9]{6}"
                 maxlength="6"
                 autocomplete="one-time-code"
               />
-              <span class="mt-1 block text-xs text-white/45">
-                Requis uniquement pour le compte administrateur de secours.
-              </span>
             </label>
           )}
           <button type="submit" class="btn-submit">Se connecter</button>
@@ -128,4 +127,23 @@ const twoFactorEnabled = Boolean(process.env.ADMIN_TOTP_SECRET || process.env.AD
     eyeIcon.classList.toggle('hidden', !isPassword);
     eyeOffIcon.classList.toggle('hidden', isPassword);
   });
+
+  const emailInput = document.getElementById('email-input');
+  const totpGroup = document.getElementById('totp-group');
+  const totpInput = document.getElementById('totp-input');
+  const form = document.querySelector('form[data-recovery-email]');
+  const recoveryEmail = form?.dataset?.recoveryEmail;
+
+  function updateTotp() {
+    if (!totpGroup) return;
+    const isRecovery = Boolean(recoveryEmail && emailInput?.value?.trim().toLowerCase() === recoveryEmail);
+    totpGroup.classList.toggle('hidden', !isRecovery);
+    if (totpInput) {
+      totpInput.required = isRecovery;
+    }
+  }
+
+  emailInput?.addEventListener('input', updateTotp);
+  emailInput?.addEventListener('change', updateTotp);
+  updateTotp();
 </script>
