@@ -29,29 +29,29 @@ const productLabel = facts.productCount > 1 ? "Produits" : "Produit";
 
 <SiteLayout title={DEFAULT_TITLE} description={description}>
   <section class="motif-tissu overlay-dark overflow-hidden text-white">
-    <div class="wrap grid grid-cols-1 items-center gap-10 py-14 sm:py-20 lg:grid-cols-[1fr_0.9fr]">
+    <div class="wrap grid grid-cols-1 items-center gap-6 py-8 sm:gap-10 sm:py-16 lg:grid-cols-[1fr_0.9fr] lg:py-20">
       <div class="flex max-w-3xl flex-col items-start text-left lg:max-w-2xl">
-        <h1 class="max-w-2xl font-titre text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+        <h1 class="max-w-2xl font-titre text-3xl font-extrabold leading-[1.1] tracking-tight xs:text-4xl sm:text-5xl lg:text-6xl">
           Affirmez <span class="text-ocre">votre style.</span>
         </h1>
-        <p class="mt-5 max-w-md text-base text-white/85 sm:text-lg">
+        <p class="mt-4 max-w-md text-sm leading-relaxed text-white/85 sm:mt-5 sm:text-lg">
           {soldCategories.length
             ? `Découvrez ${assortmentPhrase(soldCategories)} disponibles en ligne. Commandez sur WhatsApp ; la livraison à Bamako est confirmée selon votre trajet.`
             : "Découvrez nos accessoires disponibles en ligne. Commandez sur WhatsApp ; la livraison à Bamako est confirmée selon votre trajet."}
         </p>
-        <div class="mt-8 flex flex-wrap items-center gap-4">
-          <a href="/catalogue" class="rounded-full bg-ocre px-7 py-3.5 font-bold text-indigo-deep shadow-lg transition-transform hover:scale-105 active:scale-95">Voir le catalogue</a>
-          <a href={waLink(phone)} target="_blank" rel="noopener noreferrer" class="rounded-full border-2 border-white/40 px-6 py-3 font-semibold text-white transition-colors hover:bg-white/10 active:scale-95">Commander par WhatsApp</a>
+        <div class="mt-6 flex w-full flex-col gap-3 sm:mt-8 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
+          <a href="/catalogue" class="inline-flex min-h-[48px] w-full items-center justify-center rounded-full bg-ocre px-7 py-3 text-center text-sm font-bold text-indigo-deep shadow-lg transition-transform hover:scale-105 active:scale-95 sm:w-auto sm:text-base">Voir le catalogue</a>
+          <a href={waLink(phone)} target="_blank" rel="noopener noreferrer" class="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border-2 border-white/40 px-6 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10 active:scale-95 sm:w-auto sm:text-base">Commander par WhatsApp</a>
         </div>
-        <div class="mt-10 grid grid-cols-2 gap-4 sm:flex sm:gap-8">
+        <div class="mt-8 grid w-full grid-cols-3 gap-2 border-t border-white/10 pt-5 text-center sm:mt-10 sm:flex sm:w-auto sm:border-0 sm:pt-0 sm:text-left sm:gap-8">
           <div>
-            <span class="block font-titre text-2xl font-extrabold tabular-nums text-ocre">{facts.productCount}</span>
-            <span class="text-xs uppercase tracking-wider text-white/70">{productLabel}</span>
+            <span class="block font-titre text-xl font-extrabold tabular-nums text-ocre sm:text-2xl">{facts.productCount}</span>
+            <span class="text-[10px] uppercase tracking-wider text-white/70 sm:text-xs">{productLabel}</span>
           </div>
           <div class="hidden w-px bg-white/20 sm:block"></div>
-          <div><span class="block text-2xl font-extrabold text-ocre">WhatsApp</span><span class="text-xs uppercase tracking-wider text-white/70">Commande rapide</span></div>
+          <div><span class="block font-titre text-xl font-extrabold text-ocre sm:text-2xl">WhatsApp</span><span class="text-[10px] uppercase tracking-wider text-white/70 sm:text-xs">Commande rapide</span></div>
           <div class="hidden w-px bg-white/20 sm:block"></div>
-          <div><span class="block text-2xl font-extrabold text-ocre">Bamako</span><span class="text-xs uppercase tracking-wider text-white/70">Livraison selon trajet</span></div>
+          <div><span class="block font-titre text-xl font-extrabold text-ocre sm:text-2xl">Bamako</span><span class="text-[10px] uppercase tracking-wider text-white/70 sm:text-xs">Livraison directe</span></div>
         </div>
       </div>
       {featuredProduct && <HeroSpotlight product={featuredProduct} imageIndex={heroSelection.imageIndex} phone={phone} />}
@@ -60,20 +60,20 @@ const productLabel = facts.productCount > 1 ? "Produits" : "Produit";
 
   <div class="pb-16">
     <div class="wrap">
-      <section class="mt-10" aria-labelledby="categories-titre">
+      <section class="mt-8 sm:mt-10" aria-labelledby="categories-titre">
         <div class="flex items-end justify-between gap-4">
           <div>
             <p class="text-xs font-bold uppercase tracking-[0.14em] text-brule dark:text-ocre">Catalogue</p>
-            <h2 id="categories-titre" class="mt-1 font-titre text-2xl font-bold text-page-main">Catégories en vente</h2>
+            <h2 id="categories-titre" class="mt-0.5 font-titre text-xl font-bold text-page-main sm:text-2xl">Catégories en vente</h2>
           </div>
-          <a href="/catalogue" class="mb-1 shrink-0 text-sm font-bold text-indigo hover:text-brule dark:text-ocre dark:hover:text-amber-300">Tout voir <span aria-hidden="true">→</span></a>
+          <a href="/catalogue" class="mb-0.5 shrink-0 text-sm font-bold text-indigo hover:text-brule dark:text-ocre dark:hover:text-amber-300">Tout voir <span aria-hidden="true">→</span></a>
         </div>
         {soldCategories.length === 0 ? (
           <p class="mt-4 text-page-muted">Aucune catégorie avec un produit en ligne pour le moment.</p>
         ) : (
-          <ul class="-mx-4 mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:gap-5 sm:px-0">
+          <ul class="-mx-4 mt-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-3 scrollbar-none sm:mx-0 sm:gap-5 sm:px-0">
             {soldCategories.map((category) => (
-              <li class="w-44 shrink-0 snap-start sm:w-52">
+              <li class="w-36 shrink-0 snap-start sm:w-52">
                 <a href={`/catalogue?categorie=${encodeURIComponent(category.slug)}`} class="group block overflow-hidden rounded-xl border border-black/10 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocre">
                   <div class="aspect-[4/3] overflow-hidden bg-gray-100">
                     {category.image ? (
@@ -84,9 +84,9 @@ const productLabel = facts.productCount > 1 ? "Produits" : "Produit";
                       </div>
                     )}
                   </div>
-                  <div class="flex min-h-14 items-center justify-between gap-2 px-3.5 py-3">
-                    <span class="font-titre text-sm font-bold leading-snug text-black sm:text-base">{category.name}</span>
-                    <span aria-hidden="true" class="shrink-0 text-sm font-bold text-black/45 transition group-hover:translate-x-0.5 group-hover:text-black">→</span>
+                  <div class="flex min-h-12 items-center justify-between gap-1.5 px-3 py-2.5 sm:min-h-14 sm:gap-2 sm:px-3.5 sm:py-3">
+                    <span class="font-titre text-xs font-bold leading-snug text-black sm:text-base">{category.name}</span>
+                    <span aria-hidden="true" class="shrink-0 text-xs font-bold text-black/45 transition group-hover:translate-x-0.5 group-hover:text-black sm:text-sm">→</span>
                   </div>
                 </a>
               </li>
@@ -96,11 +96,11 @@ const productLabel = facts.productCount > 1 ? "Produits" : "Produit";
       </section>
     </div>
 
-    <section class="mt-12" aria-labelledby="nouveautes-titre">
-      <div class="mx-auto max-w-[1200px] px-6">
+    <section class="mt-10 sm:mt-12" aria-labelledby="nouveautes-titre">
+      <div class="mx-auto max-w-[1200px] px-4 sm:px-6">
         <div class="flex flex-col items-center justify-between gap-3 text-center sm:flex-row sm:text-left">
-          <h2 id="nouveautes-titre" class="font-titre text-2xl font-bold text-page-main">À découvrir en ligne</h2>
-          <a href="/catalogue" class="inline-flex items-center gap-2 rounded-full border border-ocre bg-ocre px-4 py-2 text-sm font-bold text-indigo-deep shadow-sm transition hover:-translate-y-0.5 hover:bg-yellow-500 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocre">
+          <h2 id="nouveautes-titre" class="font-titre text-xl font-bold text-page-main sm:text-2xl">À découvrir en ligne</h2>
+          <a href="/catalogue" class="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-ocre bg-ocre px-4 py-2 text-sm font-bold text-indigo-deep shadow-sm transition hover:-translate-y-0.5 hover:bg-yellow-500 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocre">
             Voir tout le catalogue
             <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" class="h-4 w-4">
               <path d="M4.167 10h11.666m0 0-5-5m5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
@@ -110,11 +110,11 @@ const productLabel = facts.productCount > 1 ? "Produits" : "Produit";
         {products.length === 0 ? (
           <p class="mt-4 text-page-muted">Aucun produit pour le moment.</p>
         ) : (
-          <div class="mt-4 grid grid-cols-2 gap-5 lg:grid-cols-4">
+          <div class="mt-4 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
             {products.slice(0, 12).map((product) => <ProductCard product={product} centered featuredGrid />)}
           </div>
         )}
-        </div>
+      </div>
     </section>
 
     <div class="wrap">

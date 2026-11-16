@@ -7,6 +7,8 @@ export default function ProductGallery({ images = [], name, stock = 0 }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [zoom, setZoom] = useState(false);
   const dialogRef = useRef(null);
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
   const safeImages = images.filter((image) => image?.url);
   const active = safeImages[selectedIndex] || safeImages[0];
   const inStock = stock > 0;
@@ -24,9 +26,34 @@ export default function ProductGallery({ images = [], name, stock = 0 }) {
     setSelectedIndex((index) => (index + delta + safeImages.length) % safeImages.length);
   }
 
+  function handleTouchStart(e) {
+    if (!e.touches?.[0]) return;
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  }
+
+  function handleTouchEnd(e) {
+    if (!touchStartX.current || !e.changedTouches?.[0]) return;
+    const diffX = touchStartX.current - e.changedTouches[0].clientX;
+    const diffY = touchStartY.current - e.changedTouches[0].clientY;
+    if (Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY)) {
+      if (diffX > 0) {
+        step(1);
+      } else {
+        step(-1);
+      }
+    }
+    touchStartX.current = 0;
+    touchStartY.current = 0;
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-3 md:max-w-none">
-      <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-indigo/10 bg-white shadow-sm dark:border-white/10 dark:bg-[#141D3D]">
+      <div
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        className="relative aspect-square w-full overflow-hidden rounded-2xl border border-indigo/10 bg-white shadow-sm dark:border-white/10 dark:bg-[#141D3D] select-none"
+      >
         {active ? (
           <button
             type="button"
@@ -56,6 +83,19 @@ export default function ProductGallery({ images = [], name, stock = 0 }) {
         >
           {!inStock ? "Rupture" : low ? "Dernières pièces" : "En stock"}
         </span>
+
+        {safeImages.length > 1 && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center gap-1.5 md:hidden">
+            {safeImages.map((_, idx) => (
+              <span
+                key={idx}
+                className={`h-1.5 rounded-full transition-all ${
+                  idx === selectedIndex ? "w-5 bg-ocre shadow" : "w-1.5 bg-white/60"
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {safeImages.length > 1 && (

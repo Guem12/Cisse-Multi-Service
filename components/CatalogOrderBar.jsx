@@ -29,21 +29,24 @@ export default function CatalogOrderBar({ phone = "22362823995" }) {
 
   return (
     <>
-      <div className="h-28 lg:h-20" aria-hidden="true" />
-      <aside className="fixed inset-x-0 bottom-[calc(3rem+env(safe-area-inset-bottom))] z-30 border-t border-indigo/10 bg-white/95 px-4 py-3 shadow-[0_-8px_24px_rgba(4,10,26,0.12)] backdrop-blur dark:border-white/10 dark:bg-[#0E1530]/95 lg:bottom-0">
-        <div className="mx-auto flex max-w-5xl flex-col gap-2 sm:flex-row sm:items-center sm:justify-between lg:pr-20">
-          <p aria-live="polite" className="text-sm font-semibold text-indigo-deep dark:text-white">
-            Ma commande ({count} article{count === 1 ? "" : "s"}) <span aria-hidden="true">·</span> Total {formatPrice(total)}
-          </p>
-          <div className="flex flex-col gap-1">
-            <button
-              type="button"
-              onClick={continueOrder}
-              className="inline-flex min-h-11 items-center justify-center rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-700"
-            >
-              Finaliser ma commande
-            </button>
+      <div className="h-24 lg:h-20" aria-hidden="true" />
+      <aside className="fixed inset-x-0 bottom-0 z-30 border-t border-indigo/10 bg-white/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-[0_-8px_24px_rgba(4,10,26,0.15)] backdrop-blur dark:border-white/10 dark:bg-[#0E1530]/95">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 lg:pr-20">
+          <div className="min-w-0">
+            <p aria-live="polite" className="text-xs font-semibold text-indigo-deep dark:text-white truncate sm:text-sm">
+              Ma commande ({count} {count === 1 ? "article" : "articles"})
+            </p>
+            <p className="font-titre text-base font-extrabold text-emerald-600 dark:text-emerald-400 sm:text-lg">
+              {formatPrice(total)}
+            </p>
           </div>
+          <button
+            type="button"
+            onClick={continueOrder}
+            className="inline-flex min-h-[44px] shrink-0 items-center justify-center rounded-full bg-emerald-600 px-5 py-2 text-xs font-bold text-white shadow transition hover:bg-emerald-700 active:scale-95 sm:text-sm"
+          >
+            Finaliser ma commande
+          </button>
         </div>
       </aside>
     </>

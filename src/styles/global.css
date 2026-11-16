@@ -28,12 +28,21 @@ html.dark {
 }
 
 @layer base {
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
 
   body {
     background-color: var(--bg-page);
     color: var(--text-main);
     @apply font-sans antialiased transition-colors duration-300;
+    overscroll-behavior-y: none;
+  }
+
+  /* Optimisation tactile pour mobile : réactivité immédiate sans délai de 300ms */
+  button, a, input, select, textarea {
+    touch-action: manipulation;
   }
 
   /* Tous les éléments de fond héritent automatiquement */
@@ -54,6 +63,15 @@ html.dark {
   }
   .skip-link:focus {
     top: 1rem;
+  }
+
+  /* Masquer la barre de défilement tout en gardant le défilement tactile */
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 
   /* Scrollbar discrète en mode sombre */

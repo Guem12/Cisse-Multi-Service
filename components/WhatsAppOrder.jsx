@@ -92,16 +92,22 @@ export default function WhatsAppOrder({ name, price, stock, slug, image, variant
         <p className="mt-3 text-center text-xs leading-relaxed text-indigo/70 dark:text-white/70">Livraison selon le trajet, chiffrée sur WhatsApp avant confirmation.</p>
       </div>
 
-      <div className="fixed inset-x-0 bottom-16 z-40 border-t border-white/10 bg-indigo-deep px-4 py-3 lg:hidden">
-        <div className="flex items-center gap-3">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#0E1530]/95 backdrop-blur-lg px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] shadow-[0_-8px_24px_rgba(0,0,0,0.3)] lg:hidden">
+        <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
           <div className="min-w-0">
-            <p className="truncate text-sm font-bold text-white">{name}</p>
-            <p className="font-titre text-base font-extrabold text-ocre">{formatPrice(price * qty)}</p>
+            <p className="truncate text-xs font-medium text-white/70">{name}</p>
+            <p className="font-titre text-lg font-extrabold text-ocre">{formatPrice(price * qty)}</p>
           </div>
-          <button type="button" onClick={() => addProduct(numbers[0], true)} className="ml-auto shrink-0 rounded-full bg-ocre px-4 py-3 text-sm font-extrabold text-indigo-deep">Commander</button>
+          <button
+            type="button"
+            onClick={() => addProduct(numbers[0], true)}
+            className="shrink-0 inline-flex min-h-[44px] items-center justify-center rounded-full bg-ocre px-5 py-2 text-sm font-extrabold text-indigo-deep shadow-md active:scale-95 transition-transform"
+          >
+            Commander
+          </button>
         </div>
       </div>
-      <div className="h-36 lg:hidden" aria-hidden="true" />
+      <div className="h-24 lg:hidden" aria-hidden="true" />
     </>
   );
 }

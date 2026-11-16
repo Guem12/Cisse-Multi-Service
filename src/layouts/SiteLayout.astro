@@ -186,7 +186,12 @@ const graph = [localBusiness, ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [js
           href={waLink(whatsappNumbers[0])}
           target="_blank"
           rel="noopener noreferrer"
-          class:list={["fixed right-4 z-30 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#128C7E] text-white shadow-lg transition hover:bg-[#0d6e63] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocre", orderBar ? "bottom-36 lg:bottom-5" : "bottom-5"]}
+          class:list={[
+            "fixed right-4 z-30 inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#128C7E] text-white shadow-lg transition hover:bg-[#0d6e63] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocre active:scale-95",
+            orderBar
+              ? "bottom-[calc(8.5rem+env(safe-area-inset-bottom,0px))] lg:bottom-5"
+              : "bottom-[calc(1.25rem+env(safe-area-inset-bottom,0px))]",
+          ]}
           aria-label={`Écrire à ${BRAND} sur WhatsApp`}
         >
           <svg viewBox="0 0 24 24" fill="currentColor" class="h-7 w-7" aria-hidden="true">

@@ -53,36 +53,100 @@ const filtersOn = Boolean(query || priceBand || (sort && sort !== "recent") || a
 
 <SiteLayout title={title} description={description}>
   <div class="wrap pb-16">
-    <h1 class="mt-8 text-center font-titre text-4xl font-extrabold text-page-main sm:text-5xl">
+    <h1 class="mt-6 text-center font-titre text-3xl font-extrabold text-page-main sm:mt-8 sm:text-5xl">
       {currentCategory ? currentCategory.name : "Catalogue"}
     </h1>
-    <p class="mx-auto mt-2 max-w-2xl text-center text-page-muted">Choisissez vos articles, puis commandez sur WhatsApp.</p>
+    <p class="mx-auto mt-1 max-w-2xl text-center text-sm text-page-muted sm:text-base">Choisissez vos articles, puis commandez sur WhatsApp.</p>
 
-    <form id="catalogue-filters" method="get" action="/catalogue" class="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,1fr))_auto]" role="search">
-      <label class="block min-w-0 text-center text-sm font-semibold text-page-main">
-        Recherche
-        <input class="field mt-1 min-h-12 w-full" type="search" name="q" value={query} maxlength="80" placeholder="Nom ou description" />
-      </label>
-      <label class="block min-w-0 text-center text-sm font-semibold text-page-main">
-        Catégorie
-        <select class="field mt-1 min-h-12 w-full" name="categorie">
-          <option value="" selected={!active}>Toutes les catégories</option>
-          {categories.map((category) => <option value={category.slug} selected={active === category.slug}>{category.name}</option>)}
-        </select>
-      </label>
-      <label class="block min-w-0 text-center text-sm font-semibold text-page-main">
-        Prix
-        <select class="field mt-1 min-h-12 w-full" name="prix">
-          {PRICE_BANDS.map((band) => <option value={band.value} selected={priceBand === band.value}>{band.label}</option>)}
-        </select>
-      </label>
-      <label class="block min-w-0 text-center text-sm font-semibold text-page-main">
-        Trier
-        <select class="field mt-1 min-h-12 w-full" name="tri">
-          {SORTS.map((item) => <option value={item.value} selected={sort === item.value}>{item.label}</option>)}
-        </select>
-      </label>
-      {filtersOn && <a href="/catalogue" class="inline-flex min-h-12 items-center justify-center rounded-full border px-4 text-sm font-semibold" style="border-color: var(--border);">Réinitialiser</a>}
+    <!-- Pills de navigation rapide par catégorie (Mobile First) -->
+    <div class="-mx-4 mt-5 flex snap-x gap-2 overflow-x-auto px-4 pb-2 scrollbar-none sm:mx-0 sm:flex-wrap sm:justify-center">
+      <a
+        href={pageHref(1, { categorie: "" })}
+        class:list={[
+          "inline-flex shrink-0 snap-start items-center rounded-full px-4 py-2 text-xs font-bold transition-all sm:text-sm",
+          !active
+            ? "bg-ocre text-indigo-deep shadow-sm"
+            : "border border-black/10 bg-white text-page-main hover:bg-black/5 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10",
+        ]}
+      >
+        Toutes les catégories
+      </a>
+      {categories.map((cat) => (
+        <a
+          href={pageHref(1, { categorie: cat.slug })}
+          class:list={[
+            "inline-flex shrink-0 snap-start items-center rounded-full px-4 py-2 text-xs font-bold transition-all sm:text-sm",
+            active === cat.slug
+              ? "bg-ocre text-indigo-deep shadow-sm"
+              : "border border-black/10 bg-white text-page-main hover:bg-black/5 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10",
+          ]}
+        >
+          {cat.name}
+        </a>
+      ))}
+    </div>
+
+    <!-- Recherche et Filtres -->
+    <form id="catalogue-filters" method="get" action="/catalogue" class="mt-4" role="search">
+      <div class="flex items-center gap-2">
+        <div class="relative flex-1">
+          <input
+            class="field min-h-11 w-full pl-9 pr-3 text-sm"
+            type="search"
+            name="q"
+            value={query}
+            maxlength="80"
+            placeholder="Rechercher un article…"
+          />
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-page-faint">
+            <circle cx="9" cy="9" r="6" />
+            <path d="m13.5 13.5 4 4" stroke-linecap="round" />
+          </svg>
+        </div>
+        <button
+          type="button"
+          id="toggle-filters-btn"
+          class:list={[
+            "inline-flex min-h-11 items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-bold transition sm:hidden",
+            filtersOn ? "border-ocre bg-ocre/15 text-ocre" : "border-black/10 bg-white text-page-main dark:border-white/10 dark:bg-white/5",
+          ]}
+          aria-expanded="false"
+          aria-controls="filters-panel"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+          </svg>
+          <span>Filtres</span>
+          {filtersOn && <span class="h-1.5 w-1.5 rounded-full bg-ocre"></span>}
+        </button>
+      </div>
+
+      <div id="filters-panel" class="mt-3 hidden sm:grid sm:grid-cols-3 sm:gap-3 lg:grid-cols-[repeat(3,minmax(0,1fr))_auto]">
+        <label class="block min-w-0 text-xs font-semibold text-page-main sm:text-sm">
+          Catégorie
+          <select class="field mt-1 min-h-11 w-full text-sm" name="categorie">
+            <option value="" selected={!active}>Toutes les catégories</option>
+            {categories.map((category) => <option value={category.slug} selected={active === category.slug}>{category.name}</option>)}
+          </select>
+        </label>
+        <label class="block min-w-0 text-xs font-semibold text-page-main sm:text-sm">
+          Prix
+          <select class="field mt-1 min-h-11 w-full text-sm" name="prix">
+            {PRICE_BANDS.map((band) => <option value={band.value} selected={priceBand === band.value}>{band.label}</option>)}
+          </select>
+        </label>
+        <label class="block min-w-0 text-xs font-semibold text-page-main sm:text-sm">
+          Trier
+          <select class="field mt-1 min-h-11 w-full text-sm" name="tri">
+            {SORTS.map((item) => <option value={item.value} selected={sort === item.value}>{item.label}</option>)}
+          </select>
+        </label>
+        {filtersOn && (
+          <div class="flex items-end pt-2 sm:pt-0">
+            <a href="/catalogue" class="inline-flex min-h-11 w-full items-center justify-center rounded-xl border px-4 text-xs font-semibold text-page-main hover:bg-black/5 dark:hover:bg-white/5 sm:w-auto sm:text-sm" style="border-color: var(--border);">Réinitialiser</a>
+          </div>
+        )}
+      </div>
     </form>
 
     {products.items.length === 0 ? (
@@ -153,4 +217,14 @@ const filtersOn = Boolean(query || priceBand || (sort && sort !== "recent") || a
   });
 
   form.addEventListener("submit", () => window.clearTimeout(searchTimeout));
+
+  const toggleBtn = document.querySelector("#toggle-filters-btn");
+  const filtersPanel = document.querySelector("#filters-panel");
+
+  toggleBtn?.addEventListener("click", () => {
+    if (!filtersPanel) return;
+    const isHidden = filtersPanel.classList.contains("hidden");
+    filtersPanel.classList.toggle("hidden", !isHidden);
+    toggleBtn.setAttribute("aria-expanded", String(isHidden));
+  });
 </script>

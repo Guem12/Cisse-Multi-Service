@@ -49,13 +49,13 @@ const productHref = `/produit/${product.slug}`;
 
   <div class:list={[featuredGrid ? "mt-auto" : "mt-3", "flex flex-col gap-1.5 border-t pt-2"]} style="border-color: var(--border);">
     {soldOut ? (
-      <button type="button" disabled class="w-full cursor-not-allowed rounded-xl bg-gray-100 py-2 text-center text-xs font-bold text-gray-400 dark:bg-white/10 dark:text-white/40">
+      <button type="button" disabled class="flex min-h-[40px] w-full cursor-not-allowed items-center justify-center rounded-xl bg-gray-100 py-2 text-center text-xs font-bold text-gray-400 dark:bg-white/10 dark:text-white/40">
         Rupture de stock
       </button>
     ) : needsVariantSelection ? (
       <a
         href={productHref}
-        class="flex w-full items-center justify-center rounded-xl bg-emerald-500 px-2 py-2 text-center text-xs font-bold text-white shadow-sm transition-all hover:bg-emerald-600 active:scale-[0.97] sm:text-sm"
+        class="flex min-h-[40px] w-full items-center justify-center rounded-xl bg-emerald-500 px-2 py-2 text-center text-xs font-bold text-white shadow-sm transition-all hover:bg-emerald-600 active:scale-[0.96] sm:min-h-[42px] sm:text-sm"
         title="Choisir les options du produit avant de commander"
       >
         Choisir les options
@@ -70,14 +70,14 @@ const productHref = `/produit/${product.slug}`;
           data-stock={product.stock}
           data-slug={product.slug}
           data-image={image || ""}
-          class="flex w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-500 px-2 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-emerald-600 active:scale-[0.97] sm:text-sm"
+          class="flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-500 px-2 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-emerald-600 active:scale-[0.96] sm:min-h-[42px] sm:text-sm"
           title="Ajouter cet article puis compléter votre commande"
         >
           <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4 shrink-0" aria-hidden="true">
             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
             <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.057 23.47a.5.5 0 0 0 .606.638l5.805-1.524A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.956 9.956 0 0 1-5.354-1.556l-.385-.229-3.994 1.048 1.07-3.908-.252-.402A9.964 9.964 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
           </svg>
-          <span class="truncate">Commander sur WhatsApp</span>
+          <span class="truncate">Commander</span>
         </button>
 
         <button
@@ -88,12 +88,12 @@ const productHref = `/produit/${product.slug}`;
           data-stock={product.stock}
           data-slug={product.slug}
           data-image={image || ""}
-          data-default-text="Ajouter à ma commande"
-          class="flex w-full items-center justify-center gap-1.5 rounded-xl border border-indigo/15 bg-gray-50 px-2 py-2 text-xs font-bold text-indigo-deep shadow-sm transition-all hover:bg-white active:scale-[0.97] dark:border-white/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15 sm:text-sm"
+          data-default-text="Ajouter"
+          class="flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-xl border border-indigo/15 bg-gray-50 px-2 py-2 text-xs font-bold text-indigo-deep shadow-sm transition-all hover:bg-white active:scale-[0.96] dark:border-white/15 dark:bg-white/10 dark:text-white dark:hover:bg-white/15 sm:min-h-[42px] sm:text-sm"
           title="Ajouter ce produit à votre liste de commande"
         >
           <span class="text-sm font-extrabold leading-none" aria-hidden="true">+</span>
-          <span class="truncate" data-add-label>Ajouter à ma commande</span>
+          <span class="truncate" data-add-label>Ajouter</span>
         </button>
       </>
     )}
