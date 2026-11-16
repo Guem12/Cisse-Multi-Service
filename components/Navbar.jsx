@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, usePathname } from "@/lib/astro-compat";
 import OrderDrawer from "@/components/OrderDrawer";
+import InstallButton from "@/components/InstallButton";
 import { getOrderItems } from "@/lib/cart";
 import { waLink } from "@/lib/store";
 
@@ -321,6 +322,7 @@ export default function Navbar() {
               </nav>
             </div>
             <div className="border-t border-white/10 px-5 py-5">
+              <InstallButton variant="drawer" className="mb-4" />
               <p className="mb-3 px-1 text-xs font-medium text-white/60">Besoin d’aide ? Écrivez-nous.</p>
               <a
                 href={waLink(orderPhone)}

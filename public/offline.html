@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Hors ligne · Cissé Multi-Service</title>
+    <meta name="theme-color" content="#1B2A5E" />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+        background-color: #1B2A5E;
+        color: #ffffff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        text-align: center;
+      }
+      .container {
+        max-width: 440px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 24px;
+        padding: 36px 28px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      }
+      .logo {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 20px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .badge {
+        display: inline-block;
+        background: rgba(224, 160, 48, 0.15);
+        color: #E0A030;
+        border: 1px solid rgba(224, 160, 48, 0.3);
+        border-radius: 9999px;
+        padding: 4px 12px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 12px;
+      }
+      h1 {
+        font-size: 22px;
+        font-weight: 800;
+        margin-bottom: 10px;
+        color: #ffffff;
+      }
+      p {
+        font-size: 14px;
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.8);
+        margin-bottom: 28px;
+      }
+      .actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .btn-reload {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-height: 44px;
+        background: linear-gradient(135deg, #E0A030, #c8901f);
+        color: #0E1530;
+        border: none;
+        border-radius: 14px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        transition: transform 0.15s ease, opacity 0.15s ease;
+      }
+      .btn-reload:hover {
+        opacity: 0.95;
+        transform: translateY(-1px);
+      }
+      .btn-reload:active {
+        transform: scale(0.98);
+      }
+      .btn-whatsapp {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        min-height: 44px;
+        background: #128C7E;
+        color: #ffffff;
+        border: none;
+        border-radius: 14px;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: transform 0.15s ease, background 0.15s ease;
+      }
+      .btn-whatsapp:hover {
+        background: #0d6e63;
+        transform: translateY(-1px);
+      }
+      .btn-whatsapp:active {
+        transform: scale(0.98);
+      }
+      .btn-whatsapp svg {
+        width: 18px;
+        height: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="48" height="48">
+          <path d="M82.29 39.93 A30 30 0 1 0 82.29 80.07" fill="none" stroke="#E0A030" stroke-width="15" stroke-linecap="round"/>
+          <path d="M60 50 L70 60 L60 70 L50 60 Z" fill="#F5F6FA"/>
+        </svg>
+      </div>
+      <span class="badge">Connexion perdue</span>
+      <h1>Cissé Multi-Service</h1>
+      <p>Vous êtes hors ligne. Reconnectez-vous pour voir la boutique.</p>
+      <div class="actions">
+        <button type="button" class="btn-reload" onclick="window.location.reload()">Réessayer</button>
+        <a href="https://wa.me/22362823995?text=Bonjour%20Ciss%C3%A9%20Multi-Service%2C%20je%20souhaite%20passer%20une%20commande." target="_blank" rel="noopener noreferrer" class="btn-whatsapp">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.855L.057 23.47a.5.5 0 0 0 .606.638l5.805-1.524A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.94 9.94 0 0 1-5.07-1.39l-.36-.21-3.45.9.92-3.36-.23-.37A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+            <path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.64.08-.3-.15-1.26-.46-2.39-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.88 1.21 3.07.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35z"/>
+          </svg>
+          Commander sur WhatsApp
+        </a>
+      </div>
+    </div>
+  </body>
+</html>
