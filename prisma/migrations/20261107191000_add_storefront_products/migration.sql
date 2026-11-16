@@ -100,7 +100,7 @@ FROM (
       'sacoche-telephone-bandouliere',
       'Sacoche téléphone bandoulière',
       'Une petite sacoche pratique pour garder votre téléphone et vos essentiels à portée de main.',
-      6500,
+      8500,
       10,
       '[{"url":"https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=80"}]',
       '[{"name":"Couleur","options":["Noir","Marron"]}]',

@@ -23,7 +23,7 @@ const { insertedIds } = await categories.insertMany(
 const demo = [
   [0, "Sac à dos urbain", 12500, 10],
   [1, "Écouteurs sans fil", 8000, 25],
-  [2, "Sac bandoulière", 6500, 15],
+  [2, "Sac bandoulière", 8500, 15],
   [3, "Montre classique", 15000, 8],
   [4, "Cagoule polaire", 2500, 30],
   [5, "Bracelet fantaisie", 3000, 40],
